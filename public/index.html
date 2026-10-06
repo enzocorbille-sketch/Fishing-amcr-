@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CATBET Fishing</title>
+<style>
+:root{color-scheme:dark;--bg:#04121f;--card:#0b2236;--card2:#12324d;--line:#1d4a6b;--tx:#e8f6ff;--mu:#7fb2d1;--pu:#38bdf8;--pk:#818cf8;--gr:#22e39a;--rd:#ff4d6d;--gold:#fbbf24;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;color:var(--tx);font-family:Inter,system-ui,Segoe UI,Roboto,sans-serif;background:radial-gradient(900px 500px at 15% -10%,#0e4a7a 0,transparent 60%),radial-gradient(800px 500px at 100% 100%,#312e81 0,transparent 55%),var(--bg);min-height:100vh}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;gap:12px;padding:12px 16px;background:#04121fe6;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{font-weight:900;font-size:20px;background:linear-gradient(90deg,var(--pu),var(--pk));-webkit-background-clip:text;background-clip:text;color:transparent}
+nav{display:flex;gap:6px;flex:1;overflow-x:auto}
+nav button{background:none;border:0;color:var(--mu);font-weight:600;padding:8px 12px;border-radius:10px;cursor:pointer;white-space:nowrap}
+#evb{margin-top:12px}#evb .evb{display:inline-block;background:linear-gradient(90deg,#f59e0b,#ef4444);color:#fff;font-weight:800;padding:8px 12px;border-radius:12px;white-space:nowrap;animation:gl 1.6s ease-in-out infinite}@keyframes gl{50%{box-shadow:0 0 14px #fbbf24}}
+nav button.on,nav button:hover{background:var(--card2);color:var(--tx)}
+.bal{background:var(--card2);border:1px solid var(--line);padding:8px 14px;border-radius:12px;font-weight:700;white-space:nowrap}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.sp{justify-content:space-between}
+h2{margin:6px 0 12px;font-size:18px}.mu{color:var(--mu);font-size:13px}
+.btn{background:linear-gradient(90deg,var(--pu),var(--pk));border:0;color:#04121f;font-weight:800;padding:12px 20px;border-radius:12px;cursor:pointer;font-size:15px}
+.btn:disabled{opacity:.4;cursor:not-allowed}.btn.g{background:var(--gr)}.btn.sm{padding:8px 12px;font-size:13px}
+.chip{background:var(--card2);border:1px solid var(--line);color:var(--tx);padding:8px 12px;border-radius:10px;cursor:pointer}
+.chip.on{border-color:var(--pu);box-shadow:0 0 0 1px var(--pu) inset}
+.scene{position:relative;height:230px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(var(--s),var(--h) 45%,var(--w1) 45%,var(--w2));margin-bottom:12px}
+.scene .st{position:absolute;left:0;right:0;top:14px;text-align:center;font-weight:800;text-shadow:0 2px 6px #000a}
+#bob{position:absolute;left:50%;top:48%;font-size:38px;transform:translateX(-50%);transition:top .3s}
+#bob.wait{animation:bb 1.6s ease-in-out infinite}#bob.bite{top:58%;animation:sh .15s linear infinite}
+@keyframes bb{50%{transform:translate(-50%,6px)}}@keyframes sh{50%{transform:translate(-46%,4px)}}
+.wv{position:absolute;left:0;right:0;bottom:0;height:40%;background:repeating-linear-gradient(90deg,#fff1 0 30px,transparent 30px 60px);animation:wv 6s linear infinite}
+@keyframes wv{to{background-position:60px 0}}
+.bar{height:10px;border-radius:6px;background:var(--card2);overflow:hidden;flex:1;min-width:120px}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--pu),var(--pk))}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.fc{--a:#64748b;text-align:center;padding:14px 10px;border-radius:18px;border:1px solid var(--line);border-bottom:4px solid var(--a);background:radial-gradient(120% 60% at 50% 0,color-mix(in srgb,var(--a) 30%,transparent),var(--card))}
+.fc .em{font-size:34px}.fa{width:120px;height:90px;filter:drop-shadow(0 6px 8px #0008)}.catch .fa{width:150px;height:110px}.sil{filter:brightness(0) opacity(.45)}.catch .em{font-size:0}.btn.gold{background:linear-gradient(90deg,#f59e0b,#ef4444);color:#fff}.roul{position:relative;overflow:hidden;border-radius:14px;background:var(--card2);padding:10px 0}.pin{position:absolute;left:50%;top:0;bottom:0;width:3px;margin-left:-1px;background:var(--gold);z-index:2;box-shadow:0 0 12px var(--gold)}.rl{display:flex;will-change:transform}.rc{flex:none;width:126px;margin:0 3px;padding:8px 4px}.rc .fa{width:96px;height:72px}.rc .em{font-size:32px}.fc b{display:block;margin:2px 0}.fc.lock{opacity:.5}
+.catch{display:flex;gap:16px;align-items:center;border-left:5px solid var(--a,var(--line))}.catch .em{font-size:54px}
+.pop{animation:pop .4s}@keyframes pop{from{transform:scale(.85);opacity:0}}
+input.in{width:100%;margin-bottom:8px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font-size:16px}
+@media(max-width:600px){.grid{grid-template-columns:1fr 1fr}}
+</style></head><body>
+<header><span class="logo">🎣 CATBET Fishing</span><nav id="nav"></nav><button class="chip" id="acc" onclick="Cloud.panel()">👤 Connexion</button><div class="bal" id="bal"></div></header>
+<main id="main"></main>
+<script>
+/* ============ 1. DONNÉES ============ */
+// Raretés : nom, couleur, poids de base, XP gagnée
+const TIERS=[['Commun','#94a3b8',70,4],['Rare','#3b82f6',22,10],['Épique','#a855f7',6,30],['Mythique','#ef4444',1.5,90],['Secret','#22e39a',0.25,250],['Astral','#67e8f9',0.03,700],['Ultra','#f0abfc',0.0001,1800]];
+// Poissons par rareté : nom, (libre), valeur min, valeur max, zone exclusive ou null, couleur haut, couleur bas, corps rond (1/0)
+const FISH=[
+[["Sardine",'',18,45,null,'#e2e8f0','#64748b',0],["Carpe",'',24,54,null,'#d6c58a','#78633a',0],["Gardon",'',15,42,null,'#cbd5e1','#475569',0],["Goujon",'',12,36,null,'#fde68a','#a16207',0]],
+[["Truite",'',30,70,null,'#93c5fd','#1d4ed8',0],["Perche",'',35,80,null,'#86efac','#15803d',0],["Brochet",'',40,90,null,'#86efac','#166534',0],["Saumon",'',45,95,null,'#fdba74','#c2410c',0],["Truite dorée",'',70,140,1,'#fde68a','#a16207',0],["Anguille de rivière",'',85,170,1,'#a7f3d0','#166534',0]],
+[["Poisson-lune",'',180,380,null,'#e9d5ff','#7e22ce',1],["Barracuda",'',220,450,null,'#f0abfc','#86198f',0],["Raie manta",'',200,420,null,'#c7d2fe','#3730a3',1],["Requin-marteau",'',240,480,null,'#cbd5e1','#334155',0],["Silure géant",'',180,360,2,'#cbd5e1','#334155',0],["Perche royale",'',220,420,2,'#bbf7d0','#166534',0],["Poisson-perroquet",'',500,900,3,'#f9a8d4','#be185d',0],["Mérou corail",'',650,1100,3,'#fdba74','#9a3412',0]],
+[["Koï écarlate",'',1200,2400,null,'#fecaca','#b91c1c',0],["Espadon doré",'',1800,3000,null,'#fde68a','#b45309',0],["Poisson-dragon",'',1500,2800,null,'#86efac','#b91c1c',0],["Kraken junior",'',2000,3400,null,'#fda4af','#881337',1],["Calmar colossal",'',4000,7000,4,'#c4b5fd','#6d28d9',1],["Anguille abyssale",'',5000,9000,4,'#99f6e4','#115e59',0]],
+[["Poisson fantôme",'',5000,9000,null,'#d1fae5','#047857',1],["Anguille spectrale",'',6000,12000,null,'#a7f3d0','#0f766e',0],["Baleine d'ombre",'',7000,14000,null,'#c4b5fd','#1e1b4b',1],["Baleine astrale",'',20000,35000,5,'#e9d5ff','#6d28d9',1],["Dragon des étoiles",'',30000,50000,5,'#fef08a','#7c3aed',0]],
+[["Léviathan astral",'',50000,100000,null,'#cffafe','#4338ca',1],["Chat-poisson cosmique",'',60000,120000,null,'#fbcfe8','#6d28d9',0],["Dragon des étoiles",'',70000,140000,null,'#fef08a','#7c3aed',0]],
+[["Mégalodon céleste",'',200000,400000,null,'#f5d0fe','#86198f',0],["Kraken primordial",'',300000,600000,null,'#e9d5ff','#6b21a8',1],["Léviathan éternel",'',500000,1000000,null,'#fbcfe8','#9d174d',1]]];
+// Cannes : nom, prix, chance, vitesse, fenêtre de ferrage (ms), couleur
+const RODS=[['Bambou',0,1,1,1400,'#d9a441'],['Roseau',24300,1.2,1.08,1480,'#a3e635'],['Carbone',40400,1.45,1.18,1550,'#94a3b8'],['Fibre de verre',262000,1.75,1.28,1650,'#67e8f9'],['Titane',494000,2.1,1.45,1800,'#7dd3fc'],['Corail',1200000,2.55,1.6,1900,'#fda4af'],['Tempête',8430000,3.1,1.8,2050,'#93c5fd'],['Astrale',16000000,3.8,2,2200,'#c4b5fd'],['Sanguine',29700000,4.6,2.25,2350,'#f87171'],['Spectrale',158000000,5.6,2.55,2500,'#a7f3d0'],['Dragon des mers',281000000,6.9,2.9,2700,'#fde047'],['Cosmique',501000000,8.5,3.3,2900,'#fbcfe8'],['Éclipse',2770000000,10.5,3.8,3100,'#a5b4fc'],['Nébuleuse',4900000000,13,4.3,3300,'#f0abfc'],['Aurore',8590000000,16,4.9,3500,'#5eead4'],['Trident du Léviathan',15000000000,20,5.6,3800,'#fde68a'],['Divine du Chat',86400000000,26,6.5,4200,'#f0abfc'],['Primordiale',141000000000,34,7.5,4600,'#fff']];
+// Appâts : nom, prix, chance, emoji, multiplicateur de valeur
+const BAITS=[['Mouche',5,1.08,'🪰',1.06],['Ver de terre',10,1.15,'🪱',1.14],['Crevette',50,1.4,'🦐',1.42],['Calmar',90,1.6,'🦑',1.73],['Leurre doré',150,1.9,'✨',2.12],['Appât astral',400,2.6,'🌟',2.93],['Appât abyssal',1500,3.5,'🐙',4.44],['Appât cosmique',6000,5,'🌌',7.7]];
+// Zones : nom, prix, chance, valeur, ciel, horizon, eau haut, eau bas
+const ZONES=[['Étang paisible',0,1,1.0,'#1e1b4b','#f472b6','#0ea5e9','#082f49'],['Rivière',86100,1.22,1.28,'#1e3a8a','#fdba74','#22d3ee','#0e4f5c'],['Lac brumeux',2670000,1.48,1.73,'#334155','#cbd5e1','#64748b','#0f172a'],['Récif corallien',54200000,1.9,2.63,'#0ea5e9','#fde68a','#2dd4bf','#134e4a'],['Abysses',893000000,2.45,4.44,'#020617','#1e1b4b','#1e3a8a','#020617'],['Mer astrale',26200000000,3.2,7.7,'#0f0a1e','#a855f7','#4c1d95','#0f0a1e']];
+
+// Enchantements (3 emplacements par canne) : nom, emoji, description, effet, bonus/niveau, niveau max, prix de base
+// ENSCALE réduit tous les bonus pour garder la durée du jeu autour de 200 h (mesuré par simulation)
+const ENSCALE=.1;
+const EN=[['Fortune des mers','🍀','Chance de touche','L',.04,10,1800],['Rapidité','⚡','Morsure plus rapide','S',.05,10,2200],['Patience','⏳','Fenêtre de ferrage','W',.055,10,2000],['Prospérité','💰','Valeur des poissons','V',.04,10,3500],['Économe','🪝','Chance de garder l\'appât','B',.05,10,2800],['Butin double','✌️','Chance de doubler une prise','D',.03,10,7500],['Chasseur de coffres','📦','Chance de coffre','C',.05,10,12000],['Coup critique','🎯','Chance de prise ×3','K',.025,10,15000],['Œil du prédateur','👁️','Raretés favorisées','R',.02,10,18000],['Serrure d\'or','🗝️','Pièces des coffres','Q',.05,10,16000],['Deuxième chance','🔄','Le poisson peut revenir mordre','H',.05,10,8000],['Appât raffiné','🧪','Amplifie le bonus de valeur des appâts','A',.06,10,6000],['Marée haute','🌊','Chance de pêcher une rareté au-dessus','P',.025,10,20000],['Chasseur de zone','🗺️','Valeur par zone débloquée','X',.025,10,22000]];
+// Artefacts (3 équipés max, uniquement dans les coffres) : nom, emoji, rareté (= rang de coffre), effets
+// ASCALE réduit leur puissance pour garder ~200 h de jeu (mesuré par simulation)
+const ASCALE=.3;
+const AR=[['Boussole d\'or','🧭',0,{L:1.15}],['Lanterne des abysses','🏮',1,{W:1.25}],['Sablier marin','⌛',1,{S:1.3}],['Perle de sirène','🫧',2,{C:1.5}],['Amulette du chat','😺',2,{B:.15}],['Trident de Poséidon','🔱',3,{V:1.5}],['Œil de Léviathan','🧿',4,{R:.08}],['Ancre maudite','⚓',4,{V:2,S:.8}],['Couronne des mers','👑',6,{V:1.2,Q:1.5}],['Cœur astral','💠',7,{L:1.4,K:.1}]];
+const AMUL='LSWVCQ',ALAB={L:'Chance',S:'Vitesse',W:'Fenêtre',V:'Valeur',C:'Coffres',Q:'Pièces des coffres',B:'Appât gratuit',R:'Raretés',K:'Critique'};
+const artDesc=a=>Object.keys(a[3]).map(k=>{const v=a[3][k];if(AMUL.includes(k)){const d=(v-1)*ASCALE*100;return ALAB[k]+' '+(d>=0?'+':'−')+Math.abs(d).toFixed(1).replace('.0','')+' %'}return ALAB[k]+' +'+(v*ASCALE*100).toFixed(1).replace('.0','')+' %'}).join(' · ');
+// Coffres : nom, couleur, fond, prix de vente, poids de drop en pêchant
+const CHESTS=[['Commun','#94a3b8','#1e293b',250,50],['Rare','#3b82f6','#172554',1e3,28],['Épique','#a855f7','#3b0764',5e3,12],['Légendaire','#fbbf24','#78350f',25e3,5],['Mythique','#ef4444','#450a0a',1e5,2],['Secret','#22e39a','#022c22',5e5,.7],['Astral','#67e8f9','#082f49',2e6,.2],['Ultra','#f0abfc','#0f0a1e',1e7,.15]];
+const CSYM=['','★','★','✦','♛','?','✧','∞'];
+// Butin d'un coffre de rareté t : [type, id, quantité, poids] — g pièces · b appât · r canne · f poisson (rareté)
+const loot=t=>{const P=CHESTS[t][3],B=Math.min(7,t+1),R=Math.min(17,t*2+1);
+ const L=[['g',0,Math.round(P*.6),30],['g',0,Math.round(P*1.5),20],['g',0,Math.round(P*4),6],['b',B,8+t*2,14],['b',Math.max(0,B-2),12,10],['f',t>=7?6:Math.min(5,t),1,10]];
+ if(t>0)L.push(['r',R,1,3],['r',Math.min(17,R+1),1,1.5]);
+ if(t>=4)L.push(['p',0,1,t>=6?1.5:1]);
+ const ids=AR.map((a,i)=>i).filter(i=>Math.abs(AR[i][2]-t)<=1);if(ids.length){const w=Math.min(4,10/ids.length);ids.forEach(i=>L.push(['a',i,1,AR[i][2]===t?w*1.2:w*.8]))}
+ return L};
+
+/* ============ 2. ÉTAT & SAUVEGARDE ============ */
+const KEY='catbet-fishing-v3';
+const fresh=()=>({c:150,xp:0,rod:0,rods:[0],zone:0,zones:[0],bait:-1,baits:{},inv:{},idx:{},chests:{},casts:0,en:{},re:{},es:0,ao:{},ae:[],quests:null,ev:{end:0,next:0},pr:0,pn:0,fv:0,pt:0,bk:{},avg:0});
+const S=(()=>{try{return Object.assign(fresh(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return fresh()}})();
+const save=()=>{try{S.ver=1;S._t=Date.now();localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}Cloud.dirty()};
+
+/* ============ 3. OUTILS ============ */
+const $=s=>document.querySelector(s);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const fmt=n=>n>=1e12?(n/1e12).toFixed(2)+'T':n>=1e9?(n/1e9).toFixed(2)+'Md':n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e4?(n/1e3).toFixed(1)+'k':Math.round(n).toLocaleString('fr-FR');
+const level=()=>Math.min(100,Math.floor(Math.sqrt(S.xp/4000))+1);
+const lvlBar=()=>{const l=level(),a=4000*(l-1)**2,b=4000*l**2;return{l,p:l>=100?1:(S.xp-a)/(b-a)}};
+const activeBait=()=>S.bait>=0&&S.baits[S.bait]>0?S.bait:-1;
+const rodEn=r=>S.re[r]||(S.re[r]=[]);
+const fx=()=>{const f={L:1,S:1,W:1,V:1,C:1,Q:1,B:0,D:0,K:0,R:0,H:0,A:0,P:0,X:0};rodEn(S.rod).forEach(i=>{const l=S.en[i]|0;if(l>0)f[EN[i][3]]+=EN[i][4]*ENSCALE*l});
+ S.ae.forEach(i=>{const x=AR[i]&&AR[i][3];if(x)for(const k in x){if(AMUL.includes(k))f[k]*=1+(x[k]-1)*ASCALE;else f[k]+=x[k]*ASCALE}});
+ f.V*=1+Pr.vb()*S.pr;f.L*=1+Pr.lb()*S.pr;if(Ev.active())f.V*=Ev.mult;return f};
+const luck=(b=activeBait())=>fx().L*RODS[S.rod][2]*ZONES[S.zone][2]*(b>=0?BAITS[b][2]:1)*(1+.015*(level()-1));
+const dk=(h,f=.55)=>'#'+[1,3,5].map(i=>Math.round(parseInt(h.slice(i,i+2),16)*f).toString(16).padStart(2,'0')).join('');
+// Dessin SVG d'un poisson (a/b = couleurs, sp = corps rond, g = halo pour les raretés hautes)
+const art=(f,t)=>{const a=f[5],b=f[6],sp=f[7],g=t>=3,u='q'+a.slice(1)+b.slice(1);return `<svg viewBox="0 0 180 120" class="fa"><defs><linearGradient id="${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>${g?`<circle cx="90" cy="60" r="56" fill="${a}" opacity=".22"/>`:''}${sp?`<ellipse cx="86" cy="60" rx="52" ry="46" fill="url(#${u})"/><path d="M132 60L172 36V84Z" fill="${b}"/><path d="M70 16Q86 0 102 16Z" fill="${b}"/><path d="M58 88Q70 108 84 90Z" fill="${b}"/>`:`<path d="M138 60L174 30Q164 60 174 90Z" fill="${b}"/><path d="M28 60C44 22 108 20 142 60 108 100 44 98 28 60Z" fill="url(#${u})"/><path d="M62 34Q86 8 112 38Z" fill="${b}"/><path d="M84 84Q96 104 112 84Z" fill="${b}"/>`}<path d="M74 44Q66 60 74 76" stroke="#fff6" stroke-width="3" fill="none"/><circle cx="${sp?52:48}" cy="52" r="7" fill="#fff"/><circle cx="${sp?50:46}" cy="52" r="3.5" fill="#111"/><ellipse cx="84" cy="40" rx="22" ry="6" fill="#fff" opacity=".35"/></svg>`};
+const rodArt=a=>{const b=dk(a);return `<svg viewBox="0 0 120 120" class="fa"><path d="M22 104L96 16" stroke="${b}" stroke-width="7" stroke-linecap="round"/><path d="M22 104L70 47" stroke="${a}" stroke-width="7" stroke-linecap="round"/><circle cx="40" cy="82" r="9" fill="${a}" stroke="${b}" stroke-width="3"/><path d="M96 16Q108 50 96 84" stroke="#fff9" stroke-width="1.5" fill="none"/><path d="M96 84a5 5 0 1 1-6 5" stroke="#e2e8f0" stroke-width="2.5" fill="none"/></svg>`};
+const pool=t=>FISH[t].map((f,j)=>[f,j]).filter(([f])=>f[4]==null||f[4]===S.zone);
+
+const pickW=w=>{let x=Math.random()*w.reduce((a,b)=>a+b,0);for(let i=0;i<w.length;i++)if((x-=w[i])<=0)return i;return w.length-1};
+const chestArt=t=>{const[,c,d]=CHESTS[t];return `<svg viewBox="0 0 160 140" class="fa"><circle cx="80" cy="76" r="62" fill="${c}" opacity=".2"/><ellipse cx="80" cy="128" rx="54" ry="8" fill="#000" opacity=".5"/><rect x="24" y="68" width="112" height="58" rx="8" fill="${d}" stroke="${c}" stroke-width="3"/><path d="M20 72Q20 24 80 24Q140 24 140 72Z" fill="${d}" stroke="${c}" stroke-width="3"/><path d="M40 72Q42 42 80 38" stroke="#fff5" stroke-width="4" fill="none"/><rect x="40" y="44" width="12" height="82" fill="${c}" opacity=".85"/><rect x="108" y="44" width="12" height="82" fill="${c}" opacity=".85"/><rect x="66" y="62" width="28" height="30" rx="6" fill="${c}" stroke="#fff" stroke-width="2"/><text x="80" y="84" text-anchor="middle" font-size="20" font-weight="900" fill="${d}">${CSYM[t]}</text></svg>`};
+// Transforme une ligne de butin en objet affichable + effet à appliquer
+const resolve=x=>{const[k,v,q]=x;
+ if(k==='g')return{c:'#fbbf24',html:`<div class="em">🪙</div><b>${fmt(q)}</b>`,lab:`+${fmt(q)} 🪙`,apply:()=>{S.c+=Math.round(q*fx().Q)}};
+ if(k==='b'){const B=BAITS[v];return{c:'#38bdf8',html:`<div class="em">${B[3]}</div><b>${B[0]} ×${q}</b>`,lab:`${B[0]} ×${q}`,apply:()=>{S.baits[v]=(S.baits[v]||0)+q}}}
+ if(k==='p')return{c:'#fbbf24',html:`<div class="em">🌠</div><b>Étoile filante</b>`,lab:'Étoile filante 🌠 · permet un prestige',apply:()=>{S.pt=(S.pt|0)+1}};
+ if(k==='a'){const A=AR[v],own=S.ao[v],ref=Math.max(1000,Math.round(CHESTS[Math.min(7,A[2])][3]*20));return{c:CHESTS[A[2]][1],html:`<div class="em">${A[1]}</div><b>${A[0]}</b>`,lab:own?`Artefact ${A[0]} (déjà possédé → +${fmt(ref)} 🪙)`:`NOUVEL ARTEFACT : ${A[0]} !`,apply:()=>{if(own)S.c+=ref;else S.ao[v]=1}}}
+ if(k==='r'){const R=RODS[v],own=S.rods.includes(v),ref=Math.round(R[1]/2);return{c:R[5],html:`<div class="em">${rodArt(R[5])}</div><b>${R[0]}</b>`,lab:own?`Canne ${R[0]} (déjà possédée → +${fmt(ref)} 🪙)`:`Nouvelle canne : ${R[0]} !`,apply:()=>{if(own)S.c+=ref;else S.rods.push(v)}}}
+ const p=pool(v),[f,j]=p[Math.floor(Math.random()*p.length)],val=Math.round(rnd(f[2],f[3])*ZONES[S.zone][3]*fx().V);
+ return{c:TIERS[v][1],html:`<div class="em">${art(f,v)}</div><b>${f[0]}</b>`,lab:`${f[0]} (${TIERS[v][0]}) · valeur ${fmt(val)} 🪙`,apply:()=>{const key=v+'-'+j,e=S.inv[key]||{n:0,v:0};e.n++;e.v+=val;S.inv[key]=e;S.idx[key]=(S.idx[key]||0)+1}}};
+
+/* ============ 4. MOTEUR DE PÊCHE ============ */
+const Engine={
+ st:0,t1:0,t2:0,b:-1,free:0,again:0,boss:null,last:null,  // st : 0 repos · 1 attente · 2 touche
+ act(){if(this.st===0)this.cast();else if(this.st===2)this.reel()},
+ cast(){
+  const r=RODS[S.rod],f=fx();this.st=1;S.casts++;this.again=0;this.boss=null;if(Ev.tick())UI.head();Q.add('cast');if(S.zone>0)Q.add('zonecast');
+  this.b=activeBait();this.free=0;if(this.b>=0){if(Math.random()<f.B)this.free=1;else S.baits[this.b]--}
+  UI.fishState(this.free?'Appât préservé ! Patience… 🌊':'Patience… 🌊','wait');
+  this.t1=setTimeout(()=>this.bite(),Math.max(600,rnd(2200,4800)/(r[3]*f.S)));
+ },
+ bite(){
+  if(!this.boss&&!this.again&&Math.random()<BOSSP)this.boss={n:0,N:BOSSR,z:S.zone};
+  const B=this.boss,base=RODS[S.rod][4]*fx().W,w=B?Math.max(700,base*.55):base;
+  this.st=2;UI.fishState(B?`🐉 ${BOSS[B.z][0]} mord ! Ferre ! (${B.n+1}/${B.N})`:this.again?'Il revient ! Ferre vite !':'ÇA MORD ! Ferre vite !','bite');UI.timer(w);
+  this.t2=setTimeout(()=>{
+   if(B){this.boss=null;this.st=0;UI.fishState('La ligne a cassé… le boss s\'enfuit 🐉💨','');UI.refreshGo();return}
+   if(!this.again&&Math.random()<fx().H){this.again=1;return this.bite()}
+   this.st=0;UI.fishState('Le poisson s\'est échappé…','');UI.refreshGo()},w);
+ },
+ bossHit(){clearTimeout(this.t2);const B=this.boss;B.n++;
+  if(B.n>=B.N){this.boss=null;this.st=0;return this.bossWin(B.z)}
+  this.st=1;UI.fishState(`💥 Il se débat… ${B.n}/${B.N} · tiens bon !`,'wait');
+  this.t1=setTimeout(()=>this.bite(),rnd(500,1400))},
+ bossWin(z){const rw=Math.max(500,Math.round((S.avg||0)*BOSSX)),ct=Math.min(7,(BOSSCHEST[z]||0)+pickW([55,25,13,7]));
+  S.c+=rw;S.chests[ct]=(S.chests[ct]||0)+1;S.xp+=BOSSXP;S.bk[z]=(S.bk[z]|0)+1;Q.add('chest');
+  this.last={boss:z,reward:rw,ct};save();UI.caught(this.last);UI.head()},
+ clear(){clearTimeout(this.t1);clearTimeout(this.t2);this.st=0;this.boss=null},
+ roll(){
+  const E=fx(),L=luck(this.b),w=TIERS.map((t,i)=>pool(i).length?t[2]*Math.pow(L,.25*i)*(i>0?1+E.R*2.5*i:1):0);
+  let x=Math.random()*w.reduce((a,b)=>a+b,0),t=0;for(;t<w.length-1&&(x-=w[t])>0;t++);
+  const tags=[];
+  if(Math.random()<Math.min(.5,E.P)&&t<TIERS.length-1&&pool(t+1).length){t++;tags.push('🌊 Marée haute')}
+  const p=pool(t),[f,j]=p[Math.floor(Math.random()*p.length)];
+  const bait=this.b>=0?1+(BAITS[this.b][4]-1)*(1+E.A):1;
+  const size=Math.random();let m=ZONES[S.zone][3]*bait*E.V*(1+E.X*S.zone);
+  if(Math.random()<E.K){m*=3;tags.push('🎯 Critique ×3')}
+  if(Math.random()<E.D){m*=2;tags.push('✌️ Double')}
+  const val=Math.round((f[2]+(f[3]-f[2])*size)*m);
+  return{t,j,f,val,tags,cm:Math.round(f[2]/2+size*60)};
+ },
+ reel(){
+  if(this.boss)return this.bossHit();
+  clearTimeout(this.t2);this.st=0;
+  if(Math.random()<Math.min(.04,.0017*Math.pow(level(),.7)*Math.pow(luck(this.b),.3)*fx().C)){
+   const t=pickW(CHESTS.map(c=>c[4]));S.chests[t]=(S.chests[t]||0)+1;Q.add('chest');this.last={chest:t};save();UI.caught(this.last);UI.head();return}
+  const c=this.roll(),k=c.t+'-'+c.j,e=S.inv[k]||{n:0,v:0};
+  e.n++;e.v+=c.val;S.inv[k]=e;S.idx[k]=(S.idx[k]||0)+1;S.xp+=TIERS[c.t][3];
+  Q.add('fish');if(c.t>=1)Q.add('rare');Q.add('value',c.val);S.fv=(S.fv||0)+c.val;S.avg=S.avg?S.avg*.98+c.val*.02:c.val;
+  if(Math.random()<Math.min(.012,.004+c.t*.0015)){S.es=(S.es|0)+1;c.stone=1}
+  if(Math.random()<PDROP){S.pt=(S.pt|0)+1;c.ptok=1}
+  this.last=c;save();UI.caught(c);UI.head();
+ }};
+
+/* ============ 5. ACTIONS ============ */
+const Act={
+ buyRod(i){const p=RODS[i][1];if(S.rods.includes(i))S.rod=i;else if(S.c>=p){S.c-=p;S.rods.push(i);S.rod=i}else return;this.done()},
+ buyZone(i){const p=ZONES[i][1];if(S.zones.includes(i))S.zone=i;else if(S.c>=p){S.c-=p;S.zones.push(i);S.zone=i}else return;this.done()},
+ buyBait(i,n){const p=BAITS[i][1]*n;if(S.c<p)return;S.c-=p;S.baits[i]=(S.baits[i]||0)+n;this.done()},
+ sellChest(t){if(!(S.chests[t]>0))return;S.c+=CHESTS[t][3];if(!--S.chests[t])delete S.chests[t];this.done()},
+ pickBait(i){S.bait=i;this.done()},
+ rerollPrice(){return Math.round(10000*Math.pow(1+Math.max(0,RODS[S.rod][1])/10000,.28))},
+ reroll(){const e=rodEn(UI.er()),pr=this.rerollPrice();
+  if(e.length>=3)return UI.toast('3 emplacements pleins · clique sur un enchantement pour le retirer');
+  if(S.c<pr)return UI.toast('Solde insuffisant');
+  const pl=EN.map((_,i)=>i).filter(i=>!e.includes(i)),i=pl[Math.random()*pl.length|0],l=1+Math.floor(Math.random()*5);
+  S.c-=pr;S.en[i]=Math.max(S.en[i]|0,l);e.push(i);
+  UI.msg=`${EN[i][1]} ${EN[i][0]} niveau ${S.en[i]} · ajouté à la canne ${RODS[UI.er()][0]}`;this.done()},
+ equip(i){const e=rodEn(UI.er()),k=e.indexOf(i);
+  if(k>=0)e.splice(k,1);else if(!(S.en[i]|0))return;else if(e.length<3)e.push(i);else return UI.toast('3 enchantements max par canne');this.done()},
+ prestige(){if(!Pr.can())return;const g=Pr.gain();
+  if(!confirm(`Prestige : tu dépenses 1 🌠 Étoile filante, tu gagnes ${g} ⭐ et tu recommences à zéro (pièces, cannes, zones, appâts, inventaire, coffres, niveau).\nTu gardes : enchantements, artefacts, pierres, quêtes, index et tes ⭐.\nContinuer ?`))return;
+  const keep={en:S.en,re:S.re,es:S.es,ao:S.ao,ae:S.ae,quests:S.quests,idx:S.idx,casts:S.casts,ev:S.ev,pr:(S.pr|0)+g,pn:(S.pn|0)+1,pt:(S.pt|0)-1,bk:S.bk};
+  Engine.clear();Object.assign(S,fresh(),keep);UI.msg=`⭐ Prestige ${S.pn} · +${g} ⭐ · total ${S.pr} ⭐`;save();UI.go('prest')},
+ qClaim(t,id){const q=QD[t].find(x=>x[0]===id),s=Q.st()[t];if(!q||s.done[id]||Q.prog(t,q)<q[3])return;s.done[id]=1;S.c+=Q.reward(q);UI.msg=`🎯 Quête « ${q[1]} » terminée · +${fmt(Q.reward(q))} 🪙`;this.done()},
+ aeq(i){const k=S.ae.indexOf(i);if(k>=0)S.ae.splice(k,1);else if(!S.ao[i])return;else if(S.ae.length<3)S.ae.push(i);else return UI.toast('3 artefacts max');this.done()},
+ enPrice(i){const l=S.en[i]|0;return l<5?EN[i][6]*(l+1)*(l+1):0},
+ upgrade(i){const l=S.en[i]|0;if(l<1||l>=EN[i][5])return;
+  if(l<5){const p=this.enPrice(i);if(S.c<p)return;S.c-=p}else{if(!(S.es>0))return UI.toast('Il te faut une pierre d\'enchante 🪨');S.es--}
+  S.en[i]=l+1;this.done()},
+ sell(t){let g=0;for(const k in S.inv){if(t<0||k.startsWith(t+'-')){g+=S.inv[k].v;delete S.inv[k]}}S.c+=g;this.done()},
+ reset(){if(confirm('Tout effacer et repartir de zéro ?')){Object.assign(S,fresh());Cloud.force=1;this.done()}},
+ done(){save();UI.render()}};
+
+/* ============ 5a. BOSS, HEURE DORÉE & PRESTIGE ============ */
+// Boss : de temps en temps un poisson légendaire mord (1 chance sur 400 par touche). Il faut le ferrer 5 fois de suite,
+// chaque fois dans une fenêtre plus courte (55 % de celle de la canne). Récompense volontairement modérée :
+// 60× la valeur moyenne de tes dernières prises + un coffre tiré au hasard (minimum garanti selon la zone, jusqu'à +3 rangs au-dessus) + de l'XP
+const BOSSP=1/400,BOSSR=5,BOSSX=60,BOSSXP=150,BOSSCHEST=[0,1,2,2,3,4]; // coffre minimum garanti par zone
+// un boss par zone : nom, emoji, couleur
+const BOSS=[['Esturgeon ancestral','🐟','#38bdf8'],['Brochet royal','🐊','#22e39a'],['Spectre du lac','👻','#cbd5e1'],['Raie impériale','🦈','#2dd4bf'],['Kraken des abysses','🦑','#a855f7'],['Dragon astral','🐉','#f0abfc']];
+// Heure dorée : tous les ~25-45 min (temps réel, page ouverte), la valeur des poissons est ×2 pendant 8 min
+const Ev={mult:2,dur:8*60000,
+ active(){return !!(S.ev&&S.ev.end>Date.now())},
+ left(){const s=Math.max(0,Math.round((S.ev.end-Date.now())/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')},
+ tick(){const n=Date.now();if(!S.ev||typeof S.ev!=='object')S.ev={end:0,next:0};
+  if(!S.ev.next){S.ev.next=n+15*60000;save()}
+  if(!this.active()&&n>=S.ev.next){S.ev.end=n+this.dur;S.ev.next=S.ev.end+rnd(25,45)*60000;save();return true}return false},
+ ui(){const e=$('#evb');if(!e)return;e.innerHTML=this.active()?`<span class="evb">🌟 Heure dorée · valeur ×${this.mult} · ${this.left()}</span>`:''}};
+// Prestige : on recommence contre des ⭐ (bonus permanent). Il faut dépenser 1 « Étoile filante » 🌠, objet rare qui se pêche (1 chance sur PDROP par prise) ou sort des gros coffres
+const PDROP=1/8000;
+const Pr={vb(){return .02},lb(){return .01},
+ can(){return (S.pt|0)>0},
+ gain(){return Math.max(1,Math.floor(Math.sqrt((S.fv||0)/1e9)))}};
+
+/* ============ 5b. QUÊTES (par heure / jour / semaine) ============ */
+// id, nom, description, objectif, type d'évènement, récompense de base (🪙)
+const QD={
+ h:[['h_cast','Pêcheur pressé','Effectue 8 lancers.',8,'cast',450],['h_fish','Petit banc','Attrape 5 poissons.',5,'fish',600],['h_value','Bonne prise','Gagne 1 500 🪙 de valeur de poissons.',1500,'value',750],['h_chest','Coffre du jour','Trouve 1 coffre en pêchant.',1,'chest',900]],
+ d:[['d_cast','Marathon du pêcheur','Effectue 40 lancers.',40,'cast',1800],['d_zone','Explorateur','Pêche 15 fois ailleurs que dans l\'étang.',15,'zonecast',2200],['d_fish','Pêche productive','Attrape 30 poissons.',30,'fish',2600],['d_rare','Belle prise','Attrape 3 poissons rares ou mieux.',3,'rare',3200],['d_open','Ouvre-boîte','Ouvre 5 coffres.',5,'open',3500]],
+ w:[['w_cast','Semaine en mer','Effectue 180 lancers.',180,'cast',9000],['w_fish','Grande pêche','Attrape 150 poissons.',150,'fish',11000],['w_value','Trésor de pêche','Gagne 35 000 🪙 de valeur de poissons.',35000,'value',14000],['w_rare','Chasseur de raretés','Attrape 12 poissons rares ou mieux.',12,'rare',17000],['w_open','Maître des coffres','Ouvre 20 coffres.',20,'open',19000]]};
+const Q={
+ pad:n=>String(n).padStart(2,'0'),
+ key(t){const d=new Date(),p=this.pad,D=`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+  if(t==='h')return D+'-'+p(d.getHours());if(t==='d')return D;
+  const m=new Date(d.getFullYear(),d.getMonth(),d.getDate()-(d.getDay()+6)%7);return `${m.getFullYear()}-${p(m.getMonth()+1)}-${p(m.getDate())}`},
+ end(t){const d=new Date();if(t==='h')return new Date(d.getFullYear(),d.getMonth(),d.getDate(),d.getHours()+1);
+  if(t==='d')return new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);return new Date(d.getFullYear(),d.getMonth(),d.getDate()-(d.getDay()+6)%7+7)},
+ left(t){const s=Math.max(0,Math.round((this.end(t)-new Date())/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h>=24?Math.floor(h/24)+' j '+h%24+' h':h?h+' h '+this.pad(m):m+' min'},
+ st(){if(!S.quests)S.quests={};for(const t of ['h','d','w']){const k=this.key(t);if(!S.quests[t]||S.quests[t].k!==k)S.quests[t]={k,p:{},done:{}}}return S.quests},
+ add(kind,n=1){const s=this.st();let ch=0;for(const t in QD)for(const q of QD[t])if(q[4]===kind&&!s[t].done[q[0]]){s[t].p[q[0]]=Math.min(q[3],(s[t].p[q[0]]||0)+n);ch=1}return ch},
+ // la récompense suit le prix de la meilleure canne possédée (même courbe que le reroll) pour rester utile plus tard
+ mult(){const P=Math.max(...S.rods.map(i=>RODS[i][1]));return Math.pow(1+P/10000,.28)},
+ reward(q){return Math.round(q[5]*this.mult())},
+ prog(t,q){return Math.min(q[3],this.st()[t].p[q[0]]||0)},
+ ready(){const s=this.st();let n=0;for(const t in QD)for(const q of QD[t])if(!s[t].done[q[0]]&&(s[t].p[q[0]]||0)>=q[3])n++;return n}};
+
+/* ============ 6. INTERFACE ============ */
+const TABS=[['fish','🎣 Pêche'],['shop','🛒 Boutique'],['ench','✨ Bonus'],['quest','🎯 Quêtes'],['prest','⭐ Prestige'],['inv','🎒 Inventaire'],['dex','📖 Index']];
+const UI={tab:'fish',shop:'rods',ed:null,msg:'',
+ er(){return S.rods.includes(this.ed)?this.ed:S.rod},
+ toast(t){this.msg=t;if(this.tab==='ench')this.render()},
+ go(t){Engine.clear();this.tab=t;this.render()},
+ head(){$('#bal').textContent='🪙 '+fmt(S.c);Ev.ui();$('#nav').innerHTML=TABS.map(([k,n])=>`<button class="${k===this.tab||(k==='inv'&&this.tab==='open')?'on':''}" onclick="UI.go('${k}')">${n}${k==='prest'&&(S.pt|0)>0?` <b style="color:var(--gold)">🌠${S.pt}</b>`:''}${k==='quest'&&Q.ready()?` <b style="color:var(--gr)">●${Q.ready()}</b>`:''}</button>`).join('')},
+ render(){this.head();$('#main').innerHTML=this['v_'+this.tab]();Ev.ui()},
+ fishState(msg,cls){const s=$('#st'),b=$('#bob');if(!s)return;s.textContent=msg;b.className=cls;this.refreshGo()},
+ refreshGo(){const g=$('#go');if(!g)return;const s=Engine.st;g.disabled=s===1;g.textContent=['Lancer la ligne','Patience…','FERRER !'][s];g.className='btn '+(s===2?'g':'')},
+ timer(ms){const i=$('#tm i');if(!i)return;i.style.transition='none';i.style.width='100%';requestAnimationFrame(()=>requestAnimationFrame(()=>{i.style.transition=`width ${ms}ms linear`;i.style.width='0'}))},
+ caught(c){
+  const b=$('#res');
+  if(c.boss!=null){const B=BOSS[c.boss];this.fishState('Boss vaincu ! 🏆','');if(b)b.innerHTML=`<div class="panel catch pop" style="--a:${B[2]}"><div class="em">${B[1]}</div><div><div style="color:${B[2]};font-weight:900">BOSS VAINCU · ${B[0]}</div><b style="color:var(--gold)">+${fmt(c.reward)} 🪙</b><div class="mu">+ 1 coffre ${CHESTS[c.ct][0]} · +${BOSSXP} XP</div></div></div>`;return}
+  if(c.chest!=null){const C=CHESTS[c.chest];this.fishState('Un coffre est remonté ! 📦','');if(b)b.innerHTML=`<div class="panel catch pop" style="--a:${C[1]}"><div class="em">${chestArt(c.chest)}</div><div><div style="color:${C[1]};font-weight:900">COFFRE ${C[0].toUpperCase()} !</div><div class="mu">Ouvre-le depuis l'inventaire</div></div></div>`;return}
+  this.fishState('Prise réussie ! 🎉','');const T=TIERS[c.t];
+  if(b)b.innerHTML=`<div class="panel catch pop" style="--a:${T[1]}"><div class="em">${art(c.f,c.t)}</div><div><div style="color:${T[1]};font-weight:900">${T[0].toUpperCase()} · ${c.f[0]}</div><div class="mu">${c.cm} cm · ${S.idx[c.t+'-'+c.j]} capturé(s)</div><b style="color:var(--gold)">+${fmt(c.val)} 🪙 de valeur</b>${c.tags&&c.tags.length?`<div class="mu">${c.tags.join(' · ')}</div>`:''}${c.stone?'<div style="color:var(--gr);font-weight:800">🪨 Pierre d\'enchante trouvée !</div>':''}${c.ptok?'<div style="color:var(--gold);font-weight:900">🌠 ÉTOILE FILANTE trouvée ! (prestige possible)</div>':''}</div></div>`;
+  const lb=lvlBar(),p=$('#lv');if(p)p.innerHTML=`Niv. ${lb.l} <div class="bar"><i style="width:${lb.p*100}%"></i></div>`;
+ },
+ v_fish(){
+  const z=ZONES[S.zone],r=RODS[S.rod],lb=lvlBar();setTimeout(()=>this.refreshGo());
+  return `<div class="scene" style="--s:${z[4]};--h:${z[5]};--w1:${z[6]};--w2:${z[7]}"><div class="st" id="st">Prêt à pêcher dans ${z[0]}</div><div id="bob">🎣</div><div class="wv"></div></div>
+  <div class="panel row"><button class="btn" id="go" onclick="Engine.act()">Lancer la ligne</button><div class="bar" id="tm"><i></i></div><span class="mu">Espace = lancer / ferrer</span></div>
+  <div class="panel"><div class="row sp"><span><b style="color:${r[5]}">${r[0]}</b> · chance ×${luck().toFixed(2)} · ferrage ${r[4]} ms</span><span class="row" id="lv">Niv. ${lb.l} <div class="bar"><i style="width:${lb.p*100}%"></i></div></span></div>
+  <div class="row" style="margin-top:10px"><button class="chip ${S.bait<0?'on':''}" onclick="Act.pickBait(-1)">Sans appât</button>${BAITS.map((b,i)=>S.baits[i]>0?`<button class="chip ${S.bait===i?'on':''}" onclick="Act.pickBait(${i})">${b[3]} ${b[0]} ×${S.baits[i]}</button>`:'').join('')}</div></div>
+  <div id="res">${Engine.last?'':'<div class="panel mu">Ta dernière prise apparaîtra ici.</div>'}</div>
+  <div id="evb"></div>`;
+ },
+ v_shop(){
+  const sub=[['rods','Cannes'],['baits','Appâts'],['zones','Zones']].map(([k,n])=>`<button class="chip ${this.shop===k?'on':''}" onclick="UI.shop='${k}';UI.render()">${n}</button>`).join('');
+  let h='';
+  if(this.shop==='rods')h=RODS.map((r,i)=>{const own=S.rods.includes(i);return `<div class="fc ${own||S.c>=r[1]?'':'lock'}" style="--a:${r[5]}"><div class="em">${rodArt(r[5])}</div><b style="color:${r[5]}">${r[0]}</b><div class="mu">Chance ×${r[2]} · Vitesse ×${r[3]}<br>Ferrage ${r[4]} ms</div><button class="btn sm" onclick="Act.buyRod(${i})" ${S.rod===i||(!own&&S.c<r[1])?'disabled':''}>${S.rod===i?'Équipée':own?'Équiper':'🪙 '+fmt(r[1])}</button></div>`}).join('');
+  if(this.shop==='baits')h=BAITS.map((b,i)=>`<div class="fc" style="--a:#38bdf8"><div class="em">${b[3]}</div><b>${b[0]}</b><div class="mu">Chance ×${b[2]} · Valeur ×${b[4]}<br>En stock : ${S.baits[i]||0}</div>${[1,10,100].map(n=>`<button class="btn sm" onclick="Act.buyBait(${i},${n})" ${S.c<b[1]*n?'disabled':''}>×${n} · ${fmt(b[1]*n)}</button>`).join(' ')}</div>`).join('');
+  if(this.shop==='zones')h=ZONES.map((z,i)=>{const own=S.zones.includes(i);return `<div class="fc" style="--a:${z[6]}"><div class="em" style="height:54px;border-radius:12px;background:linear-gradient(${z[4]},${z[5]} 45%,${z[6]} 45%,${z[7]})"></div><b>${z[0]}</b><div class="mu">Chance ×${z[2]} · Valeur ×${z[3]}<br>Poissons exclusifs</div><button class="btn sm" onclick="Act.buyZone(${i})" ${S.zone===i||(!own&&S.c<z[1])?'disabled':''}>${S.zone===i?'Actuelle':own?'Y aller':'🪙 '+fmt(z[1])}</button></div>`}).join('');
+  return `<div class="row" style="margin-bottom:12px">${sub}</div><div class="grid">${h}</div>`;
+ },
+ v_ench(){
+  const er=this.er(),eq=rodEn(er),f=fx(),pr=Act.rerollPrice();
+  const P={B:'Appât gratuit',D:'Prise double',K:'Critique',R:'Rareté',H:'Seconde chance',A:'Bonus appât',P:'Rang supérieur',X:'Valeur/zone'},M={L:'Chance',S:'Vitesse',W:'Fenêtre',V:'Valeur',C:'Coffres',Q:'Gains coffres'};
+  const act=Object.keys(M).filter(k=>Math.abs(f[k]-1)>.0005).map(k=>`${M[k]} ×${f[k].toFixed(3)}`).concat(Object.keys(P).filter(k=>f[k]>.0005).map(k=>`${P[k]} ${(f[k]*100).toFixed(1)} %`));
+  const msg=this.msg;this.msg='';
+  return `<div class="panel row sp"><b>🪨 Pierres d'enchante : ${S.es|0}</b><span class="mu">Elles se pêchent au hasard · 1 pierre = +1 niveau de V à X</span></div>
+  ${msg?`<div class="panel pop" style="border-color:var(--gr)">${msg}</div>`:''}
+  <h2>Bonus actifs <span class="mu" style="font-size:13px;font-weight:500">— canne équipée : ${RODS[S.rod][0]}</span></h2>
+  <div class="row" style="margin-bottom:12px">${act.length?act.map(x=>`<span class="chip">${x}</span>`).join(''):'<span class="mu">Aucun bonus actif</span>'}</div>
+  <h2>🎣 Enchanter une canne <span class="mu" style="font-size:13px;font-weight:500">— 3 emplacements max</span></h2>
+  <div class="row" style="margin-bottom:12px">${S.rods.map(i=>`<button class="chip ${i===er?'on':''}" onclick="UI.ed=${i};UI.render()">${RODS[i][0]} · ${rodEn(i).length}/3${i===S.rod?' ✔':''}</button>`).join('')}</div>
+  <div class="panel"><div class="mu">Un enchantement tiré au hasard (niveau I à V) est ajouté à la canne sélectionnée. Prix selon la canne <b>équipée</b> : plus elle est chère, plus le reroll coûte. Les niveaux sont partagés entre les cannes.</div><button class="btn g" style="margin-top:10px" onclick="Act.reroll()" ${eq.length>=3||S.c<pr?'disabled':''}>🎲 Reroll · ${fmt(pr)} 🪙</button></div>
+  <h2>📜 Enchantements</h2><div class="grid">${EN.map((e,i)=>{const l=S.en[i]|0,on=eq.includes(i),up=l>0&&l<e[5],pc=Act.enPrice(i);
+   return `<div class="fc ${l?'':'lock'}" style="--a:${on?'#22e39a':'#a855f7'}"><div style="font-size:40px">${e[1]}</div><b>${e[0]}</b><div class="mu" style="font-size:12px">${e[2]}<br>+${(e[4]*ENSCALE*100).toFixed(1)} % par niveau · Niv. ${l}/${e[5]}</div>
+   <div class="row" style="justify-content:center;margin-top:6px">${l?`<button class="chip" onclick="Act.equip(${i})">${on?'Retirer':'Équiper'}</button>`:'<span class="mu">Obtenu par reroll</span>'}${up?`<button class="btn sm" onclick="Act.upgrade(${i})" ${(l<5?S.c<pc:!(S.es>0))?'disabled':''}>${l<5?'+1 niv · '+fmt(pc)+' 🪙':'+1 niv · 1 🪨'}</button>`:''}</div></div>`}).join('')}</div>
+  <h2>🏺 Artefacts <span class="mu" style="font-size:13px;font-weight:500">— ${S.ae.length}/3 équipés · uniquement dans les coffres</span></h2><div class="grid">${AR.map((a,i)=>{const o=S.ao[i],q=S.ae.includes(i),c=CHESTS[a[2]];
+   return `<div class="fc" style="--a:${c[1]};${o?'':'filter:grayscale(1);opacity:.55'}"><small style="color:${c[1]};font-weight:800">${c[0]}</small><div style="font-size:46px">${a[1]}</div><b>${o?a[0]:'???'}</b><div class="mu" style="font-size:12px">${artDesc(a)}</div>${o?`<button class="btn sm ${q?'':'g'}" style="margin-top:6px" onclick="Act.aeq(${i})">${q?'Retirer':'Équiper'}</button>`:'<div class="mu" style="font-size:12px;margin-top:6px">À trouver en coffre</div>'}</div>`}).join('')}</div>`;
+ },
+ v_prest(){
+  const g=Pr.gain(),can=Pr.can(),msg=this.msg;this.msg='';
+  return `${msg?`<div class="panel pop" style="border-color:var(--gr)">${msg}</div>`:''}
+  <div class="panel"><h2 style="margin-top:0">⭐ Prestige</h2><div class="row"><span class="chip">⭐ ${S.pr|0} étoile(s)</span><span class="chip">Valeur +${((S.pr|0)*Pr.vb()*100).toFixed(0)} %</span><span class="chip">Chance +${((S.pr|0)*Pr.lb()*100).toFixed(0)} %</span><span class="chip">${S.pn|0} prestige(s)</span></div>
+  <p class="mu">Chaque ⭐ donne <b>+${Pr.vb()*100} % de valeur</b> et <b>+${Pr.lb()*100} % de chance</b> pour toujours. Le nombre d'étoiles gagnées dépend de la valeur de poissons pêchés pendant cette partie : <b>${fmt(S.fv||0)} 🪙</b>.</p>
+  <p class="mu">Il te faut <b>1 🌠 Étoile filante</b> (tu en as <b>${S.pt|0}</b> ${can?'✅':'❌'}). C'est un objet très rare : il se pêche au hasard, ou sort des coffres Mythique et au-dessus.</p>
+  <div class="mu">Tu gardes : enchantements, artefacts, pierres, quêtes, index, ⭐ et tes autres 🌠.<br>Tu perds : pièces, cannes, zones, appâts, inventaire, coffres, niveau de pêche.</div>
+  <button class="btn gold" style="margin-top:12px" onclick="Act.prestige()" ${can?'':'disabled'}>${can?`Faire un prestige · +${g} ⭐`:'Il te faut une 🌠 Étoile filante'}</button></div>`;
+ },
+ qt:'h',
+ v_quest(){
+  const s=Q.st(),t=this.qt,msg=this.msg;this.msg='';
+  const tabs=[['h','⏱️ Heure'],['d','📅 Jour'],['w','🗓️ Semaine']].map(([k,n])=>`<button class="chip ${t===k?'on':''}" onclick="UI.qt='${k}';UI.render()">${n}</button>`).join('');
+  return `${msg?`<div class="panel pop" style="border-color:var(--gr)">${msg}</div>`:''}
+  <div class="row sp" style="margin-bottom:12px"><span class="row">${tabs}</span><span class="mu">Réinitialisation dans ${Q.left(t)}</span></div>
+  <div class="grid">${QD[t].map(q=>{const p=Q.prog(t,q),done=!!s[t].done[q[0]],ok=p>=q[3];
+   return `<div class="fc" style="--a:${done?'#22e39a':ok?'#fbbf24':'#38bdf8'}"><small style="font-weight:800;color:${done?'var(--gr)':'var(--pu)'}">${done?'TERMINÉE':'QUÊTE'}</small><b>${q[1]}</b><div class="mu" style="font-size:12px">${q[2]}</div><div class="bar" style="margin:8px auto;max-width:90%"><i style="width:${p/q[3]*100}%"></i></div><div class="mu">${fmt(p)} / ${fmt(q[3])} · <b style="color:var(--gold)">${fmt(Q.reward(q))} 🪙</b></div><button class="btn sm ${ok&&!done?'g':''}" style="margin-top:6px" onclick="Act.qClaim('${t}','${q[0]}')" ${ok&&!done?'':'disabled'}>${done?'✔ Réclamée':ok?'Réclamer':'En cours'}</button></div>`}).join('')}</div>`;
+ },
+ v_inv(){
+  const keys=Object.keys(S.inv).sort((a,b)=>b.split('-')[0]-a.split('-')[0]),ch=Object.keys(S.chests).filter(t=>S.chests[t]>0);
+  if(!keys.length&&!ch.length)return '<div class="panel mu">Ton inventaire est vide. Va pêcher !</div>';
+  const tot=keys.reduce((a,k)=>a+S.inv[k].v,0);
+  const chests=ch.length?`<h2>📦 Coffres</h2><div class="grid" style="margin-bottom:12px">${ch.map(t=>`<div class="fc" style="--a:${CHESTS[t][1]}"><div class="em">${chestArt(+t)}</div><b>${CHESTS[t][0]} ×${S.chests[t]}</b><button class="btn sm" onclick="UI.openChest(${t})">Ouvrir</button> <button class="chip" onclick="Act.sellChest(${t})">Vendre ${fmt(CHESTS[t][3])}</button></div>`).join('')}</div>`:'';
+  const fish=keys.length?`<div class="panel row sp"><b>Poissons : 🪙 ${fmt(tot)}</b><span class="row"><button class="btn g sm" onclick="Act.sell(-1)">Tout vendre</button>${TIERS.map((t,i)=>keys.some(k=>k.startsWith(i+'-'))?`<button class="chip" style="color:${t[1]}" onclick="Act.sell(${i})">${t[0]}</button>`:'').join('')}</span></div>
+  <div class="grid">${keys.map(k=>{const[t,j]=k.split('-'),f=FISH[t][j],e=S.inv[k];return `<div class="fc" style="--a:${TIERS[t][1]}"><div class="em">${art(f,+t)}</div><b>${f[0]}</b><div class="mu">×${e.n} · 🪙 ${fmt(e.v)}</div></div>`}).join('')}</div>`:'';
+  return chests+fish;
+ },
+ /* --- Ouverture de coffre : aperçu des probabilités + roulette --- */
+ openChest(t){this.ct=t;this.tab='open';this.render()},
+ strip(t,n=44,win=-1,w=null){const L=loot(t),ws=L.map(x=>x[3]);return Array.from({length:n},()=>{const r=resolve(L[pickW(ws)]);return `<div class="fc rc" style="--a:${r.c}">${r.html}</div>`}).join('')},
+ v_open(){
+  const t=this.ct,C=CHESTS[t],L=loot(t),tot=L.reduce((a,x)=>a+x[3],0);
+  setTimeout(()=>{const rl=$('#rl');if(rl&&!this.busy)rl.innerHTML=this.strip(t)});
+  return `<div class="panel row sp"><b style="color:${C[1]}">Coffre ${C[0]} <span id="cn">×${S.chests[t]||0}</span></b><button class="chip" onclick="UI.go('inv')">← Retour</button></div>
+  <div class="panel"><div class="roul"><div class="pin"></div><div class="rl" id="rl"></div></div><div class="row" style="justify-content:center;margin-top:12px"><button class="btn gold" id="ob" onclick="UI.open()" ${S.chests[t]>0?'':'disabled'}>Ouvrir le coffre</button></div><div id="rw"></div></div>
+  <h2>Contenu & probabilités</h2><div class="grid">${L.map(x=>{const r=resolve(x);return `<div class="fc" style="--a:${r.c}">${r.html}<div class="mu">${(x[3]/tot*100).toFixed(1)} %</div></div>`}).join('')}</div>`;
+ },
+ open(){
+  const t=this.ct;if(this.busy||!(S.chests[t]>0))return;
+  this.busy=1;S.chests[t]--;Q.add('open');$('#ob').disabled=true;$('#rw').innerHTML='';
+  const L=loot(t),ws=L.map(x=>x[3]),win=resolve(L[pickW(ws)]),W=36;
+  const cells=Array.from({length:44},(_,i)=>i===W?win:resolve(L[pickW(ws)]));
+  const rl=$('#rl'),box=rl.parentNode;
+  rl.style.transition='none';rl.style.transform='translateX(0)';
+  rl.innerHTML=cells.map(r=>`<div class="fc rc" style="--a:${r.c}">${r.html}</div>`).join('');
+  rl.offsetWidth;
+  rl.style.transition='transform 4.6s cubic-bezier(.12,.7,.08,1)';
+  rl.style.transform=`translateX(${-(W*132+66-box.clientWidth/2+rnd(-45,45))}px)`;
+  setTimeout(()=>{win.apply();if(!S.chests[t])delete S.chests[t];save();this.busy=0;this.head();
+   if(this.tab!=='open')return;
+   $('#cn').textContent='×'+(S.chests[t]||0);$('#ob').disabled=!(S.chests[t]>0);
+   $('#rw').innerHTML=`<div class="panel catch pop" style="--a:${win.c};margin-top:12px"><div><div style="color:${win.c};font-weight:900">Tu as obtenu :</div><b>${win.lab}</b></div></div>`},4700);
+ },
+ v_dex(){
+  const all=FISH.flat().length,got=Object.keys(S.idx).length;
+  return `<div class="panel row sp"><b>Index : ${got}/${all} · 🐉 Boss vaincus : ${Object.values(S.bk||{}).reduce((a,b)=>a+b,0)}</b><button class="chip" onclick="Act.reset()">Réinitialiser la partie</button></div>`+TIERS.map((T,t)=>`<h2 style="color:${T[1]}">${T[0]}</h2><div class="grid">${FISH[t].map((f,j)=>{const n=S.idx[t+'-'+j];return `<div class="fc ${n?'':'lock'}" style="--a:${T[1]}"><div class="em ${n?'':'sil'}">${art(f,t)}</div><b>${n?f[0]:'???'}</b><div class="mu">${n?'×'+n+' · ':''}${f[4]!=null?'Zone : '+ZONES[f[4]][0]:'Toutes zones'}</div></div>`}).join('')}</div>`).join('');
+ }};
+
+/* ============ 6b. COMPTE EN LIGNE (Cloudflare) ============ */
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const Cloud={
+ tok:localStorage.getItem('catbet-tok')||'',user:localStorage.getItem('catbet-user')||'',
+ base:+localStorage.getItem('catbet-base')||0,pending:localStorage.getItem('catbet-pend')==='1',
+ busy:0,force:0,timer:0,v:0,msg:'',mode:'login',code:'',bk:null,refused:0,
+ set(k,v){try{v==null?localStorage.removeItem('catbet-'+k):localStorage.setItem('catbet-'+k,v)}catch(e){}},
+ async api(path,method,body,keep){
+  const r=await fetch('/api/'+path,{method,keepalive:!!keep,headers:{'Content-Type':'application/json',...(this.tok?{Authorization:'Bearer '+this.tok}:{})},body:body?JSON.stringify(body):undefined});
+  let j={};try{j=await r.json()}catch(e){}return{ok:r.ok,status:r.status,j}},
+ dirty(){this.v++;this.pending=true;this.set('pend','1');if(!this.tok||this.refusedNow())return;clearTimeout(this.timer);this.timer=setTimeout(()=>this.push(),4000);this.badge()},
+ refusedNow(){return this.refused&&Date.now()-this.refused<6e5},
+ async push(retry){
+  if(!this.tok||this.busy||this.refusedNow())return;this.busy=1;clearTimeout(this.timer);let again=0;const v=this.v;
+  try{
+   const r=await this.api('save','PUT',{data:S,base:this.base,force:this.force},document.hidden);
+   if(r.status===401){this.busy=0;return this.drop()}
+   if(r.status===422){this.refused=Date.now();this.msg='⚠ Sauvegarde en ligne refusée (valeurs invraisemblables). Ta partie reste sur cet appareil.';this.busy=0;return this.badge()}
+   if(r.status===409){
+    const c=r.j.data||{};
+    if(!this.force&&(c.xp||0)>(S.xp||0))this.adopt(c,r.j.updated);
+    else{this.base=r.j.updated;this.set('base',this.base);again=!retry}
+   }else if(r.ok){
+    this.base=r.j.updated;this.set('base',this.base);this.force=0;this.msg='✓ Synchronisé';
+    if(v===this.v){this.pending=false;this.set('pend',null)}else again=1;
+   }else this.msg='⚠ Erreur serveur'
+  }catch(e){this.msg='⚠ Hors ligne'}
+  this.busy=0;this.badge();if(again)this.push(true)
+ },
+ adopt(c,u){
+  Object.assign(S,fresh(),c);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  this.base=u;this.set('base',u);this.pending=false;this.set('pend',null);this.msg='✓ Progression récupérée';UI.render();this.badge()},
+ async pull(){
+  if(!this.tok||this.busy)return;
+  try{
+   const r=await this.api('save','GET');
+   if(r.status===401)return this.drop();
+   if(!r.ok)return;
+   const c=r.j.data,u=r.j.updated;
+   if(!c){this.base=0;this.set('base',0);if(S.xp||S.casts)await this.push();return}
+   if(u===this.base){if(this.pending)await this.push();return}
+   if(!this.pending||(c.xp||0)>=(S.xp||0))this.adopt(c,u);
+   else{this.base=u;this.set('base',u);await this.push()}
+  }catch(e){this.msg='⚠ Hors ligne';this.badge()}
+ },
+ async auth(){
+  const u=$('#cu').value.trim(),p=$('#cp').value,body={username:u,password:p};this.msg='…';this.panel();
+  if(this.mode==='recover')body.code=$('#cc').value;
+  const r=await this.api(this.mode,'POST',body).catch(()=>null);
+  if(!r){this.msg='⚠ Serveur injoignable';return this.panel()}
+  if(!r.ok){this.msg=r.j.error||'Erreur';return this.panel()}
+  this.tok=r.j.token;this.user=r.j.username;this.set('tok',this.tok);this.set('user',this.user);
+  const c=r.j.data,u2=r.j.updated||0,mine=(S.xp||0)>0||(S.casts||0)>0;
+  if(!c){this.base=0;this.set('base',0);this.force=0;this.dirty();this.push()}
+  else if(!mine)this.adopt(c,u2);
+  else{
+   const lv=x=>Math.min(100,Math.floor(Math.sqrt((x.xp||0)/4000))+1);
+   const keepCloud=confirm(`Ce compte a déjà une partie : niveau ${lv(c)}, ${fmt(c.c||0)} pièces.\nCet appareil a aussi une partie : niveau ${lv(S)}, ${fmt(S.c||0)} pièces.\n\nOK = garder la partie du compte\nAnnuler = envoyer celle de cet appareil (elle remplace celle du compte)`);
+   if(keepCloud)this.adopt(c,u2);else{this.base=u2;this.set('base',u2);this.force=1;this.dirty();this.push()}
+  }
+  this.msg='';this.refused=0;this.badge();
+  if(r.j.recovery){this.code=r.j.recovery;this.panel()}else this.close()
+ },
+ forget(){this.tok='';this.user='';this.set('tok',null);this.set('user',null);this.set('base',null);this.base=0},
+ drop(){this.busy=0;this.forget();this.msg='Session expirée : reconnecte-toi.';this.badge()},
+ wipe(){this.forget();this.set('pend',null);try{localStorage.removeItem(KEY)}catch(e){}location.reload()},
+ async logout(){
+  if(this.pending)await this.push();
+  if(this.pending&&!confirm('La dernière sauvegarde en ligne a échoué : les changements récents seront perdus. Se déconnecter quand même ?'))return;
+  try{await this.api('logout','POST')}catch(e){}
+  this.wipe()
+ },
+ async del(){
+  const p=prompt('Pour supprimer définitivement ton compte et ta sauvegarde en ligne, tape ton mot de passe :');if(!p)return;
+  const r=await this.api('account','DELETE',{password:p}).catch(()=>null);
+  if(!r||!r.ok){this.msg=(r&&r.j.error)||'⚠ Serveur injoignable';return this.panel()}
+  this.forget();this.msg='Compte supprimé. Ta partie reste sur cet appareil.';this.panel();this.badge()
+ },
+ async sync(){this.refused=0;this.msg='…';this.panel();await this.pull();if(this.pending)await this.push();this.panel()},
+ copy(){try{navigator.clipboard.writeText(this.code);UI.toast('Code copié')}catch(e){}},
+ codeOk(){this.code='';this.close()},
+ async newCode(){
+  const p=prompt('Tape ton mot de passe pour générer un nouveau code (l\'ancien ne marchera plus) :');if(!p)return;
+  const r=await this.api('recovery-code','POST',{password:p}).catch(()=>null);
+  if(!r||!r.ok){this.msg=(r&&r.j.error)||'⚠ Serveur injoignable';return this.panel()}
+  this.code=r.j.recovery;this.panel()
+ },
+ async showBackups(){
+  const r=await this.api('backups','GET').catch(()=>null);
+  this.bk=r&&r.ok?r.j.list:[];if(!this.bk.length)this.msg='Aucune sauvegarde précédente pour l\'instant.';this.panel()
+ },
+ async restore(id){
+  if(!confirm('Remplacer ta partie actuelle par cette sauvegarde ? Ta partie actuelle sera elle-même conservée dans la liste.'))return;
+  const r=await this.api('restore','POST',{id}).catch(()=>null);
+  if(!r||!r.ok){this.msg=(r&&r.j.error)||'⚠ Serveur injoignable';return this.panel()}
+  this.refused=0;this.bk=null;this.adopt(r.j.data,r.j.updated);this.close()
+ },
+ badge(){const b=$('#acc');if(b)b.textContent=this.tok?'☁ '+this.user+(this.pending?' ⏳':''):'👤 Connexion'},
+ close(){if(this.code)return;this.bk=null;const m=$('#cm');if(m)m.remove()},
+ panel(){
+  let m=$('#cm');
+  if(!m){m=document.createElement('div');m.id='cm';m.style.cssText='position:fixed;inset:0;z-index:20;background:#000a;display:flex;align-items:center;justify-content:center;padding:16px';m.onclick=e=>{if(e.target===m)this.close()};document.body.appendChild(m)}
+  const lg=this.mode==='login',rc=this.mode==='recover';
+  const lv=x=>Math.min(100,Math.floor(Math.sqrt((x||0)/4000))+1);
+  const bk=this.bk&&this.bk.length?`<div style="margin-top:10px">${this.bk.map(b=>`<div class="row sp mu" style="margin:6px 0"><span>${esc(new Date(b.ts).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}))} · niv ${lv(b.xp)} · ${fmt(b.c)} 🪙</span><button class="chip" onclick="Cloud.restore(${+b.id})">Restaurer</button></div>`).join('')}</div>`:'';
+  const inner=this.code?
+   `<h2>🔑 Code de récupération</h2><p class="mu">Si tu oublies ton mot de passe, ce code est le seul moyen de récupérer ton compte. Note-le ou range-le dans un gestionnaire de mots de passe : il ne sera plus jamais affiché.</p>
+    <div class="panel" style="font:800 19px ui-monospace,monospace;text-align:center;user-select:all">${esc(this.code)}</div>
+    <div class="row"><button class="chip" onclick="Cloud.copy()">Copier</button><button class="btn sm" onclick="Cloud.codeOk()">J'ai noté mon code</button></div>`:
+   this.tok?
+   `<h2>☁ ${esc(this.user)}</h2><p class="mu">Ta progression est sauvegardée en ligne et suit ton compte sur tous tes appareils.</p>
+    <div class="row"><button class="btn sm" onclick="Cloud.sync()">Synchroniser maintenant</button><button class="chip" onclick="Cloud.logout()">Se déconnecter</button></div>
+    <div class="mu" style="margin-top:10px;min-height:18px">${esc(this.msg)}</div>
+    <div class="row"><button class="chip" onclick="Cloud.showBackups()">Sauvegardes précédentes</button><button class="chip" onclick="Cloud.newCode()">Nouveau code de récupération</button></div>${bk}
+    <div style="margin-top:12px"><button class="chip" onclick="Cloud.del()">Supprimer mon compte</button></div>`:
+   rc?
+   `<h2>🔑 Mot de passe oublié</h2><p class="mu">Entre ton pseudo, le code de récupération reçu à l'inscription et un nouveau mot de passe.</p>
+    <form onsubmit="event.preventDefault();Cloud.auth()">
+     <input class="in" id="cu" maxlength="20" autocomplete="username" placeholder="Pseudo" required>
+     <input class="in" id="cc" maxlength="40" autocomplete="off" placeholder="Code de récupération (XXXXX-XXXXX-XXXXX-XXXXX)" required>
+     <input class="in" id="cp" type="password" maxlength="128" autocomplete="new-password" placeholder="Nouveau mot de passe (8 caractères minimum)" required>
+     <button class="btn" style="width:100%">Réinitialiser mon mot de passe</button>
+    </form>
+    <div class="mu" style="margin:8px 0;min-height:18px">${esc(this.msg)}</div>
+    <button class="chip" onclick="Cloud.mode='login';Cloud.msg='';Cloud.panel()">← Retour</button>`:
+   `<h2>👤 Compte</h2><p class="mu">Connecte-toi pour retrouver ta progression sur tous tes appareils.</p>
+    <div class="row" style="margin-bottom:10px"><button class="chip ${lg?'on':''}" onclick="Cloud.mode='login';Cloud.msg='';Cloud.panel()">Connexion</button><button class="chip ${lg?'':'on'}" onclick="Cloud.mode='register';Cloud.msg='';Cloud.panel()">Créer un compte</button></div>
+    <form onsubmit="event.preventDefault();Cloud.auth()">
+     <input class="in" id="cu" maxlength="20" autocomplete="username" placeholder="Pseudo" required>
+     <input class="in" id="cp" type="password" maxlength="128" autocomplete="${lg?'current-password':'new-password'}" placeholder="Mot de passe${lg?'':' (8 caractères minimum)'}" required>
+     <button class="btn" style="width:100%">${lg?'Se connecter':'Créer mon compte'}</button>
+    </form>
+    <div class="mu" style="margin-top:8px;min-height:18px">${esc(this.msg)}</div>
+    ${lg?`<button class="chip" onclick="Cloud.mode='recover';Cloud.msg='';Cloud.panel()">Mot de passe oublié ?</button>`:''}
+    <div class="mu" style="margin-top:8px">Sans compte, ta partie reste seulement sur cet appareil.</div>`;
+  m.innerHTML=`<div class="panel" style="max-width:380px;width:100%;margin:0">${inner}</div>`;
+ },
+ init(){
+  this.badge();
+  addEventListener('online',()=>this.pull());
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){if(this.pending)this.push()}else this.pull()});
+  setInterval(()=>{if(this.pending&&!document.hidden)this.push()},30000);
+  this.pull()
+ }
+};
+
+/* ============ 7. DÉMARRAGE ============ */
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&UI.tab==='fish'){e.preventDefault();Engine.act()}});
+UI.render();
+Cloud.init();
+setInterval(()=>{if(Ev.tick())UI.head();else Ev.ui()},1000);
+</script></body></html>

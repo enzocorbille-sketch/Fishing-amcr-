@@ -1,0 +1,14 @@
+name = "catbet-fishing"
+main = "src/worker.js"
+compatibility_date = "2026-01-01"
+
+# Le jeu (public/index.html) est servi tel quel ; seules les routes /api/* passent par le Worker.
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "catbet"
+database_id = "REMPLACE_PAR_TON_ID"   # donné par : npx wrangler d1 create catbet
