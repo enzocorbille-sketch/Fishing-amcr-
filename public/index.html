@@ -128,8 +128,8 @@ const MUT=[['Bronze','🥉','#cd7f32',1.5,.08,'sepia(1) saturate(2.2) hue-rotate
  ['Halloween','🎃','#fb923c',10,.01,'sepia(1) saturate(5) hue-rotate(-25deg)'],
  ['Prismatique','🌈','#f0abfc',25,.0003,'saturate(1.6) brightness(1.15)']];
 const Mut={
- // Halloween : du 20 octobre au 2 novembre (date de l'appareil)
- on(d){if(!d&&typeof HW!=='undefined'&&HW.pv())return true;const x=d||new Date(),m=x.getMonth(),j=x.getDate();return(m===9&&j>=20)||(m===10&&j<=2)},
+ // Halloween : du 7 octobre au 2 novembre (date de l'appareil)
+ on(d){if(!d&&typeof HW!=='undefined'&&HW.pv())return true;const x=d||new Date(),m=x.getMonth(),j=x.getDate();return(m===9&&j>=7)||(m===10&&j<=2)},
  // tirage du plus rare au plus courant ; renvoie l'indice de la mutation ou -1
  roll(){for(const i of [6,4,3,5,2,1,0]){if(i===5&&!this.on())continue;if(Math.random()<MUT[i][4])return i}return -1},
  dex(){return `<h2>Mutations</h2><div class="grid">${MUT.map((m,i)=>{const n=(S.mu||{})[i]|0;return `<div class="fc ${n?'':'lock'}" style="--a:${m[2]}"><div class="em">${n?m[1]:'❔'}</div><b>${n?m[0]:'???'}</b><div class="mu">${n?'×'+n+' · ':''}valeur ×${m[3]}${i===5?' · événement 20 oct. → 2 nov.':''}</div></div>`}).join('')}</div>`}};
