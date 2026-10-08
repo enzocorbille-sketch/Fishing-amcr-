@@ -3,7 +3,9 @@ const enc = new TextEncoder();
 const SESSION_MS = 90 * 24 * 3600 * 1000;
 const MAX_SAVE = 200000; // octets max pour une sauvegarde
 const MAX_FAILS = 8, FAIL_WINDOW = 15 * 60 * 1000;
-const BACKUP_EVERY = 30 * 60 * 1000, MANUAL_KEEP = 5; // 1 sauvegarde automatique, 5 manuelles
+const BACKUP_EVERY = 30 * 60 * 1000, BACKUP_KEEP = 5; // sauvegardes automatiques : 5 conservées, la plus ancienne est supprimée à l'arrivée d'une nouvelle
+const ADMIN_DEFAULT = 'AMCR'; // pseudo du compte admin (remplaçable par la variable ADMIN_USERNAME)
+const VERSION = '2026-10-07b';
 
 // --- Contrôles anti-triche (volontairement larges : mieux vaut laisser passer que bloquer un vrai joueur) ---
 // À régler ici si tu ajoutes des fonctionnalités qui donnent de l'XP ou des pièces en dehors de la pêche.
@@ -21,19 +23,22 @@ function wealth(d) {
   for (const t in d.chests || {}) w += (+d.chests[t] || 0) * (CHEST_PRICE[t] || 0);
   return w;
 }
-// 1) Valeurs impossibles : la sauvegarde est REFUSÉE (renvoie la raison, sinon null)
+// 1) Valeurs absurdes (NaN, négatives, énormes) : seule raison de REFUSER une sauvegarde
 function invalid(next, al) {
-  const casts = +next.casts || 0, xp = +next.xp || 0, w = wealth(next);
-  if (casts > LIMITS.maxCasts) return 'casts';
-  if (xp > casts * LIMITS.xpPerCast + al.xp) return 'xp';
-  if (!isFinite(w) || w > 150 + casts * LIMITS.wealthPerCast + al.c) return 'richesse';
+  const casts = +next.casts || 0, xp = +next.xp || 0, c = +next.c || 0;
+  if (![casts, xp, c].every(isFinite) || casts < 0 || xp < 0 || c < 0) return 'valeur non valide';
+  if (casts > LIMITS.maxCasts) return 'lancers';
+  if (xp > 1e12 + al.xp) return 'xp';
+  if (wealth(next) > 1e17 + al.c) return 'richesse';
   return null;
 }
-// 2) Progression suspecte : la sauvegarde est ACCEPTÉE mais le compte est SIGNALÉ pour l'admin
-//    (jamais de blocage : deux appareils qui divergent ou une reprise après une longue pause restent légitimes)
+// 2) Progression suspecte : la sauvegarde est TOUJOURS ACCEPTÉE, mais le compte est SIGNALÉ pour l'admin
+//    (la sauvegarde d'un vrai joueur n'est donc jamais bloquée)
 function suspicious(next, prev, elapsedMs, al) {
-  if (!prev) return null;
   const casts = +next.casts || 0, xp = +next.xp || 0;
+  if (!al.xp && xp > casts * LIMITS.xpPerCast) return 'xp supérieure à ce que permettent les lancers';
+  if (!al.c && wealth(next) > 150 + casts * LIMITS.wealthPerCast) return 'richesse supérieure à ce que permettent les lancers';
+  if (!prev) return null;
   const dc = casts - (+prev.casts || 0);
   if (dc > elapsedMs / (LIMITS.minCastSeconds * 1000) + LIMITS.slackCasts) return 'rythme (+' + dc + ' lancers en ' + Math.round(elapsedMs / 1000) + ' s)';
   if (dc >= 0 && !al.xp && xp - (+prev.xp || 0) > dc * LIMITS.xpPerCast) return 'xp trop rapide';
@@ -195,27 +200,17 @@ async function newCodeFor(req, env, user) {
   return J({ recovery });
 }
 
-// Sauvegarde AUTOMATIQUE : une seule par compte (remplacée par la suivante), au plus toutes les 30 min,
-// et toujours juste avant qu'une sauvegarde soit remplacée de force (reset, restauration).
+// Sauvegardes AUTOMATIQUES : 5 par compte, la plus ancienne est supprimée quand une nouvelle arrive.
+// Une copie est faite au plus toutes les 30 min, et toujours juste avant qu'une sauvegarde soit remplacée de force (reset, restauration).
+// Seul le compte admin peut choisir et restaurer une copie.
 async function autoBackup(env, userId, data, always) {
   const now = Date.now();
-  const last = await env.DB.prepare("SELECT MAX(ts) AS ts FROM save_backups WHERE user_id = ? AND kind = 'auto'").bind(userId).first();
+  const last = await env.DB.prepare('SELECT MAX(ts) AS ts FROM save_backups WHERE user_id = ?').bind(userId).first();
   if (!always && last && last.ts && now - last.ts < BACKUP_EVERY) return;
   await env.DB.batch([
-    env.DB.prepare("DELETE FROM save_backups WHERE user_id = ? AND kind = 'auto'").bind(userId),
     env.DB.prepare("INSERT INTO save_backups(user_id, data, ts, kind) VALUES(?,?,?, 'auto')").bind(userId, data, now),
+    env.DB.prepare('DELETE FROM save_backups WHERE user_id = ? AND id NOT IN (SELECT id FROM save_backups WHERE user_id = ? ORDER BY ts DESC, id DESC LIMIT ?)').bind(userId, userId, BACKUP_KEEP),
   ]);
-}
-
-// Sauvegarde MANUELLE : 5 au maximum, la plus ancienne est supprimée quand une nouvelle arrive.
-async function manualBackup(env, userId) {
-  const cur = await env.DB.prepare('SELECT data FROM saves WHERE user_id = ?').bind(userId).first();
-  if (!cur) return false;
-  await env.DB.prepare("INSERT INTO save_backups(user_id, data, ts, kind) VALUES(?,?,?, 'manual')").bind(userId, cur.data, Date.now()).run();
-  await env.DB.prepare("DELETE FROM save_backups WHERE user_id = ? AND kind = 'manual' AND id NOT IN (SELECT id FROM save_backups WHERE user_id = ? AND kind = 'manual' ORDER BY ts DESC, id DESC LIMIT ?)")
-    .bind(userId, userId, MANUAL_KEEP)
-    .run();
-  return true;
 }
 
 async function backupsOf(env, userId) {
@@ -242,16 +237,6 @@ async function restoreFor(env, userId, backupId) {
   return { data: restored, updated: now };
 }
 
-async function listBackups(env, user) {
-  return J({ list: await backupsOf(env, user.id) });
-}
-
-async function restore(req, env, user) {
-  const b = await readJson(req);
-  const r = await restoreFor(env, user.id, b.id);
-  return r ? J(r) : J({ error: 'Sauvegarde introuvable.' }, 404);
-}
-
 // --- Classement : quatre statistiques tirées de la sauvegarde (bornées), recalculées à chaque sauvegarde ---
 const BOARDS = { casts: 'st_casts', species: 'st_species', mut: 'st_mut', ach: 'st_ach' };
 function statsOf(d) {
@@ -272,7 +257,7 @@ async function leaderboard(req, env, user) {
   const board = new URL(req.url).searchParams.get('board') || 'casts';
   const col = BOARDS[board];
   if (!col) return J({ error: 'Classement inconnu.' }, 400);
-  const adm = String(env.ADMIN_USERNAME || '');
+  const adm = adminName(env);
   const me = await env.DB.prepare('SELECT st_hide, flagged, ' + col + ' AS v FROM users WHERE id = ?').bind(user.id).first();
   const rows = await env.DB.prepare(
     'SELECT username, ' + col + ' AS value FROM users WHERE flagged = 0 AND st_hide = 0 AND username <> ? AND ' + col + ' > 0 ORDER BY ' + col + ' DESC, id ASC LIMIT 20'
@@ -336,7 +321,8 @@ function saveSummary(data) {
 }
 
 // --- Administration : réservée au compte dont le pseudo est ADMIN_USERNAME (voir wrangler.toml) ---
-const isAdmin = (env, user) => !!(env.ADMIN_USERNAME && user && user.username.toLowerCase() === String(env.ADMIN_USERNAME).toLowerCase());
+const adminName = (env) => String(env.ADMIN_USERNAME || ADMIN_DEFAULT);
+const isAdmin = (env, user) => !!(user && user.username.toLowerCase() === adminName(env).toLowerCase());
 
 async function adminUsers(env) {
   const rows = await env.DB.prepare(
@@ -463,6 +449,49 @@ async function putSave(req, env, user) {
   return J({ ok: true, updated: now });
 }
 
+// --- Base de données : tables et colonnes créées / ajoutées automatiquement (plus aucune migration à lancer à la main) ---
+const TABLES = [
+  'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL UNIQUE COLLATE NOCASE, salt TEXT NOT NULL, hash TEXT NOT NULL, created INTEGER NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS saves (user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, data TEXT NOT NULL, updated INTEGER NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS save_backups (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, data TEXT NOT NULL, ts INTEGER NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, expires INTEGER NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS login_fail (username TEXT NOT NULL COLLATE NOCASE, ts INTEGER NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS grants (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, ts INTEGER NOT NULL, op TEXT NOT NULL)',
+];
+const COLUMNS = {
+  users: [
+    ['recovery_hash', 'TEXT'], ['flagged', 'INTEGER NOT NULL DEFAULT 0'], ['flag_reason', 'TEXT'], ['flag_ts', 'INTEGER'],
+    ['ga_c', 'REAL NOT NULL DEFAULT 0'], ['ga_xp', 'REAL NOT NULL DEFAULT 0'],
+    ['st_casts', 'INTEGER NOT NULL DEFAULT 0'], ['st_species', 'INTEGER NOT NULL DEFAULT 0'], ['st_mut', 'INTEGER NOT NULL DEFAULT 0'],
+    ['st_ach', 'INTEGER NOT NULL DEFAULT 0'], ['st_hide', 'INTEGER NOT NULL DEFAULT 0'],
+  ],
+  save_backups: [['kind', "TEXT NOT NULL DEFAULT 'auto'"]],
+  grants: [['applied', 'INTEGER NOT NULL DEFAULT 0'], ['applied_ts', 'INTEGER'], ['undone', 'INTEGER NOT NULL DEFAULT 0']],
+};
+const INDEXES = [
+  'CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id)',
+  'CREATE INDEX IF NOT EXISTS idx_fail ON login_fail(username, ts)',
+  'CREATE INDEX IF NOT EXISTS idx_backups_user ON save_backups(user_id, ts)',
+  'CREATE INDEX IF NOT EXISTS idx_grants_user ON grants(user_id, applied)',
+];
+let schemaReady = null;
+function ensureSchema(env) {
+  if (!schemaReady) {
+    schemaReady = (async () => {
+      for (const sql of TABLES) await env.DB.prepare(sql).run();
+      for (const [table, cols] of Object.entries(COLUMNS)) {
+        const have = new Set(((await env.DB.prepare('PRAGMA table_info(' + table + ')').all()).results || []).map((r) => r.name));
+        for (const [name, type] of cols) if (!have.has(name)) await env.DB.prepare('ALTER TABLE ' + table + ' ADD COLUMN ' + name + ' ' + type).run();
+      }
+      for (const sql of INDEXES) await env.DB.prepare(sql).run();
+    })().catch((e) => {
+      schemaReady = null;
+      throw e;
+    });
+  }
+  return schemaReady;
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
@@ -470,7 +499,12 @@ export default {
       return env.ASSETS ? env.ASSETS.fetch(req) : new Response('Not found', { status: 404 });
     }
     try {
+      await ensureSchema(env);
       const route = req.method + ' ' + url.pathname;
+      if (route === 'GET /api/health') {
+        const adm = await env.DB.prepare('SELECT id FROM users WHERE username = ?').bind(adminName(env)).first();
+        return J({ ok: true, version: VERSION, admin_pseudo: adminName(env), admin_account_exists: !!adm });
+      }
       if (route === 'POST /api/register') return await register(req, env);
       if (route === 'POST /api/login') return await login(req, env);
       if (route === 'POST /api/recover') return await recover(req, env);
@@ -480,16 +514,10 @@ export default {
 
       if (route === 'GET /api/save') return J({ ...(await loadSave(env, user.id)), admin: isAdmin(env, user) });
       if (route === 'PUT /api/save') return await putSave(req, env, user);
-      if (route === 'GET /api/backups') return await listBackups(env, user);
-      if (route === 'POST /api/restore') return await restore(req, env, user);
       if (route === 'GET /api/leaderboard') return await leaderboard(req, env, user);
       if (route === 'POST /api/leaderboard/hide') return await setHidden(req, env, user);
       if (route === 'GET /api/grants') return await pendingGrants(env, user);
       if (route === 'POST /api/grants/ack') return await ackGrants(req, env, user);
-      if (route === 'POST /api/backup') {
-        const ok = await manualBackup(env, user.id);
-        return ok ? J({ ok: true }) : J({ error: 'Aucune partie à sauvegarder.' }, 400);
-      }
       if (url.pathname.startsWith('/api/admin/')) {
         if (!isAdmin(env, user)) return J({ error: 'Introuvable.' }, 404);
         return await adminRoute(route, req, env, user);
