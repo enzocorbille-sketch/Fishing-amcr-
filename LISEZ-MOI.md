@@ -23,6 +23,7 @@ Remplace `public/index.html` puis `npx wrangler deploy`. Les comptes et sauvegar
 - **Sauvegardes de secours :** à chaque reset ou remplacement de la partie, et au plus toutes les 30 min en jouant, le serveur garde la version précédente (5 conservées). Bouton « Sauvegardes précédentes » dans la fenêtre de compte.
 - **Contrôles anti-triche** (dans `src/worker.js`, bloc `LIMITS`) : le serveur refuse une sauvegarde si l'XP dépasse ce qu'on peut gagner avec le nombre de lancers, si le nombre de lancers augmente plus vite que le jeu ne le permet, ou si les pièces sont absurdes. La partie en ligne reste alors propre et le joueur est prévenu.
 - **Plusieurs appareils :** à la synchronisation, la partie la plus avancée (par XP) est gardée.
+- **Cannes Halloween :** pendant l'événement, l'onglet dédié de la boutique propose huit cannes limitées, achetables en 🎃 avec un niveau requis. Leurs illustrations originales sont dans `public/images/halloween/`. Leurs bonus réels correspondent aux valeurs indiquées sur les illustrations et les cannes obtenues sont conservées au prestige.
 
 ## Ajouter le système de compte à une autre version du jeu
 Le jeu fourni est la v11 (heure dorée sous la prise). Pour une autre version, reprendre depuis `public/index.html` :

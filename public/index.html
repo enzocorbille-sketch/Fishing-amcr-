@@ -66,11 +66,31 @@ body.hw .btn{color:#1a0a2e}body.hw .btn.eq{color:var(--tx)}body.hw .panel{border
 .sh{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}.shi{font-size:34px}.sf{margin-left:auto}
 .rc{--a:#64748b;border:1px solid var(--a);border-radius:18px;padding:12px;background:linear-gradient(180deg,color-mix(in srgb,var(--a) 18%,var(--card)),var(--card));display:flex;flex-direction:column;gap:6px;box-shadow:0 0 18px -10px var(--a)}
 .rc.lock{opacity:.6}.rh{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap}
+.rod-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;align-items:stretch}
+.rod-stats{display:flex;flex-direction:column;gap:6px}
+.rod-card{width:100%;min-width:0}.rod-card .btn{white-space:nowrap}
+.hwrod-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));align-items:start}
+.hwrod-card{display:flex;flex-direction:column;align-self:start;overflow:hidden;border:1px solid var(--a);border-radius:14px;background:#05040a;box-shadow:0 0 18px -10px var(--a)}
+.hwrod-img{display:block;width:100%;height:360px;object-fit:fill}
+.hwrod-buy{padding:8px}
 .pill{border:1px solid var(--p,#fff);color:var(--p,#fff);border-radius:999px;padding:2px 10px;font-size:11px;font-weight:800;background:#0006}
 .rart{display:flex;justify-content:center;padding:6px;border-radius:12px;background:radial-gradient(70% 90% at 50% 40%,color-mix(in srgb,var(--a) 35%,transparent),transparent 70%),#0a0f1e}
 .rs{display:flex;justify-content:space-between;font-size:13px;color:var(--mu)}.rs b{color:var(--tx)}.btn.eq{background:var(--card2);color:var(--tx);border:1px solid var(--line)}
 @media(max-width:760px){.shop{grid-template-columns:1fr}.sbar{flex-direction:row;overflow-x:auto}.sb{flex-shrink:0}nav{order:3;flex-basis:100%}.hside{margin-left:auto}}
-@media(max-width:600px){.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){
+ .grid:not(.hwrod-grid){grid-template-columns:1fr 1fr}
+ .grid.rod-list{grid-template-columns:1fr;gap:8px}
+ .rod-card{display:grid;grid-template-columns:70px minmax(0,1fr) auto;grid-template-rows:auto 1fr;align-items:center;gap:4px 10px;padding:10px;border-radius:14px}
+ .rod-card .rh{grid-column:2/4;min-width:0}
+ .rod-card .rh b{overflow-wrap:anywhere}
+ .rod-card .rart{grid-column:1;grid-row:1/3;width:70px;height:70px;padding:4px}
+ .rod-card .rart .fa{width:62px;height:62px}
+ .rod-card .rod-stats{grid-column:2;grid-row:2;display:flex;flex-direction:row;flex-wrap:wrap;gap:4px 10px}
+ .rod-card .rs{justify-content:flex-start;gap:4px;font-size:12px}
+ .rod-card .rs span{white-space:nowrap}
+ .rod-card .rs b{white-space:nowrap}
+ .rod-card>button{grid-column:3;grid-row:2;width:auto!important;min-width:82px;margin:0!important;padding:8px!important;font-size:12px!important}
+}
 </style></head><body>
 <header><span class="logo" onclick="UI.go('fish')"><span class="lg1">CATBET<span id="logoHw"></span></span><span class="lg2">Fishing</span></span><nav id="nav"></nav><button class="evb" id="evh" style="display:none" onclick="UI.qt='e';UI.go('quest')"></button><div class="hside"><div class="row" style="gap:6px"><button class="chip" id="acc" onclick="Cloud.panel()">👤 Connexion</button><button class="chip" id="devb" style="display:none" onclick="Cloud.admOpen()">🛠 Dev</button></div><div class="bal"><div class="coin"><span id="bal"></span><button class="plus" onclick="UI.shop='rods';UI.go('shop')" title="Boutique">+</button></div><div class="lv"><b id="hLv"></b><div class="xpb"><i id="hXp"></i></div><small id="hXt"></small></div></div></div></header>
 <main id="main"></main>
@@ -89,6 +109,21 @@ const FISH=[
 [["Mégalodon céleste",'',200000,400000,null,'#f5d0fe','#86198f',0],["Kraken primordial",'',300000,600000,null,'#e9d5ff','#6b21a8',1],["Léviathan éternel",'',500000,1000000,null,'#fbcfe8','#9d174d',1]]];
 // Cannes : nom, prix, chance, vitesse, fenêtre de ferrage (ms), couleur
 const RODS=[['Bambou',0,1,1,1400,'#d9a441'],['Roseau',24300,1.2,1.08,1480,'#a3e635'],['Carbone',40400,1.45,1.18,1550,'#94a3b8'],['Fibre de verre',262000,1.75,1.28,1650,'#67e8f9'],['Titane',494000,2.1,1.45,1800,'#7dd3fc'],['Corail',1200000,2.55,1.6,1900,'#fda4af'],['Tempête',8430000,3.1,1.8,2050,'#93c5fd'],['Astrale',16000000,3.8,2,2200,'#c4b5fd'],['Sanguine',29700000,4.6,2.25,2350,'#f87171'],['Spectrale',158000000,5.6,2.55,2500,'#a7f3d0'],['Dragon des mers',281000000,6.9,2.9,2700,'#fde047'],['Cosmique',501000000,8.5,3.3,2900,'#fbcfe8'],['Éclipse',2770000000,10.5,3.8,3100,'#a5b4fc'],['Nébuleuse',4900000000,13,4.3,3300,'#f0abfc'],['Aurore',8590000000,16,4.9,3500,'#5eead4'],['Trident du Léviathan',15000000000,20,5.6,3800,'#fde68a'],['Divine du Chat',86400000000,26,6.5,4200,'#f0abfc'],['Primordiale',141000000000,34,7.5,4600,'#fff']];
+const BASE_RODS=RODS.length;
+// Nom, niveau requis, prix en citrouilles, bonus, valeur du bonus, couleur, icône
+const HWRODS=[
+ ['Canne Citrouille',1,2000,'chance',.05,'#fb923c','🎃'],
+ ['Canne Fantôme',5,3500,'chance',.08,'#38bdf8','👻'],
+ ['Canne Sorcière',10,5000,'value',.12,'#22c55e','🧙'],
+ ['Canne Vampire',15,7500,'window',.2,'#ef4444','🦇'],
+ ['Canne Infernale',20,10000,'chance',.10,'#f97316','🔥'],
+ ['Canne Spectrale',25,15000,'value',.15,'#a855f7','🌀'],
+ ['Canne Lune Noire',35,22000,'chance',.20,'#93c5fd','🌙'],
+ ['Canne du Néant',50,35000,'value',.25,'#d946ef','✨']
+];
+const HWROD_IMAGES=['citrouille','fantome','sorciere','vampire','infernale','spectrale','lune-noire','neant'].map(n=>`images/halloween/${n}.png`);
+const hwRodImg=i=>`<img class="hwrod-img" src="${HWROD_IMAGES[i]}" alt="${HWRODS[i][0]}">`;
+RODS.push(...HWRODS.map(r=>[r[0],0,1+(r[3]==='chance'?r[4]:0),1,1400+(r[3]==='window'?r[4]*1000:0),r[5]]));
 // Appâts : nom, prix, chance, emoji, multiplicateur de valeur
 const BAITS=[['Mouche',5,1.08,'🪰',1.06],['Ver de terre',10,1.15,'🪱',1.14],['Crevette',50,1.4,'🦐',1.42],['Calmar',90,1.6,'🦑',1.73],['Leurre doré',150,1.9,'✨',2.12],['Appât astral',400,2.6,'🌟',2.93],['Appât abyssal',1500,3.5,'🐙',4.44],['Appât cosmique',6000,5,'🌌',7.7]];
 // Zones : nom, prix, chance, valeur, ciel, horizon, eau haut, eau bas
@@ -130,6 +165,7 @@ const lvlBar=()=>{const l=level(),a=4000*(l-1)**2,b=4000*l**2;return{l,p:l>=100?
 const activeBait=()=>S.bait>=0&&S.baits[S.bait]>0?S.bait:-1;
 const rodEn=r=>S.re[r]||(S.re[r]=[]);
 const fx=()=>{const f={L:1,S:1,W:1,V:1,C:1,Q:1,B:0,D:0,K:0,R:0,H:0,A:0,P:0,X:0};rodEn(S.rod).forEach(i=>{const l=S.en[i]|0;if(l>0)f[EN[i][3]]+=EN[i][4]*ENSCALE*l});
+ const hr=HWRODS[S.rod-BASE_RODS];if(hr&&hr[3]==='value')f.V*=1+hr[4];
  S.ae.forEach(i=>{const x=AR[i]&&AR[i][3];if(x)for(const k in x){if(AMUL.includes(k))f[k]*=1+(x[k]-1)*ASCALE;else f[k]+=x[k]*ASCALE}});
  f.V*=1+Pr.vb()*S.pr;f.L*=1+Pr.lb()*S.pr;if(Ev.active())f.V*=Ev.mult;return f};
 const luck=(b=activeBait())=>fx().L*RODS[S.rod][2]*ZONES[S.zone][2]*(b>=0?BAITS[b][2]:1)*(1+.015*(level()-1));
@@ -301,7 +337,12 @@ const Engine={
 
 /* ============ 5. ACTIONS ============ */
 const Act={
- buyRod(i){const p=RODS[i][1];if(S.rods.includes(i))S.rod=i;else if(S.c>=p){S.c-=p;S.rods.push(i);S.rod=i}else return;this.done()},
+ buyRod(i){if(i<0||i>=BASE_RODS)return;const p=RODS[i][1];if(S.rods.includes(i))S.rod=i;else if(S.c>=p){S.c-=p;S.rods.push(i);S.rod=i}else return;this.done()},
+ buyEventRod(i){const r=HWRODS[i],id=BASE_RODS+i;if(!r||!HW.on())return;const h=HW.st();if(S.rods.includes(id)||level()<r[1]||h.pk<r[2]||(h.shop['rod'+i]|0)>=1)return;
+  h.pk-=r[2];h.shop['rod'+i]=1;S.rods.push(id);S.rod=id;this.done()},
+ equipEventRod(i){const r=HWRODS[i],id=BASE_RODS+i;if(!r||!S.rods.includes(id))return;
+  if(level()<r[1])return UI.toast(`Niveau ${r[1]} requis pour équiper ${r[0]}`);
+  S.rod=id;this.done()},
  buyZone(i){const p=ZONES[i][1];if(S.zones.includes(i))S.zone=i;else if(S.c>=p){S.c-=p;S.zones.push(i);S.zone=i}else return;this.done()},
  buyBait(i,n){const p=BAITS[i][1]*n;if(S.c<p)return;S.c-=p;S.baits[i]=(S.baits[i]||0)+n;this.done()},
  sellChest(t){if(!(S.chests[t]>0))return;S.c+=CHESTS[t][3];if(!--S.chests[t])delete S.chests[t];this.done()},
@@ -316,8 +357,8 @@ const Act={
  equip(i){const e=rodEn(UI.er()),k=e.indexOf(i);
   if(k>=0)e.splice(k,1);else if(!(S.en[i]|0))return;else if(e.length<3)e.push(i);else return UI.toast('3 enchantements max par canne');this.done()},
  prestige(){if(!Pr.can())return;const g=Pr.gain();
-  if(!confirm(`Prestige : tu dépenses 1 🌠 Étoile filante, tu gagnes ${g} ⭐ et tu recommences à zéro (pièces, cannes, zones, appâts, inventaire, favoris, coffres, niveau).\nTu gardes : enchantements, artefacts, pierres, quêtes, index, mutations, succès et tes ⭐.\nContinuer ?`))return;
-  const keep={en:S.en,re:S.re,es:S.es,ao:S.ao,ae:S.ae,quests:S.quests,idx:S.idx,casts:S.casts,ev:S.ev,mu:S.mu,ach:S.ach,gr:S.gr,hw:S.hw,hwt:S.hwt,op:S.op,af:S.af,rec:S.rec,fa:S.fa,pr:(S.pr|0)+g,pn:(S.pn|0)+1,pt:(S.pt|0)-1,bk:S.bk};
+  if(!confirm(`Prestige : tu dépenses 1 🌠 Étoile filante, tu gagnes ${g} ⭐ et tu recommences à zéro (pièces, cannes classiques, zones, appâts, inventaire, favoris, coffres, niveau).\nTu gardes : tes cannes Halloween, enchantements, artefacts, pierres, quêtes, index, mutations, succès et tes ⭐.\nContinuer ?`))return;
+  const keep={rods:[0,...(S.rods||[]).filter(i=>i>=BASE_RODS&&i<RODS.length)],en:S.en,re:S.re,es:S.es,ao:S.ao,ae:S.ae,quests:S.quests,idx:S.idx,casts:S.casts,ev:S.ev,mu:S.mu,ach:S.ach,gr:S.gr,hw:S.hw,hwt:S.hwt,op:S.op,af:S.af,rec:S.rec,fa:S.fa,pr:(S.pr|0)+g,pn:(S.pn|0)+1,pt:(S.pt|0)-1,bk:S.bk};
   Engine.clear();Object.assign(S,fresh(),keep);UI.msg=`⭐ Prestige ${S.pn} · +${g} ⭐ · total ${S.pr} ⭐`;save();UI.go('prest')},
  qClaim(t,id){const q=QD[t].find(x=>x[0]===id),s=Q.st()[t];if(!q||s.done[id]||Q.prog(t,q)<q[3])return;s.done[id]=1;S.c+=Q.reward(q);UI.msg=`🎯 Quête « ${q[1]} » terminée · +${fmt(Q.reward(q))} 🪙`;this.done()},
  aeq(i){const k=S.ae.indexOf(i);if(k>=0)S.ae.splice(k,1);else if(!S.ao[i])return;else if(S.ae.length<3)S.ae.push(i);else return UI.toast('3 artefacts max');this.done()},
@@ -506,29 +547,40 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
   const lb=lvlBar(),p=$('#lv');if(p)p.innerHTML=`Niv. ${lb.l} <div class="bar"><i style="width:${lb.p*100}%"></i></div>`;
  },
  v_fish(){
-  const z=ZONES[S.zone],r=RODS[S.rod],lb=lvlBar();setTimeout(()=>this.refreshGo());
+  const z=ZONES[S.zone],r=RODS[S.rod],hr=HWRODS[S.rod-BASE_RODS],lb=lvlBar();setTimeout(()=>this.refreshGo());
   return `<div class="scene" style="--s:${z[4]};--h:${z[5]};--w1:${z[6]};--w2:${z[7]}"><div class="st" id="st">Prêt à pêcher dans ${z[0]}</div><div id="bob">🎣</div><div class="wv"></div></div>
   <div class="panel row"><button class="btn" id="go" onclick="Engine.act()">Lancer la ligne</button><div class="bar" id="tm"><i></i></div><button class="chip" onclick="Act.toggleFa()">${S.fa==='auto'?'🤖 Combat auto':'🎮 Combat manuel'}</button><span class="mu">Espace = lancer / ferrer</span></div>
   <div class="panel fp" id="fight" style="display:none"></div>
-  <div class="panel"><div class="row sp"><span><b style="color:${r[5]}">${r[0]}</b> · chance ×${luck().toFixed(2)} · ferrage ${r[4]} ms</span><span class="row" id="lv">Niv. ${lb.l} <div class="bar"><i style="width:${lb.p*100}%"></i></div></span></div>
+  <div class="panel"><div class="row sp"><span><b style="color:${r[5]}">${r[0]}</b> · chance ×${luck().toFixed(2)}${hr&&hr[3]==='value'?' · valeur +'+Math.round(hr[4]*100)+' %':''} · ferrage ${r[4]} ms</span><span class="row" id="lv">Niv. ${lb.l} <div class="bar"><i style="width:${lb.p*100}%"></i></div></span></div>
   <div class="row" style="margin-top:10px"><button class="chip ${S.bait<0?'on':''}" onclick="Act.pickBait(-1)">Sans appât</button>${BAITS.map((b,i)=>S.baits[i]>0?`<button class="chip ${S.bait===i?'on':''}" onclick="Act.pickBait(${i})">${b[3]} ${b[0]} ×${S.baits[i]}</button>`:'').join('')}</div></div>
   <div id="res">${Engine.last?'':'<div class="panel mu">Ta dernière prise apparaîtra ici.</div>'}</div>
   <div id="evb"></div><div id="hwb"></div>`;
  },
  v_shop(){
+  if(this.shop==='hwrods'&&!HW.on())this.shop='rods';
   const SB=[['rods','🎣','Cannes','Choisissez la canne qui correspond à votre style de pêche.'],['baits','🪱','Appâts','Plus de chance et plus de valeur à chaque lancer.'],['zones','🗺️','Zones','Chaque zone a ses propres poissons.']];
+  if(HW.on())SB.push(['hwrods','🎃','Cannes Halloween','Édition limitée · prix en citrouilles.']);
   const cur=SB.find(x=>x[0]===this.shop)||SB[0];
-  const side=`<aside class="sbar">${SB.map(([k,ic,n])=>`<button class="sb ${this.shop===k?'on':''}" onclick="UI.shop='${k}';UI.render()"><span class="ni">${ic}</span>${n}</button>`).join('')}<button class="sb" onclick="UI.go('ench')"><span class="ni">✨</span>Équipement<small>Enchantements, artefacts</small></button>${HW.on()?`<button class="sb hws" onclick="UI.qt='e';UI.go('quest')"><span class="ni">🎃</span><b>BOUTIQUE HALLOWEEN</b><small>Objets exclusifs</small></button>`:''}</aside>`;
+  const side=`<aside class="sbar">${SB.map(([k,ic,n])=>`<button class="sb ${this.shop===k?'on':''}" onclick="UI.shop='${k}';UI.render()"><span class="ni">${ic}</span>${n}</button>`).join('')}<button class="sb" onclick="UI.go('ench')"><span class="ni">✨</span>Équipement<small>Enchantements, artefacts</small></button>${HW.on()?`<button class="sb hws" onclick="UI.qt='e';UI.go('quest')"><span class="ni">🎃</span><b>BOUTIQUE HALLOWEEN</b><small>Quêtes et autres objets</small></button>`:''}</aside>`;
   const RAR=[['Commune','#cbd5e1',0,2],['Rare','#60a5fa',3,5],['Épique','#a78bfa',6,9],['Légendaire','#fb923c',10,14],['Mythique','#f43f5e',15,17]],rr=i=>RAR.findIndex(x=>i>=x[2]&&i<=x[3]);
-  let filt='',h='';
+  let filt='',h='',after='';
   if(this.shop==='rods'){
    const rf=this.rf==null?-1:this.rf;
    filt=`<div class="row" style="flex-wrap:wrap;gap:6px">${[[-1,'Toutes'],...RAR.map((x,i)=>[i,x[0]+'s'])].map(([k,n])=>`<button class="chip ${rf===k?'on':''}" onclick="UI.rf=${k};UI.render()">${n}</button>`).join('')}</div>`;
-   h=RODS.map((r,i)=>({r,i})).filter(({i})=>rf<0||rr(i)===rf).map(({r,i})=>{const own=S.rods.includes(i),A=RAR[rr(i)];
-    return `<div class="rc ${own||S.c>=r[1]?'':'lock'}" style="--a:${r[5]}"><div class="rh"><b>${r[0]}</b><span class="pill" style="--p:${A[1]}">${A[0]}</span></div><div class="rart">${rodArt(r[5])}</div><div class="rs"><span>🍀 Chance</span><b>×${r[2]}</b></div><div class="rs"><span>⚡ Vitesse</span><b>×${r[3]}</b></div><div class="rs"><span>🎯 Ferrage</span><b>${r[4]} ms</b></div><button class="btn sm ${S.rod===i?'eq':''}" style="width:100%;margin-top:8px" onclick="Act.buyRod(${i})" ${S.rod===i||(!own&&S.c<r[1])?'disabled':''}>${S.rod===i?'✓ Équipée':own?'Équiper':'🪙 '+fmt(r[1])}</button></div>`}).join('')}
+   h=RODS.slice(0,BASE_RODS).map((r,i)=>({r,i})).filter(({i})=>rf<0||rr(i)===rf).map(({r,i})=>{const own=S.rods.includes(i),A=RAR[rr(i)];
+    return `<div class="rc rod-card ${own||S.c>=r[1]?'':'lock'}" style="--a:${r[5]}"><div class="rh"><b>${r[0]}</b><span class="pill" style="--p:${A[1]}">${A[0]}</span></div><div class="rart">${rodArt(r[5])}</div><div class="rod-stats"><div class="rs"><span>🍀 Chance</span><b>×${r[2]}</b></div><div class="rs"><span>⚡ Vitesse</span><b>×${r[3]}</b></div><div class="rs"><span>🎯 Ferrage</span><b>${r[4]} ms</b></div></div><button class="btn sm ${S.rod===i?'eq':''}" style="width:100%;margin-top:8px" onclick="Act.buyRod(${i})" ${S.rod===i||(!own&&S.c<r[1])?'disabled':''}>${S.rod===i?'✓ Équipée':own?'Équiper':'🪙 '+fmt(r[1])}</button></div>`}).join('');
+   const owned=HWRODS.map((r,i)=>({r,i,id:BASE_RODS+i})).filter(x=>S.rods.includes(x.id));
+   if(owned.length)after=`<h2 style="margin-top:18px">🎃 Collection Halloween</h2><div class="grid hwrod-grid">${owned.map(({r,i,id})=>`<div class="hwrod-card" style="--a:${r[5]}">${hwRodImg(i)}<div class="hwrod-buy"><button class="btn sm ${S.rod===id?'eq':'g'}" style="width:100%" onclick="Act.equipEventRod(${i})" ${S.rod===id||level()<r[1]?'disabled':''}>${S.rod===id?'✓ Équipée':level()<r[1]?'🔒 Niveau '+r[1]:'Équiper'}</button></div></div>`).join('')}</div>`;
+  }
+  if(this.shop==='hwrods'){
+   const hstate=HW.st();
+   h=`<div class="panel" style="grid-column:1/-1;border-color:#fb923c"><div class="row sp"><b>🎃 ${fmt(hstate.pk)} citrouille(s)</b><span class="mu">Édition limitée · les cannes ne donnent pas de citrouilles supplémentaires.</span></div></div>
+   ${HWRODS.map((r,i)=>{const id=BASE_RODS+i,own=S.rods.includes(id),lvl=level()>=r[1],used=(hstate.shop['rod'+i]|0)>=1,cost=r[2],can=!own&&!used&&lvl&&hstate.pk>=cost;
+    return `<div class="hwrod-card ${own||can?'':'lock'}" style="--a:${r[5]}">${hwRodImg(i)}<div class="hwrod-buy"><button class="btn sm ${own||can?'g':''}" style="width:100%" onclick="Act.buyEventRod(${i})" ${own||used||!lvl||hstate.pk<cost?'disabled':''}>${own||used?'✓ Déjà obtenue':!lvl?'🔒 Niveau requis : '+r[1]:'🎃 '+fmt(cost)}</button></div></div>`}).join('')}`;
+  }
   if(this.shop==='baits')h=BAITS.map((b,i)=>`<div class="fc" style="--a:#38bdf8"><div class="em">${b[3]}</div><b>${b[0]}</b><div class="mu">Chance ×${b[2]} · Valeur ×${b[4]}<br>En stock : ${S.baits[i]||0}</div>${[1,10,100].map(n=>`<button class="btn sm" onclick="Act.buyBait(${i},${n})" ${S.c<b[1]*n?'disabled':''}>×${n} · ${fmt(b[1]*n)}</button>`).join(' ')}</div>`).join('');
   if(this.shop==='zones')h=ZONES.map((z,i)=>{const own=S.zones.includes(i);return `<div class="fc" style="--a:${z[6]}"><div class="em" style="height:54px;border-radius:12px;background:linear-gradient(${z[4]},${z[5]} 45%,${z[6]} 45%,${z[7]})"></div><b>${z[0]}</b><div class="mu">Chance ×${z[2]} · Valeur ×${z[3]}<br>Poissons exclusifs</div><button class="btn sm" onclick="Act.buyZone(${i})" ${S.zone===i||(!own&&S.c<z[1])?'disabled':''}>${S.zone===i?'Actuelle':own?'Y aller':'🪙 '+fmt(z[1])}</button></div>`}).join('');
-  return `<div class="shop">${side}<section><div class="sh"><div class="shi">${cur[1]}</div><div><h2 style="margin:0">${cur[2]}</h2><div class="mu">${cur[3]}</div></div><div class="sf">${filt}</div></div><div class="grid">${h}</div></section></div>`;
+  return `<div class="shop">${side}<section><div class="sh"><div class="shi">${cur[1]}</div><div><h2 style="margin:0">${cur[2]}</h2><div class="mu">${cur[3]}</div></div><div class="sf">${filt}</div></div><div class="grid ${this.shop==='hwrods'?'hwrod-grid':this.shop==='rods'?'rod-list':''}">${h}</div>${after}</section></div>`;
  },
  v_ench(){
   const er=this.er(),eq=rodEn(er),f=fx(),pr=Act.rerollPrice();
@@ -554,7 +606,7 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
   <div class="panel"><h2 style="margin-top:0">⭐ Prestige</h2><div class="row"><span class="chip">⭐ ${S.pr|0} étoile(s)</span><span class="chip">Valeur +${((S.pr|0)*Pr.vb()*100).toFixed(0)} %</span><span class="chip">Chance +${((S.pr|0)*Pr.lb()*100).toFixed(0)} %</span><span class="chip">${S.pn|0} prestige(s)</span></div>
   <p class="mu">Chaque ⭐ donne <b>+${Pr.vb()*100} % de valeur</b> et <b>+${Pr.lb()*100} % de chance</b> pour toujours. Le nombre d'étoiles gagnées dépend de la valeur de poissons pêchés pendant cette partie : <b>${fmt(S.fv||0)} 🪙</b>.</p>
   <p class="mu">Il te faut <b>1 🌠 Étoile filante</b> (tu en as <b>${S.pt|0}</b> ${can?'✅':'❌'}). C'est un objet très rare : il se pêche au hasard, ou sort des coffres Mythique et au-dessus.</p>
-  <div class="mu">Tu gardes : enchantements, artefacts, pierres, quêtes, index, mutations, succès, ⭐ et tes autres 🌠.<br>Tu perds : pièces, cannes, zones, appâts, inventaire, coffres, niveau de pêche.</div>
+  <div class="mu">Tu gardes : cannes Halloween, enchantements, artefacts, pierres, quêtes, index, mutations, succès, ⭐ et tes autres 🌠.<br>Tu perds : pièces, cannes classiques, zones, appâts, inventaire, coffres, niveau de pêche.</div>
   <button class="btn gold" style="margin-top:12px" onclick="Act.prestige()" ${can?'':'disabled'}>${can?`Faire un prestige · +${g} ⭐`:'Il te faut une 🌠 Étoile filante'}</button></div>`;
  },
  qt:'h',
