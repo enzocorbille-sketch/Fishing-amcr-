@@ -52,6 +52,8 @@ h2{margin:6px 0 12px;font-size:18px}.mu{color:var(--mu);font-size:13px}
 .pop{animation:pop .4s}@keyframes pop{from{transform:scale(.85);opacity:0}}
 input.in{width:100%;margin-bottom:8px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font-size:16px}
 .catch.mut{box-shadow:0 0 22px -6px var(--a)}.em.pr{animation:hue 3s linear infinite}@keyframes hue{to{filter:hue-rotate(360deg)}}
+.weather-banner{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;border-color:#60a5fa;background:linear-gradient(110deg,#0e3150,#19294d)}
+.weather-banner b{color:#bfdbfe}
 #hwb{margin-top:10px}#hwb .hwb{display:inline-block;cursor:pointer;background:linear-gradient(90deg,#7c3aed,#fb923c);color:#fff;font-weight:800;padding:8px 12px;border-radius:12px;animation:gl 2.2s ease-in-out infinite}
 header{align-items:center}
 .logo{cursor:pointer;display:flex;flex-direction:column;line-height:.95;font-style:italic;background:none;color:inherit;-webkit-background-clip:initial}
@@ -79,6 +81,21 @@ body.hw .btn{color:#1a0a2e}body.hw .btn.eq{color:var(--tx)}body.hw .panel{border
 .rod-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;align-items:stretch}
 .rod-stats{display:flex;flex-direction:column;gap:6px}
 .rod-card{width:100%;min-width:0}.rod-card .btn{white-space:nowrap}
+.rod-card{gap:8px;padding:10px;border-color:var(--rarity);border-radius:16px;background:linear-gradient(155deg,color-mix(in srgb,var(--rarity) 17%,#171322),#0c0d18 70%);box-shadow:0 0 17px -11px var(--rarity)}
+.rod-card.lock{opacity:1}
+.rod-card .rh{min-height:23px;flex-wrap:nowrap}
+.rod-card .rh>b{min-width:0;font-size:15px;line-height:1.15}
+.rod-card .pill{flex-shrink:0;background:#080b18;border-color:var(--rarity);color:var(--rarity)}
+.rod-card .rart{display:block;height:auto;padding:0;border:0;background:transparent}
+.rod-card .rart.short{aspect-ratio:220/85}
+.rod-card .rart.tall{aspect-ratio:224/109}
+.rod-shop-art{display:block;width:100%;height:100%;object-fit:contain;border-radius:11px;filter:drop-shadow(0 3px 7px color-mix(in srgb,var(--a) 50%,transparent))}
+.rod-card .rod-stats{gap:4px}
+.rod-card .rs{font-size:12px;color:#93a4c2}
+.rod-card .rs b{color:#eef3ff}
+.rod-card .rod-buy{width:100%;min-height:37px;margin-top:2px!important;border-radius:10px;background:linear-gradient(100deg,#fb923c,#a855f7);color:#190e2b}
+.rod-card .rod-buy:disabled:not(.eq){opacity:.58}
+.rod-card .rod-buy.eq{background:#19152a;color:#8d8aa0;border:1px solid #413953}
 .hwrod-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));align-items:start}
 .hwrod-card{display:flex;flex-direction:column;align-self:start;overflow:hidden;border:1px solid var(--a);border-radius:14px;background:#05040a;box-shadow:0 0 18px -10px var(--a)}
 .hwrod-img{display:block;width:100%;height:360px;object-fit:fill}
@@ -106,17 +123,14 @@ body.hw .btn{color:#1a0a2e}body.hw .btn.eq{color:var(--tx)}body.hw .panel{border
  .hwshop-art{height:auto;margin:0 6px}
  .hwshop-buy{padding:8px 6px 9px}
  .hwshop-buy .btn{min-height:36px;padding:7px 4px!important;font-size:10px!important;white-space:normal}
- .grid.rod-list{grid-template-columns:1fr;gap:8px}
- .rod-card{display:grid;grid-template-columns:70px minmax(0,1fr) auto;grid-template-rows:auto 1fr;align-items:center;gap:4px 10px;padding:10px;border-radius:14px}
- .rod-card .rh{grid-column:2/4;min-width:0}
- .rod-card .rh b{overflow-wrap:anywhere}
- .rod-card .rart{grid-column:1;grid-row:1/3;width:70px;height:70px;padding:4px}
- .rod-card .rart .fa{width:62px;height:62px}
- .rod-card .rod-stats{grid-column:2;grid-row:2;display:flex;flex-direction:row;flex-wrap:wrap;gap:4px 10px}
- .rod-card .rs{justify-content:flex-start;gap:4px;font-size:12px}
- .rod-card .rs span{white-space:nowrap}
- .rod-card .rs b{white-space:nowrap}
- .rod-card>button{grid-column:3;grid-row:2;width:auto!important;min-width:82px;margin:0!important;padding:8px!important;font-size:12px!important}
+ .grid.rod-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .rod-card{gap:6px;padding:8px}
+ .rod-card .rh>b{font-size:12px}
+ .rod-card .pill{padding:2px 5px;font-size:9px}
+ .rod-card .rart{height:auto;padding:0}
+ .rod-card .rod-stats{gap:3px}
+ .rod-card .rs{font-size:10px}
+ .rod-card .rod-buy{min-height:34px;padding:7px 3px!important;font-size:10px!important;white-space:normal}
 }
 </style></head><body>
 <header><span class="logo" onclick="UI.go('fish')"><span class="lg1">CATBET<span id="logoHw"></span></span><span class="lg2">Fishing</span></span><nav id="nav"></nav><button class="evb" id="evh" style="display:none" onclick="UI.qt='e';UI.go('quest')"></button><div class="hside"><div class="row" style="gap:6px"><button class="chip" id="acc" onclick="Cloud.panel()">👤 Connexion</button><button class="chip" id="devb" style="display:none" onclick="Cloud.admOpen()">🛠 Dev</button></div><div class="bal"><div class="coin"><span id="bal"></span><button class="plus" onclick="UI.shop='rods';UI.go('shop')" title="Boutique">+</button></div><div class="lv"><b id="hLv"></b><div class="xpb"><i id="hXp"></i></div><small id="hXt"></small></div></div></div></header>
@@ -150,11 +164,27 @@ const HWRODS=[
 ];
 const HWROD_IMAGES=['citrouille','fantome','sorciere','vampire','infernale','spectrale','lune-noire','neant'].map(n=>`images/halloween/${n}.png`);
 const hwRodImg=i=>`<img class="hwrod-img" src="${HWROD_IMAGES[i]}" alt="${HWRODS[i][0]}">`;
+const ROD_SHOP_IMAGES=['bambou','roseau','carbone','fibre-de-verre','titane','corail','tempete','astrale','sanguine','spectrale','dragon-des-mers','cosmique','eclipse','nebuleuse','aurore','trident-du-leviathan','divine-du-chat','primordiale'].map(n=>`images/rods/${n}.png`);
+const rodShopArt=i=>`<img class="rod-shop-art" src="${ROD_SHOP_IMAGES[i]}" alt="${RODS[i][0]}">`;
 RODS.push(...HWRODS.map(r=>[r[0],0,1+(r[3]==='chance'?r[4]:0),1,1400+(r[3]==='window'?r[4]*1000:0),r[5]]));
 // Appâts : nom, prix, chance, emoji, multiplicateur de valeur
 const BAITS=[['Mouche',5,1.08,'🪰',1.06],['Ver de terre',10,1.15,'🪱',1.14],['Crevette',50,1.4,'🦐',1.42],['Calmar',90,1.6,'🦑',1.73],['Leurre doré',150,1.9,'✨',2.12],['Appât astral',400,2.6,'🌟',2.93],['Appât abyssal',1500,3.5,'🐙',4.44],['Appât cosmique',6000,5,'🌌',7.7]];
 // Zones : nom, prix, chance, valeur, ciel, horizon, eau haut, eau bas
 const ZONES=[['Étang paisible',0,1,1.0,'#1e1b4b','#f472b6','#0ea5e9','#082f49'],['Rivière',86100,1.22,1.28,'#1e3a8a','#fdba74','#22d3ee','#0e4f5c'],['Lac brumeux',2670000,1.48,1.73,'#334155','#cbd5e1','#64748b','#0f172a'],['Récif corallien',54200000,1.9,2.63,'#0ea5e9','#fde68a','#2dd4bf','#134e4a'],['Abysses',893000000,2.45,4.44,'#020617','#1e1b4b','#1e3a8a','#020617'],['Mer astrale',26200000000,3.2,7.7,'#0f0a1e','#a855f7','#4c1d95','#0f0a1e']];
+const WEATHER=[
+ ['rain','Pluie fine','🌧️','Une carpe argentée se montre dans les eaux calmes.',0],
+ ['sun','Grand soleil','☀️','Un poisson-lune apparaît près des rivières.',1],
+ ['stars','Nuit étoilée','🌙','La carpe lunaire nage dans les lacs brumeux.',2]
+];
+const WEATHER_MS=8*60*1000;
+const Weather={
+ current(){return WEATHER[Math.floor(Date.now()/WEATHER_MS)%WEATHER.length]},
+ left(){return WEATHER_MS-Date.now()%WEATHER_MS},
+ ui(){const e=$('#weather-banner');if(!e)return;const w=this.current(),m=Math.floor(this.left()/60000),s=Math.floor(this.left()%60000/1000);e.innerHTML=`<span><b>${w[2]} ${w[1]}</b><br><span class="mu">${w[3]}</span></span><span class="mu">Change dans ${m}:${String(s).padStart(2,'0')}</span>`}
+};
+FISH[1].push(['Carpe argentée','',60,120,0,'#e2e8f0','#64748b',0,'rain']);
+FISH[2].push(['Poisson-lune','',280,520,1,'#fde68a','#f97316',1,'sun']);
+FISH[3].push(['Carpe lunaire','',1800,3200,2,'#c4b5fd','#312e81',1,'stars']);
 
 // Enchantements (3 emplacements par canne) : nom, emoji, description, effet, bonus/niveau, niveau max, prix de base
 // ENSCALE réduit tous les bonus pour garder la durée du jeu autour de 200 h (mesuré par simulation)
@@ -206,7 +236,7 @@ const dk=(h,f=.55)=>'#'+[1,3,5].map(i=>Math.round(parseInt(h.slice(i,i+2),16)*f)
 // Dessin SVG d'un poisson (a/b = couleurs, sp = corps rond, g = halo pour les raretés hautes)
 const art=(f,t)=>{const a=f[5],b=f[6],sp=f[7],g=t>=3,u='q'+a.slice(1)+b.slice(1);return `<svg viewBox="0 0 180 120" class="fa"><defs><linearGradient id="${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>${g?`<circle cx="90" cy="60" r="56" fill="${a}" opacity=".22"/>`:''}${sp?`<ellipse cx="86" cy="60" rx="52" ry="46" fill="url(#${u})"/><path d="M132 60L172 36V84Z" fill="${b}"/><path d="M70 16Q86 0 102 16Z" fill="${b}"/><path d="M58 88Q70 108 84 90Z" fill="${b}"/>`:`<path d="M138 60L174 30Q164 60 174 90Z" fill="${b}"/><path d="M28 60C44 22 108 20 142 60 108 100 44 98 28 60Z" fill="url(#${u})"/><path d="M62 34Q86 8 112 38Z" fill="${b}"/><path d="M84 84Q96 104 112 84Z" fill="${b}"/>`}<path d="M74 44Q66 60 74 76" stroke="#fff6" stroke-width="3" fill="none"/><circle cx="${sp?52:48}" cy="52" r="7" fill="#fff"/><circle cx="${sp?50:46}" cy="52" r="3.5" fill="#111"/><ellipse cx="84" cy="40" rx="22" ry="6" fill="#fff" opacity=".35"/></svg>`};
 const rodArt=a=>{const b=dk(a);return `<svg viewBox="0 0 120 120" class="fa"><path d="M22 104L96 16" stroke="${b}" stroke-width="7" stroke-linecap="round"/><path d="M22 104L70 47" stroke="${a}" stroke-width="7" stroke-linecap="round"/><circle cx="40" cy="82" r="9" fill="${a}" stroke="${b}" stroke-width="3"/><path class="rod-tip-line" d="M96 16Q108 50 96 84" stroke="#fff9" stroke-width="1.5" fill="none"/><path class="rod-hook" d="M96 84a5 5 0 1 1-6 5" stroke="#e2e8f0" stroke-width="2.5" fill="none"/></svg>`};
-const pool=t=>FISH[t].map((f,j)=>[f,j]).filter(([f])=>f[4]==null||f[4]===S.zone);
+const pool=t=>FISH[t].map((f,j)=>[f,j]).filter(([f])=>(f[4]==null||f[4]===S.zone)&&(!f[8]||f[8]===Weather.current()[0]));
 
 const pickW=w=>{let x=Math.random()*w.reduce((a,b)=>a+b,0);for(let i=0;i<w.length;i++)if((x-=w[i])<=0)return i;return w.length-1};
 const chestArt=t=>{const[,c,d]=CHESTS[t];return `<svg viewBox="0 0 160 140" class="fa"><circle cx="80" cy="76" r="62" fill="${c}" opacity=".2"/><ellipse cx="80" cy="128" rx="54" ry="8" fill="#000" opacity=".5"/><rect x="24" y="68" width="112" height="58" rx="8" fill="${d}" stroke="${c}" stroke-width="3"/><path d="M20 72Q20 24 80 24Q140 24 140 72Z" fill="${d}" stroke="${c}" stroke-width="3"/><path d="M40 72Q42 42 80 38" stroke="#fff5" stroke-width="4" fill="none"/><rect x="40" y="44" width="12" height="82" fill="${c}" opacity=".85"/><rect x="108" y="44" width="12" height="82" fill="${c}" opacity=".85"/><rect x="66" y="62" width="28" height="30" rx="6" fill="${c}" stroke="#fff" stroke-width="2"/><text x="80" y="84" text-anchor="middle" font-size="20" font-weight="900" fill="${d}">${CSYM[t]}</text></svg>`};
@@ -454,6 +484,20 @@ const Q={
 
 /* ============ 5c. FAVORIS, SUCCÈS, TROPHÉES & ÉVÉNEMENT HALLOWEEN ============ */
 const FAVMAX=300;
+const migrateTank=d=>{
+ if(!Array.isArray(d.tank))return false;
+ d.fav=Array.isArray(d.fav)?d.fav:[];
+ d.inv=d.inv&&typeof d.inv==='object'?d.inv:{};
+ for(const f of d.tank){
+  if(!f||!FISH[f.t]||!FISH[f.t][f.j])continue;
+  const value=Math.max(0,+f.v||0);
+  if(f.origin==='fav'&&d.fav.length<FAVMAX)d.fav.push({t:f.t,j:f.j,v:value,m:Number.isInteger(f.m)?f.m:-1});
+  else{const k=f.t+'-'+f.j,e=d.inv[k]||{n:0,v:0};e.n++;e.v+=value;d.inv[k]=e}
+ }
+ delete d.tank;
+ return true;
+};
+if(migrateTank(S))try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){console.error('Aquarium fish migration could not be saved locally.',e)}
 // bouton « favori » sous la prise qu'on vient de faire
 const favBtn=c=>c.fav?'<div class="mu">⭐ En favori (protégé de la vente)</div>':((S.inv[c.t+'-'+c.j]||{n:0}).n>0?'<div style="margin-top:6px"><button class="chip" onclick="Act.favLast()">⭐ Mettre en favori</button></div>':'');
 const topTier=()=>TIERS.length-1;
@@ -517,7 +561,7 @@ const HW={
  ui(){const e=$('#hwb');if(!e)return;e.innerHTML=this.on()?`<span class="hwb" onclick="UI.qt='e';UI.go('quest')">🎃 Événement Halloween · mutation ×${MUT[5][3]} · ${this.left()} · 🎃 ${this.st().pk}</span>`:''}};
 
 /* ============ 6. INTERFACE ============ */
-const TABS=[['fish','🎣 Pêche'],['shop','🛒 Boutique'],['ench','✨ Bonus'],['quest','🎯 Quêtes'],['ach','🏆 Succès'],['prest','⭐ Prestige'],['inv','🎒 Inventaire'],['dex','📖 Index']];
+const TABS=[['fish','🎣 Pêche'],['shop','🛒 Boutique'],['ench','✨ Bonus'],['quest','🎯 Quêtes'],['ach','🏆 Succès'],['prest','⭐ Prestige'],['inv','🎒 Inventaire'],['lb','🏅 Classement'],['dex','📖 Index']];
 function drawFishingScene(){
  const canvas=$('.scene-art-canvas');if(!canvas)return;
  const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Impossible de créer le rendu de la scène de pêche.');
@@ -609,7 +653,7 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
   if(lg)lg.textContent=hw?' 🎃':'';
   if(eh){eh.style.display=hw?'':'none';eh.innerHTML=hw?`<span class="pk">🎃</span><span><b>ÉVÉNEMENT HALLOWEEN</b><small>${HW.real()?'Du 7 oct. au 2 nov.':'Aperçu admin'}${HW.ready()?' · ●'+HW.ready():''}</small></span>`:''}
   $('#nav').innerHTML=TABS.map(([k,n])=>{const sp=n.indexOf(' '),ic=n.slice(0,sp),lab=n.slice(sp+1);return `<button class="${k===this.tab||(k==='inv'&&this.tab==='open')?'on':''}" onclick="UI.go('${k}')"><span class="ni">${ic}</span><span>${lab}${k==='prest'&&(S.pt|0)>0?` <b style="color:var(--gold)">🌠${S.pt}</b>`:''}${k==='quest'&&Q.ready()+HW.ready()?` <b style="color:var(--gr)">●${Q.ready()+HW.ready()}</b>`:''}${k==='ach'&&Ach.ready()?` <b style="color:var(--gr)">●${Ach.ready()}</b>`:''}</span></button>`}).join('')},
- render(){this.head();$('#main').innerHTML=this['v_'+this.tab]();Ev.ui()},
+ render(){this.head();$('#main').innerHTML=this['v_'+this.tab]();Ev.ui();Weather.ui()},
  fishState(msg,cls){const s=$('#st'),b=$('#bob');if(!s)return;s.textContent=msg;const scene=s.closest('.scene');if(scene)scene.classList.toggle('status-active',!!cls||msg!==`Prêt à pêcher dans ${ZONES[S.zone][0]}`);if(b)b.className=cls;this.refreshGo()},
  refreshGo(){const g=$('#go');if(!g)return;const s=Engine.st;g.disabled=s===1;g.textContent=['Lancer','Patience…','FERRER !'][s];g.className='btn '+(s===2?'g':'')},
  timer(ms){const i=$('#tm i');if(!i)return;i.style.transition='none';i.style.width='100%';requestAnimationFrame(()=>requestAnimationFrame(()=>{i.style.transition=`width ${ms}ms linear`;i.style.width='0'}))},
@@ -675,7 +719,7 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
   <rect width="960" height="360" filter="url(#grain)" opacity=".22"/>
   </svg><svg class="scene-line${hr?' event':''}" viewBox="0 0 410 280" preserveAspectRatio="none" aria-hidden="true"><path d="M410 0C360 90 218 270 10 275"/></svg><div class="${hr?'scene-rod-event':'scene-rod'}">${sceneRod(r[5])}</div><div class="st" id="st">Prêt à pêcher dans ${z[0]}</div><div id="bob"></div>
   <div class="panel cast-panel"><button class="btn" id="go" onclick="Engine.act()">Lancer</button><div class="bar" id="tm"><i></i></div><span class="mu cast-hint">Espace pour lancer ou ferrer · combat automatique</span></div></div>
-  <div class="panel water-info"><div class="row sp"><span><b style="color:${r[5]}">${r[0]}</b> · chance ×${luck().toFixed(2)}${hr&&hr[3]==='value'?' · valeur +'+Math.round(hr[4]*100)+' %':''} · ferrage ${r[4]} ms</span><span class="row" id="lv">Niv. ${lb.l} <div class="bar"><i style="width:${lb.p*100}%"></i></div></span></div>
+  <div class="panel weather-banner" id="weather-banner"></div><div class="panel water-info"><div class="row sp"><span><b style="color:${r[5]}">${r[0]}</b> · chance ×${luck().toFixed(2)}${hr&&hr[3]==='value'?' · valeur +'+Math.round(hr[4]*100)+' %':''} · ferrage ${r[4]} ms</span><span class="row" id="lv">Niv. ${lb.l} <div class="bar"><i style="width:${lb.p*100}%"></i></div></span></div>
   <div class="row bait-row"><button class="chip ${S.bait<0?'on':''}" onclick="Act.pickBait(-1)">Sans appât</button>${BAITS.map((b,i)=>S.baits[i]>0?`<button class="chip ${S.bait===i?'on':''}" onclick="Act.pickBait(${i})">${b[3]} ${b[0]} ×${S.baits[i]}</button>`:'').join('')}</div></div>
   <div id="res">${Engine.last?'':'<div class="panel mu">Ta dernière prise apparaîtra ici.</div>'}</div>
   <div id="evb"></div><div id="hwb"></div>`;
@@ -692,7 +736,7 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
    const rf=this.rf==null?-1:this.rf;
    filt=`<div class="row" style="flex-wrap:wrap;gap:6px">${[[-1,'Toutes'],...RAR.map((x,i)=>[i,x[0]+'s'])].map(([k,n])=>`<button class="chip ${rf===k?'on':''}" onclick="UI.rf=${k};UI.render()">${n}</button>`).join('')}</div>`;
    h=RODS.slice(0,BASE_RODS).map((r,i)=>({r,i})).filter(({i})=>rf<0||rr(i)===rf).map(({r,i})=>{const own=S.rods.includes(i),A=RAR[rr(i)];
-    return `<div class="rc rod-card ${own||S.c>=r[1]?'':'lock'}" style="--a:${r[5]}"><div class="rh"><b>${r[0]}</b><span class="pill" style="--p:${A[1]}">${A[0]}</span></div><div class="rart">${rodArt(r[5])}</div><div class="rod-stats"><div class="rs"><span>🍀 Chance</span><b>×${r[2]}</b></div><div class="rs"><span>⚡ Vitesse</span><b>×${r[3]}</b></div><div class="rs"><span>🎯 Ferrage</span><b>${r[4]} ms</b></div></div><button class="btn sm ${S.rod===i?'eq':''}" style="width:100%;margin-top:8px" onclick="Act.buyRod(${i})" ${S.rod===i||(!own&&S.c<r[1])?'disabled':''}>${S.rod===i?'✓ Équipée':own?'Équiper':'🪙 '+fmt(r[1])}</button></div>`}).join('');
+    return `<div class="rc rod-card ${own||S.c>=r[1]?'':'lock'}" style="--a:${r[5]};--rarity:${A[1]}"><div class="rh"><b>${r[0]}</b><span class="pill">${A[0]}</span></div><div class="rart ${i<9?'short':'tall'}">${rodShopArt(i)}</div><div class="rod-stats"><div class="rs"><span>🍀 Chance</span><b>×${r[2]}</b></div><div class="rs"><span>⚡ Vitesse</span><b>×${r[3]}</b></div><div class="rs"><span>🎯 Ferrage</span><b>${r[4]} ms</b></div></div><button class="btn sm rod-buy ${S.rod===i?'eq':own?'g':''}" onclick="Act.buyRod(${i})" ${S.rod===i||(!own&&S.c<r[1])?'disabled':''}>${S.rod===i?'✓ Équipée':own?'Équiper':'🪙 '+fmt(r[1])}</button></div>`}).join('');
    const owned=HWRODS.map((r,i)=>({r,i,id:BASE_RODS+i})).filter(x=>S.rods.includes(x.id));
    if(owned.length)after=`<h2 style="margin-top:18px">🎃 Collection Halloween</h2><div class="grid hwrod-grid">${owned.map(({r,i,id})=>`<div class="hwrod-card" style="--a:${r[5]}">${hwRodImg(i)}<div class="hwrod-buy"><button class="btn sm ${S.rod===id?'eq':'g'}" style="width:100%" onclick="Act.equipEventRod(${i})" ${S.rod===id||level()<r[1]?'disabled':''}>${S.rod===id?'✓ Équipée':level()<r[1]?'🔒 Niveau '+r[1]:'Équiper'}</button></div></div>`).join('')}</div>`;
   }
@@ -763,13 +807,11 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
  <div class="grid">${keys.map(k=>{const[t,j]=k.split('-'),f=FISH[t][j],e=S.inv[k];return `<div class="fc" style="--a:${TIERS[t][1]}"><div class="em">${art(f,+t)}</div><b>${f[0]}</b><div class="mu">×${e.n} · 🪙 ${fmt(e.v)}</div></div>`}).join('')}</div>`:'';
  const favs=`<div class="panel row sp"><span>⭐ Mettre automatiquement les poissons <b>mutés</b> en favoris</span><button class="chip ${S.af!==0?'on':''}" onclick="Act.toggleAf()">${S.af!==0?'Activé':'Désactivé'}</button></div>`+(fv.length?`<h2>⭐ Favoris (${fv.length}/${FAVMAX}) · 🪙 ${fmt(fv.reduce((a,f)=>a+f.v,0))}</h2><div class="grid" style="margin-bottom:12px">${fv.map((f,i)=>{const F=FISH[f.t][f.j],m=f.m>=0?MUT[f.m]:null;return `<div class="fc${m?' mut':''}" style="--a:${m?m[2]:TIERS[f.t][1]}"><div class="em${m&&f.m===6?' pr':''}"${m?` style="filter:${m[5]}"`:''}>${art(F,+f.t)}</div><b>${F[0]}</b><div class="mu">${m?m[1]+' '+m[0]+' · ':''}🪙 ${fmt(f.v)}</div><button class="chip" onclick="Act.sellFav(${i})">Vendre</button> <button class="chip" onclick="Act.unfav(${i})">Retirer ⭐</button></div>`}).join('')}</div>`:'');
  return rodItems+baitItems+favs+chests+fish;
- },
+  },
   v_ach(){
-   const at=this.at||'ach',msg=this.msg;this.msg='';
-   const tabs=[['ach','🏆 Succès'],['lb','🏅 Classement']].map(([k,n])=>`<button class="chip ${at===k?'on':''}" onclick="UI.at='${k}';UI.render()">${n}</button>`).join('');
-   const head=`${msg?`<div class="panel pop" style="border-color:var(--gr)">${msg}</div>`:''}<div class="row sp" style="margin-bottom:12px"><span class="row">${tabs}</span><span class="mu">🏆 ${Ach.trophies()} trophée(s)</span></div>`;
-   if(at==='lb')return head+Cloud.lbView();
-   return head+`<div class="grid">${ACH.map(a=>{const t=a[4](),v=a[5](),d=Ach.done(a),c=Ach.claimed(a),all=d>=t.length,nx=t[Math.min(d,t.length-1)],ic=Ach.icons(a),pend=Ach.pending(a);
+    const msg=this.msg;this.msg='';
+    const head=`${msg?`<div class="panel pop" style="border-color:var(--gr)">${msg}</div>`:''}<div class="panel row sp" style="margin-bottom:12px"><b>🏆 ${Ach.trophies()} trophée(s)</b></div>`;
+    return head+`<div class="grid">${ACH.map(a=>{const t=a[4](),v=a[5](),d=Ach.done(a),c=Ach.claimed(a),all=d>=t.length,nx=t[Math.min(d,t.length-1)],ic=Ach.icons(a),pend=Ach.pending(a);
     return `<div class="fc" style="--a:${all&&c>=t.length?'#22e39a':d>c?'#fbbf24':'#38bdf8'}"><div class="em" style="font-size:34px;height:44px">${a[3]}</div><b>${a[1]}</b><div class="mu" style="font-size:12px">${a[2]}</div><div style="margin:6px 0;font-size:20px">${ic.map((x,i)=>`<span style="opacity:${i<c?1:i<d?.8:.22}">${x}</span>`).join('')}</div><div class="bar" style="margin:6px auto;max-width:90%"><i style="width:${Math.min(1,v/nx)*100}%"></i></div><div class="mu">${fmt(Math.min(v,nx))} / ${fmt(nx)}</div>${d>c?`<button class="btn sm g" style="margin-top:6px" onclick="Ach.claim('${a[0]}')">Réclamer +${fmt(pend.g)} 🪙${pend.s?' +'+pend.s+' 🪨':''}</button>`:all&&c>=t.length?'<div class="mu" style="color:var(--gr);font-weight:800;margin-top:6px">✔ Complété</div>':''}</div>`}).join('')}</div>`;
   },
  /* --- Ouverture de coffre : aperçu des probabilités + roulette --- */
@@ -798,9 +840,12 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
    $('#cn').textContent='×'+(S.chests[t]||0);$('#ob').disabled=!(S.chests[t]>0);
    $('#rw').innerHTML=`<div class="panel catch pop" style="--a:${win.c};margin-top:12px"><div><div style="color:${win.c};font-weight:900">Tu as obtenu :</div><b>${win.lab}</b></div></div>`},4700);
  },
+ v_lb(){
+  return `<div class="panel"><h2>🏅 Classement mondial</h2><div class="mu">Compare les joueurs par lancers, pièces, poissons capturés et poisson le plus rare. Les données viennent des comptes en ligne.</div></div>${Cloud.lbView()}`;
+ },
  v_dex(){
   const all=FISH.flat().length,got=Object.keys(S.idx).length;
-  return `<div class="panel row sp"><b>Index : ${got}/${all} · 🐉 Boss vaincus : ${Object.values(S.bk||{}).reduce((a,b)=>a+b,0)}</b><button class="chip" onclick="Act.reset()">Réinitialiser la partie</button></div>`+TIERS.map((T,t)=>`<h2 style="color:${T[1]}">${T[0]}</h2><div class="grid">${FISH[t].map((f,j)=>{const n=S.idx[t+'-'+j];return `<div class="fc ${n?'':'lock'}" style="--a:${T[1]}"><div class="em ${n?'':'sil'}">${art(f,t)}</div><b>${n?f[0]:'???'}</b><div class="mu">${n?'×'+n+' · ':''}${f[4]!=null?'Zone : '+ZONES[f[4]][0]:'Toutes zones'}${n&&(S.rec||{})[t+'-'+j]?'<br>🏅 Record : '+S.rec[t+'-'+j]+' kg':''}</div></div>`}).join('')}</div>`).join('')+Mut.dex();
+  return `<div class="panel row sp"><b>Index : ${got}/${all} · 🐉 Boss vaincus : ${Object.values(S.bk||{}).reduce((a,b)=>a+b,0)}</b><button class="chip" onclick="Act.reset()">Réinitialiser la partie</button></div>`+TIERS.map((T,t)=>`<h2 style="color:${T[1]}">${T[0]}</h2><div class="grid">${FISH[t].map((f,j)=>{const n=S.idx[t+'-'+j],w=WEATHER.find(x=>x[0]===f[8]);return `<div class="fc ${n?'':'lock'}" style="--a:${T[1]}"><div class="em ${n?'':'sil'}">${art(f,t)}</div><b>${n?f[0]:'???'}</b><div class="mu">${n?'×'+n+' · ':''}${w?`${w[2]} Exclusif · ${w[1]} · `:''}${f[4]!=null?'Zone : '+ZONES[f[4]][0]:'Toutes zones'}${n&&(S.rec||{})[t+'-'+j]?'<br>🏅 Record : '+S.rec[t+'-'+j]+' kg':''}</div></div>`}).join('')}</div>`).join('')+Mut.dex();
  }};
 
 /* ============ 6b. COMPTE EN LIGNE (Cloudflare) ============ */
@@ -808,7 +853,7 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const Cloud={
  tok:localStorage.getItem('catbet-tok')||'',user:localStorage.getItem('catbet-user')||'',
  base:+localStorage.getItem('catbet-base')||0,pending:localStorage.getItem('catbet-pend')==='1',
- busy:0,force:0,timer:0,v:0,msg:'',mode:'login',code:'',bk:null,refused:0,admin:false,adm:null,lb:{board:'casts',rows:null,me:null,hide:false,loading:false},
+ busy:0,force:0,timer:0,v:0,msg:'',mode:'login',code:'',bk:null,refused:0,admin:false,adm:null,lb:{board:'casts',rows:null,me:null,hide:false,loading:false,error:'',request:0},
  set(k,v){try{v==null?localStorage.removeItem('catbet-'+k):localStorage.setItem('catbet-'+k,v)}catch(e){}},
  async api(path,method,body,keep){
   const r=await fetch('/api/'+path,{method,keepalive:!!keep,headers:{'Content-Type':'application/json',...(this.tok?{Authorization:'Bearer '+this.tok}:{})},body:body?JSON.stringify(body):undefined});
@@ -836,8 +881,8 @@ const Cloud={
   if(again)await this.push(true)
  },
  adopt(c,u){
-  Object.assign(S,fresh(),c);delete S.fa;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
-  this.base=u;this.set('base',u);this.pending=false;this.set('pend',null);this.msg='✓ Progression récupérée';UI.render();this.badge()},
+  Object.assign(S,fresh(),c);delete S.fa;const migrated=migrateTank(S);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  this.base=u;this.set('base',u);this.pending=false;this.set('pend',null);if(migrated)this.dirty();this.msg='✓ Progression récupérée';UI.render();this.badge()},
  async pull0(){
   if(!this.tok||this.busy)return;
   try{
@@ -947,21 +992,38 @@ const Cloud={
  async pull(){await this.pull0();await this.grantsPoll()},
  // --- classement (compte requis ; les comptes signalés et l'admin ne sont pas classés)
  async lbLoad(b){
-  if(b)this.lb.board=b;if(!this.tok)return;this.lb.loading=true;UI.render();
-  const r=await this.api('leaderboard?board='+this.lb.board,'GET').catch(()=>null);this.lb.loading=false;
-  if(r&&r.ok){this.lb.rows=r.j.rows;this.lb.me=r.j.me;this.lb.hide=!!r.j.hidden}else{this.lb.rows=[];this.lb.me=null}
+  if(b)this.lb.board=b;if(!this.tok)return;const board=this.lb.board,request=++this.lb.request;this.lb.loading=true;this.lb.error='';UI.render();
+  try{
+   const r=await this.api('leaderboard?board='+board,'GET');
+   if(request!==this.lb.request)return;
+   if(r.ok){this.lb.rows=r.j.rows;this.lb.me=r.j.me;this.lb.hide=!!r.j.hidden;this.lb.error=''}
+   else{this.lb.rows=[];this.lb.me=null;this.lb.error='⚠ '+(r.j.error||'Impossible de charger le classement.')}
+  }catch(e){console.error('Leaderboard request failed.',e);if(request===this.lb.request){this.lb.rows=[];this.lb.me=null;this.lb.error='⚠ Erreur réseau : le classement est indisponible.'}}
+  if(request===this.lb.request){this.lb.loading=false;UI.render()}},
+ async lbHide(){
+  try{
+   const r=await this.api('leaderboard/hide','POST',{hide:!this.lb.hide});
+   if(r.ok){this.lb.hide=!this.lb.hide;this.lb.rows=null;this.lb.error=''}
+   else this.lb.error='⚠ '+(r.j.error||'Impossible de modifier la visibilité.');
+  }catch(e){console.error('Leaderboard visibility update failed.',e);this.lb.error='⚠ Erreur réseau : visibilité non modifiée.'}
   UI.render()},
- async lbHide(){const r=await this.api('leaderboard/hide','POST',{hide:!this.lb.hide}).catch(()=>null);if(r&&r.ok){this.lb.hide=!this.lb.hide;this.lb.rows=null}UI.render()},
  lbView(){
   const L=this.lb;
   if(!this.tok)return '<div class="panel mu">Connecte-toi (bouton « 👤 Connexion » en haut) pour voir le classement et y apparaître.</div>';
   if(L.rows===null&&!L.loading)setTimeout(()=>this.lbLoad());
-  const B=[['casts','🎣 Lancers'],['species','📖 Espèces'],['mut','🧬 Mutations'],['ach','🏆 Trophées']];
+  const B=[['casts','🎣 Lancers'],['coins','🪙 Pièces'],['fish','🐟 Poissons attrapés'],['rare','👑 Poisson le plus rare'],['species','📖 Espèces'],['mut','🧬 Mutations'],['ach','🏆 Trophées']];
   const tabs=B.map(([k,n])=>`<button class="chip ${L.board===k?'on':''}" onclick="Cloud.lbLoad('${k}')">${n}</button>`).join('');
   const medal=i=>['🥇','🥈','🥉'][i]||('#'+(i+1));
-  const rows=L.loading||L.rows===null?'<div class="mu">Chargement…</div>':(L.rows.length?L.rows.map((r,i)=>`<div class="row sp" style="padding:6px 0;${r.me?'font-weight:800;color:var(--gold)':''}"><span>${medal(i)} ${esc(r.username)}</span><span>${fmt(r.value)}</span></div>`).join(''):'<div class="mu">Personne pour l\'instant.</div>');
-  const me=L.me&&!(L.rows||[]).some(r=>r.me)?`<div class="row sp mu" style="padding:6px 0;border-top:1px solid var(--line)"><span>#${L.me.rank} · toi</span><span>${fmt(L.me.value)}</span></div>`:'';
-  return `<div class="row" style="margin-bottom:10px">${tabs}<button class="chip" onclick="Cloud.lb.rows=null;UI.render()">↻</button></div><div class="panel">${rows}${me}</div><div class="panel row sp"><span class="mu">Mis à jour à chaque sauvegarde en ligne. Les comptes signalés ne sont pas classés.</span><button class="chip" onclick="Cloud.lbHide()">${L.hide?'🙈 Masqué : me réafficher':'👁 Visible : me masquer'}</button></div>`},
+  const value=(v,fish)=>L.board==='rare'?esc(this.rareFish(fish)):fmt(v);
+  const rows=L.error?`<div class="mu" style="color:var(--gold)">${esc(L.error)}</div>`:L.loading||L.rows===null?'<div class="mu">Chargement…</div>':(L.rows.length?L.rows.map((r,i)=>`<div class="row sp" style="padding:6px 0;${r.me?'font-weight:800;color:var(--gold)':''}"><span>${medal(i)} ${esc(r.username)}</span><span>${value(r.value,r.fish)}</span></div>`).join(''):'<div class="mu">Personne pour l\'instant.</div>');
+  const me=L.me&&!(L.rows||[]).some(r=>r.me)?`<div class="row sp mu" style="padding:6px 0;border-top:1px solid var(--line)"><span>#${L.me.rank} · toi</span><span>${value(L.me.value,L.me.fish)}</span></div>`:'';
+  return `<div class="row" style="margin-bottom:10px">${tabs}<button class="chip" onclick="Cloud.lb.rows=null;Cloud.lb.error='';UI.render()">↻</button></div><div class="panel">${rows}${me}</div><div class="panel row sp"><span class="mu">Mis à jour à chaque sauvegarde en ligne. Les comptes signalés ne sont pas classés.</span><button class="chip" onclick="Cloud.lbHide()">${L.hide?'🙈 Masqué : me réafficher':'👁 Visible : me masquer'}</button></div>`},
+ rareFish(key){
+  const m=/^(\d+)-(\d+)$/.exec(String(key||''));
+  if(!m)return '—';
+  const tier=+m[1],species=+m[2],fish=FISH[tier]&&FISH[tier][species];
+  return fish&&TIERS[tier]?fish[0]+' · '+TIERS[tier][0]:'—';
+ },
  evPreview(){try{localStorage.setItem('catbet-evpreview',localStorage.getItem('catbet-evpreview')==='1'?'0':'1')}catch(e){}this.panel();UI.render()},
  badge(){const b=$('#acc');if(b)b.textContent=this.tok?'☁ '+this.user+(this.pending?' ⏳':''):'👤 Connexion';const d=$('#devb');if(d)d.style.display=this.tok&&this.admin?'':'none'},
  close(){if(this.code)return;this.bk=null;this.adm=null;const m=$('#cm');if(m)m.remove()},
@@ -1038,5 +1100,5 @@ const Cloud={
 document.addEventListener('keydown',e=>{if(UI.tab==='fish'&&e.code==='Space'){e.preventDefault();if(!e.repeat)Engine.act()}});
 UI.render();
 Cloud.init();
-setInterval(()=>{if(Ev.tick())UI.head();else Ev.ui()},1000);
+setInterval(()=>{if(Ev.tick())UI.head();else Ev.ui();Weather.ui()},1000);
 </script></body></html>

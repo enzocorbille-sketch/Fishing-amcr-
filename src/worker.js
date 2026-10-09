@@ -237,36 +237,60 @@ async function restoreFor(env, userId, backupId) {
   return { data: restored, updated: now };
 }
 
-// --- Classement : quatre statistiques tirées de la sauvegarde (bornées), recalculées à chaque sauvegarde ---
-const BOARDS = { casts: 'st_casts', species: 'st_species', mut: 'st_mut', ach: 'st_ach' };
+// --- Classements tirés de la sauvegarde et recalculés à chaque sauvegarde ---
+const BOARDS = { casts: 'st_casts', coins: 'st_coins', fish: 'st_fish', rare: 'st_rare', species: 'st_species', mut: 'st_mut', ach: 'st_ach' };
+// À garder aligné avec FISH dans public/index.html, y compris les poissons météo.
+const RANKED_FISH_COUNTS = [4, 7, 9, 7, 5, 3, 3];
 function statsOf(d) {
   const n = (o) => (o && typeof o === 'object' ? Object.keys(o).length : 0);
   const sum = (o) => (o && typeof o === 'object' ? Object.values(o).reduce((a, b) => a + (+b || 0), 0) : 0);
+  let rare = 0, rareKey = '', fishCount = 0;
+  for (const key of Object.keys(d.idx && typeof d.idx === 'object' ? d.idx : {})) {
+    const m = /^(\d+)-(\d+)$/.exec(key);
+    if (!m) continue;
+    const tier = +m[1], species = +m[2];
+    const count = Math.floor(+d.idx[key] || 0);
+    if (tier >= RANKED_FISH_COUNTS.length || species >= RANKED_FISH_COUNTS[tier] || !(count > 0)) continue;
+    fishCount += count;
+    if (tier + 1 > rare) {
+      rare = tier + 1;
+      rareKey = tier + '-' + species;
+    }
+  }
   return {
     casts: Math.min(Math.max(+d.casts || 0, 0), LIMITS.maxCasts),
+    coins: Math.min(Math.max(+d.c || 0, 0), 1e17),
+    fish: Math.min(fishCount, LIMITS.maxCasts),
+    rare,
+    rareKey,
     species: Math.min(n(d.idx), 500),
     mut: Math.min(n(d.mu), 50),
     ach: Math.min(Math.max(sum(d.ach), 0), 500),
   };
 }
-async function updStats(env, uid, d) {
+function statsStatement(env, uid, d) {
   const st = statsOf(d);
-  await env.DB.prepare('UPDATE users SET st_casts = ?, st_species = ?, st_mut = ?, st_ach = ? WHERE id = ?').bind(st.casts, st.species, st.mut, st.ach, uid).run();
+  return env.DB.prepare('UPDATE users SET st_casts = ?, st_coins = ?, st_fish = ?, st_rare = ?, st_rare_key = ?, st_species = ?, st_mut = ?, st_ach = ? WHERE id = ?')
+    .bind(st.casts, st.coins, st.fish, st.rare, st.rareKey, st.species, st.mut, st.ach, uid);
+}
+async function updStats(env, uid, d) {
+  await statsStatement(env, uid, d).run();
 }
 async function leaderboard(req, env, user) {
   const board = new URL(req.url).searchParams.get('board') || 'casts';
   const col = BOARDS[board];
   if (!col) return J({ error: 'Classement inconnu.' }, 400);
   const adm = adminName(env);
-  const me = await env.DB.prepare('SELECT st_hide, flagged, ' + col + ' AS v FROM users WHERE id = ?').bind(user.id).first();
+  const rareCol = board === 'rare' ? ', st_rare_key AS fish' : '';
+  const me = await env.DB.prepare('SELECT st_hide, flagged, ' + col + ' AS v' + rareCol + ' FROM users WHERE id = ?').bind(user.id).first();
   const rows = await env.DB.prepare(
-    'SELECT username, ' + col + ' AS value FROM users WHERE flagged = 0 AND st_hide = 0 AND username <> ? AND ' + col + ' > 0 ORDER BY ' + col + ' DESC, id ASC LIMIT 20'
+    'SELECT username, ' + col + ' AS value' + rareCol + ' FROM users WHERE flagged = 0 AND st_hide = 0 AND username <> ? AND ' + col + ' > 0 ORDER BY ' + col + ' DESC, id ASC LIMIT 20'
   ).bind(adm).all();
-  const list = (rows.results || []).map((r) => ({ username: r.username, value: r.value, me: r.username.toLowerCase() === user.username.toLowerCase() }));
+  const list = (rows.results || []).map((r) => ({ username: r.username, value: r.value, ...(board === 'rare' ? { fish: r.fish } : {}), me: r.username.toLowerCase() === user.username.toLowerCase() }));
   let mine = null;
   if (me && !me.st_hide && !me.flagged && me.v > 0 && user.username.toLowerCase() !== adm.toLowerCase()) {
     const r = await env.DB.prepare('SELECT COUNT(*) AS n FROM users WHERE flagged = 0 AND st_hide = 0 AND username <> ? AND ' + col + ' > ?').bind(adm, me.v).first();
-    mine = { rank: r.n + 1, value: me.v };
+    mine = { rank: r.n + 1, value: me.v, ...(board === 'rare' ? { fish: me.fish } : {}) };
   }
   return J({ rows: list, me: mine, hidden: !!(me && me.st_hide) });
 }
@@ -453,6 +477,7 @@ async function putSave(req, env, user) {
 const TABLES = [
   'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL UNIQUE COLLATE NOCASE, salt TEXT NOT NULL, hash TEXT NOT NULL, created INTEGER NOT NULL)',
   'CREATE TABLE IF NOT EXISTS saves (user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE, data TEXT NOT NULL, updated INTEGER NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS schema_migrations (id TEXT PRIMARY KEY, applied INTEGER NOT NULL)',
   'CREATE TABLE IF NOT EXISTS save_backups (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, data TEXT NOT NULL, ts INTEGER NOT NULL)',
   'CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, expires INTEGER NOT NULL)',
   'CREATE TABLE IF NOT EXISTS login_fail (username TEXT NOT NULL COLLATE NOCASE, ts INTEGER NOT NULL)',
@@ -462,7 +487,9 @@ const COLUMNS = {
   users: [
     ['recovery_hash', 'TEXT'], ['flagged', 'INTEGER NOT NULL DEFAULT 0'], ['flag_reason', 'TEXT'], ['flag_ts', 'INTEGER'],
     ['ga_c', 'REAL NOT NULL DEFAULT 0'], ['ga_xp', 'REAL NOT NULL DEFAULT 0'],
-    ['st_casts', 'INTEGER NOT NULL DEFAULT 0'], ['st_species', 'INTEGER NOT NULL DEFAULT 0'], ['st_mut', 'INTEGER NOT NULL DEFAULT 0'],
+    ['st_casts', 'INTEGER NOT NULL DEFAULT 0'], ['st_coins', 'REAL NOT NULL DEFAULT 0'], ['st_fish', 'INTEGER NOT NULL DEFAULT 0'],
+    ['st_rare', 'INTEGER NOT NULL DEFAULT 0'], ['st_rare_key', 'TEXT NOT NULL DEFAULT \'\''],
+    ['st_species', 'INTEGER NOT NULL DEFAULT 0'], ['st_mut', 'INTEGER NOT NULL DEFAULT 0'],
     ['st_ach', 'INTEGER NOT NULL DEFAULT 0'], ['st_hide', 'INTEGER NOT NULL DEFAULT 0'],
   ],
   save_backups: [['kind', "TEXT NOT NULL DEFAULT 'auto'"]],
@@ -481,9 +508,37 @@ function ensureSchema(env) {
       for (const sql of TABLES) await env.DB.prepare(sql).run();
       for (const [table, cols] of Object.entries(COLUMNS)) {
         const have = new Set(((await env.DB.prepare('PRAGMA table_info(' + table + ')').all()).results || []).map((r) => r.name));
-        for (const [name, type] of cols) if (!have.has(name)) await env.DB.prepare('ALTER TABLE ' + table + ' ADD COLUMN ' + name + ' ' + type).run();
+        for (const [name, type] of cols) if (!have.has(name)) {
+          await env.DB.prepare('ALTER TABLE ' + table + ' ADD COLUMN ' + name + ' ' + type).run();
+        }
       }
       for (const sql of INDEXES) await env.DB.prepare(sql).run();
+      const leaderboardMigration = await env.DB.prepare("SELECT id FROM schema_migrations WHERE id = 'leaderboard-v2'").first();
+      if (!leaderboardMigration) {
+        const saves = await env.DB.prepare('SELECT user_id, data FROM saves').all();
+        let updates = [];
+        for (const row of saves.results || []) {
+          let data;
+          try {
+            data = JSON.parse(row.data);
+          } catch (e) {
+            console.error('Cannot backfill leaderboard stats: invalid saved game for user', row.user_id);
+            continue;
+          }
+          if (!data || typeof data !== 'object' || Array.isArray(data)) {
+            console.error('Cannot backfill leaderboard stats: invalid saved game for user', row.user_id);
+            continue;
+          }
+          updates.push(statsStatement(env, row.user_id, data));
+          if (updates.length === 100) {
+            await env.DB.batch(updates);
+            updates = [];
+          }
+        }
+        if (updates.length) await env.DB.batch(updates);
+        await env.DB.prepare("INSERT OR IGNORE INTO schema_migrations (id, applied) VALUES ('leaderboard-v2', ?)")
+          .bind(Date.now()).run();
+      }
     })().catch((e) => {
       schemaReady = null;
       throw e;
