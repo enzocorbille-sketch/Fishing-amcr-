@@ -409,7 +409,7 @@ const Act={
  pickBait(i){S.bait=i;this.done()},
  rerollPrice(r=UI.er()){const p=RODS[r]?RODS[r][1]:RODS[S.rod][1];return Math.round(10000*Math.pow(1+Math.max(0,p)/10000,.28))},
  reroll(){const r=UI.er(),e=rodEn(r),pr=this.rerollPrice(r),owners=S.eb||(S.eb={});
-  if(e.length>=3)return UI.toast('3 emplacements pleins · clique sur un enchantement pour le retirer');
+  if(e.length>=3)return UI.toast('3 emplacements pleins · retire un enchantement depuis son slot');
   if(S.c<pr)return UI.toast('Solde insuffisant');
   const pl=EN.map((_,i)=>i).filter(i=>!e.includes(i)&&(owners[i]==null||+owners[i]===r));
   if(!pl.length)return UI.toast('Tous les enchantements sont déjà liés à une autre canne');
@@ -417,7 +417,7 @@ const Act={
   S.c-=pr;S.en[i]=Math.max(S.en[i]|0,l);e.push(i);
   owners[i]=r;UI.msg=`${EN[i][1]} ${EN[i][0]} niveau ${S.en[i]} · lié à la canne ${RODS[r][0]}`;this.done()},
  equip(i){const r=UI.er(),e=rodEn(r),k=e.indexOf(i),owners=S.eb||(S.eb={});
-  if(k>=0)e.splice(k,1);else if(!(S.en[i]|0))return;else if(owners[i]!=null&&+owners[i]!==r)return UI.toast(`Cet enchantement est lié à ${RODS[owners[i]]?RODS[owners[i]][0]:'une autre canne'}`);
+  if(k>=0){e.splice(k,1);delete S.en[i];delete owners[i]}else if(!(S.en[i]|0))return;else if(owners[i]!=null&&+owners[i]!==r)return UI.toast(`Cet enchantement est lié à ${RODS[owners[i]]?RODS[owners[i]][0]:'une autre canne'}`);
   else if(e.length<3){e.push(i);owners[i]=r}else return UI.toast('3 enchantements max par canne');this.done()},
  prestige(){if(!Pr.can())return;const g=Pr.gain();
   if(!confirm(`Prestige : tu dépenses 1 🌠 Étoile filante, tu gagnes ${g} ⭐ et tu recommences à zéro (pièces, cannes classiques, zones, appâts, inventaire, favoris, coffres, niveau).\nTu gardes : tes cannes Halloween, enchantements, artefacts, pierres, quêtes, index, mutations, succès et tes ⭐.\nContinuer ?`))return;
@@ -750,6 +750,7 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
  },
  v_ench(){
   const er=this.er(),eq=rodEn(er),f=fx(),pr=Act.rerollPrice(er),owners=S.eb||{},rollable=EN.some((_,i)=>!eq.includes(i)&&(owners[i]==null||+owners[i]===er));
+  const slots=Array.from({length:3},(_,slot)=>{const i=eq[slot];return i==null?`<div class="panel mu" style="flex:1 1 150px;text-align:center;padding:12px">Emplacement ${slot+1}<br>Vide</div>`:`<div class="panel" style="flex:1 1 150px;text-align:center;padding:12px"><b>${EN[i][1]} ${EN[i][0]}</b><div class="mu">Niveau ${S.en[i]|0}</div><button class="chip" style="margin-top:6px" onclick="Act.equip(${i})">Retirer · détruire</button></div>`}).join('');
   const P={B:'Appât gratuit',D:'Prise double',K:'Critique',R:'Rareté',H:'Seconde chance',A:'Bonus appât',P:'Rang supérieur',X:'Valeur/zone'},M={L:'Chance',S:'Vitesse',W:'Fenêtre',V:'Valeur',C:'Coffres',Q:'Gains coffres'};
   const act=Object.keys(M).filter(k=>Math.abs(f[k]-1)>.0005).map(k=>`${M[k]} ×${f[k].toFixed(3)}`).concat(Object.keys(P).filter(k=>f[k]>.0005).map(k=>`${P[k]} ${(f[k]*100).toFixed(1)} %`));
   const msg=this.msg;this.msg='';
@@ -759,11 +760,12 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
   <div class="row" style="margin-bottom:12px">${act.length?act.map(x=>`<span class="chip">${x}</span>`).join(''):'<span class="mu">Aucun bonus actif</span>'}</div>
   <h2>🎣 Enchanter une canne <span class="mu" style="font-size:13px;font-weight:500">— 3 emplacements max</span></h2>
   <div class="row" style="margin-bottom:12px">${S.rods.map(i=>`<button class="chip ${i===er?'on':''}" onclick="UI.ed=${i};UI.render()">${RODS[i][0]} · ${rodEn(i).length}/3${i===S.rod?' ✔':''}</button>`).join('')}</div>
-  <div class="panel"><div class="mu">Un enchantement tiré au hasard (niveau I à V) est lié à la canne sélectionnée et ne peut pas être réutilisé sur une autre. Son prix de reroll dépend de la valeur de cette canne. Les niveaux restent conservés si tu retires l'enchantement.</div><button class="btn g" style="margin-top:10px" onclick="Act.reroll()" ${eq.length>=3||S.c<pr||!rollable?'disabled':''}>🎲 Reroll · ${fmt(pr)} 🪙</button></div>
+  <h2>Emplacements équipés · ${eq.length}/3</h2><div class="row" style="align-items:stretch;margin-bottom:12px">${slots}</div>
+  <div class="panel"><div class="mu">Un enchantement tiré au hasard (niveau I à V) est lié à la canne sélectionnée et ne peut pas être réutilisé sur une autre. Son prix de reroll dépend de la valeur de cette canne. Le retirer de son emplacement le détruit définitivement, niveau compris.</div><button class="btn g" style="margin-top:10px" onclick="Act.reroll()" ${eq.length>=3||S.c<pr||!rollable?'disabled':''}>🎲 Reroll · ${fmt(pr)} 🪙</button></div>
   <h2>📜 Enchantements</h2><div class="grid">${EN.map((e,i)=>{const l=S.en[i]|0,on=eq.includes(i),up=l>0&&l<e[5],pc=Act.enPrice(i);
    const owner=owners[i]==null?null:+owners[i],locked=owner!=null&&owner!==er;
    return `<div class="fc ${l&&!locked?'':'lock'}" style="--a:${on?'#22e39a':'#a855f7'}"><div style="font-size:40px">${e[1]}</div><b>${e[0]}</b><div class="mu" style="font-size:12px">${e[2]}<br>+${(e[4]*ENSCALE*100).toFixed(1)} % par niveau · Niv. ${l}/${e[5]}</div>
-   <div class="row" style="justify-content:center;margin-top:6px">${locked?'<span class="mu">Indisponible sur cette canne</span>':l?`<button class="chip" onclick="Act.equip(${i})">${on?'Retirer':'Équiper'}</button>`:'<span class="mu">Obtenu par reroll</span>'}${up&&!locked?`<button class="btn sm" onclick="Act.upgrade(${i})" ${(l<5?S.c<pc:!(S.es>0))?'disabled':''}>${l<5?'+1 niv · '+fmt(pc)+' 🪙':'+1 niv · 1 🪨'}</button>`:''}</div></div>`}).join('')}</div>
+   <div class="row" style="justify-content:center;margin-top:6px">${locked?'<span class="mu">Indisponible sur cette canne</span>':on?`<span class="mu">Dans le slot ${eq.indexOf(i)+1}</span>`:l?`<button class="chip" onclick="Act.equip(${i})" ${eq.length>=3?'disabled':''}>Équiper</button>`:'<span class="mu">Obtenu par reroll</span>'}${up&&!locked?`<button class="btn sm" onclick="Act.upgrade(${i})" ${(l<5?S.c<pc:!(S.es>0))?'disabled':''}>${l<5?'+1 niv · '+fmt(pc)+' 🪙':'+1 niv · 1 🪨'}</button>`:''}</div></div>`}).join('')}</div>
   <h2>🏺 Artefacts <span class="mu" style="font-size:13px;font-weight:500">— ${S.ae.length}/3 équipés · uniquement dans les coffres</span></h2><div class="grid">${AR.map((a,i)=>{const o=S.ao[i],q=S.ae.includes(i),c=CHESTS[a[2]];
    return `<div class="fc" style="--a:${c[1]};${o?'':'filter:grayscale(1);opacity:.55'}"><small style="color:${c[1]};font-weight:800">${c[0]}</small><div style="font-size:46px">${a[1]}</div><b>${o?a[0]:'???'}</b><div class="mu" style="font-size:12px">${artDesc(a)}</div>${o?`<button class="btn sm ${q?'':'g'}" style="margin-top:6px" onclick="Act.aeq(${i})">${q?'Retirer':'Équiper'}</button>`:'<div class="mu" style="font-size:12px;margin-top:6px">À trouver en coffre</div>'}</div>`}).join('')}</div>`;
  },
