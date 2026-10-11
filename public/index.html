@@ -186,8 +186,24 @@ const ROD_SHOP_IMAGES=['bambou','roseau','carbone','fibre-de-verre','titane','co
 const rodShopArt=i=>`<img class="rod-shop-art" src="${ROD_SHOP_IMAGES[i]}" alt="${RODS[i][0]}">`;
 const eventRodSpeed=requiredLevel=>1+(requiredLevel-HWRODS[0][1])/(HWRODS[HWRODS.length-1][1]-HWRODS[0][1])*(RODS[BASE_RODS-1][3]-1);
 RODS.push(...HWRODS.map(r=>[r[0],0,1+(r[3]==='chance'?r[4]:0),eventRodSpeed(r[1]),1400+(r[3]==='window'?r[4]*1000:0),r[5]]));
-// Appâts : nom, prix, chance, emoji, multiplicateur de valeur
-const BAITS=[['Mouche',5,1.1,'🪰',1.11],['Ver de terre',10,1.18,'🪱',1.2],['Crevette',50,1.45,'🦐',1.5],['Calmar',90,1.68,'🦑',1.82],['Leurre doré',150,1.98,'✨',2.22],['Appât astral',400,2.7,'🌟',3.05],['Appât abyssal',1500,3.65,'🐙',4.6],['Appât cosmique',6000,5.2,'🌌',8]];
+// Appâts : nom, prix, chance, emoji, valeur, effet spécialisé, zone minimale.
+const BAITS=[
+ ['Mouche',15,1.1,'🪰',1.11],
+ ['Ver de terre',25,1.18,'🪱',1.2],
+ ['Crevette',75,1.45,'🦐',1.5],
+ ['Calmar',150,1.68,'🦑',1.82],
+ ['Leurre doré',300,1.98,'✨',2.22],
+ ['Appât astral',600,2.7,'🌟',3.05],
+ ['Appât abyssal',1800,3.65,'🐙',4.6],
+ ['Appât cosmique',9000,5.2,'🌌',8],
+ ['Larve lumineuse',300,1.35,'💡',1.05,'balanced',0],
+ ['Pâte dorée',900,1.15,'🟡',1.55,'value',0],
+ ['Calamar spectral',2500,1.85,'👻',1.25,'deep',4],
+ ['Perle enchantée',3500,1.08,'🔮',1,'chest',0],
+ ['Appât prédateur',5000,1.35,'🦷',1,'predator',0],
+ ['Nectar astral',12000,3.1,'🌌',3.4,'astral',5]
+];
+const BAIT_ORDER=BAITS.map((b,i)=>i).sort((a,b)=>BAITS[a][1]-BAITS[b][1]);
 // Zones : nom, prix, chance, valeur, ciel, horizon, eau haut, eau bas
 const ZONES=[['Étang paisible',0,1,1.0,'#1e1b4b','#f472b6','#0ea5e9','#082f49'],['Rivière',86100,1.22,1.28,'#1e3a8a','#fdba74','#22d3ee','#0e4f5c'],['Lac brumeux',2670000,1.48,1.73,'#334155','#cbd5e1','#64748b','#0f172a'],['Récif corallien',54200000,1.9,2.63,'#0ea5e9','#fde68a','#2dd4bf','#134e4a'],['Abysses',893000000,2.45,4.44,'#020617','#1e1b4b','#1e3a8a','#020617'],['Mer astrale',26200000000,3.2,7.7,'#0f0a1e','#a855f7','#4c1d95','#0f0a1e'],['Faille temporelle',120000000000,4.2,12.5,'#172554','#f0abfc','#312e81','#0b102e'],['Dimension miroir',1500000000000,5.8,21,'#581c87','#fef08a','#7e22ce','#2e1065'],['Forge des mondes',12000000000000,8,38,'#431407','#fb923c','#c2410c','#450a0a'],['Néant ultime',120000000000000,11,75,'#020617','#67e8f9','#164e63','#020617']];
 const WEATHER=[
@@ -204,6 +220,57 @@ const Weather={
 FISH[1].push(['Carpe argentée','',60,120,0,'#e2e8f0','#64748b',0,'rain']);
 FISH[2].push(['Poisson-lune','',280,520,1,'#fde68a','#f97316',1,'sun']);
 FISH[3].push(['Carpe lunaire','',1800,3200,2,'#c4b5fd','#312e81',1,'stars']);
+// Espèces supplémentaires : les valeurs sont avant le multiplicateur de zone.
+FISH[0].push(
+ ['Ablette des roseaux','',16,40,0,'#dbeafe','#1e40af',0],
+ ['Tanche cuivrée','',28,62,0,'#fed7aa','#9a3412',0],
+ ['Vairon brumeux','',32,68,1,'#cbd5e1','#475569',0],
+ ['Barbeau rapide','',38,76,1,'#bfdbfe','#1d4ed8',0]
+);
+FISH[1].push(
+ ['Omble des cascades','',75,145,1,'#bae6fd','#0369a1',0],
+ ['Carassin lunaire','',85,165,2,'#ddd6fe','#6d28d9',0,'stars'],
+ ['Sandre des roseaux','',100,190,2,'#bbf7d0','#166534',0],
+ ['Dorade prismatique','',150,280,3,'#fbcfe8','#be185d',0]
+);
+FISH[2].push(
+ ['Poisson-ange solaire','',650,1250,3,'#fef08a','#ea580c',0,'sun'],
+ ['Murène corallienne','',750,1400,3,'#fdba74','#9a3412',0],
+ ['Requin-renard','',1100,2100,4,'#cbd5e1','#334155',0],
+ ['Poisson-lanterne royal','',1300,2500,4,'#a5f3fc','#0e7490',0]
+);
+FISH[3].push(
+ ['Espadon spectral','',4500,8500,4,'#c4b5fd','#6d28d9',0],
+ ['Raie des profondeurs','',5200,9800,4,'#99f6e4','#115e59',1]
+);
+FISH[4].push(
+ ['Nautile astral','',16000,30000,5,'#e9d5ff','#7e22ce',1],
+ ['Requin comète','',22000,42000,5,'#fbcfe8','#be123c',0]
+);
+FISH[5].push(
+ ['Méduse d\'horloge','',75000,140000,6,'#fed7aa','#c2410c',1],
+ ['Carpe paradoxale','',95000,180000,6,'#bfdbfe','#3730a3',0,'rain']
+);
+FISH[6].push(
+ ['Serpent miroir','',500000,950000,7,'#e9d5ff','#7e22ce',1],
+ ['Raie inversée','',650000,1200000,7,'#a5f3fc','#155e75',1]
+);
+FISH[7].push(
+ ['Forge-poisson','',4000000,7500000,8,'#fdba74','#9a3412',0],
+ ['Salamandre solaire','',5500000,10000000,8,'#fef08a','#c2410c',0,'sun']
+);
+FISH[8].push(
+ ['Marteau des abysses','',35000000,70000000,9,'#cbd5e1','#1e293b',0],
+ ['Anguille du zéro','',50000000,100000000,9,'#a5f3fc','#155e75',0]
+);
+FISH[9].push(
+ ['Écho du néant','',250000000,500000000,9,'#e2e8f0','#475569',1],
+ ['Œil du néant','',350000000,700000000,9,'#f0abfc','#7e22ce',1]
+);
+FISH[10].push(['Roi sans océan','',2000000000,4000000000,9,'#fda4af','#9f1239',1]);
+FISH[11].push(['Constellation vivante','',20000000000,40000000000,8,'#c4b5fd','#6d28d9',1]);
+FISH[13].push(['Cœur de singularité','',300000000000,650000000000,9,'#67e8f9','#155e75',1]);
+FISH[14].push(['Dernier battement','',8000000000000,18000000000000,9,'#fef08a','#f97316',1]);
 
 // Enchantements (3 emplacements par canne) : nom, emoji, description, effet, bonus/niveau, niveau max, prix de base
 // ENSCALE réduit tous les bonus pour garder la durée du jeu autour de 200 h (mesuré par simulation)
@@ -258,13 +325,24 @@ const playRareCatchSound=tier=>{
   setTimeout(()=>ctx.close(),2300);
  }).catch(error=>console.warn('Rare-catch sound could not be played.',error));
 };
-const baitButtons=()=>`<button class="chip ${S.bait<0?'on':''}" onclick="Act.pickBait(-1)">Sans appât</button>${BAITS.map((b,i)=>S.baits[i]>0?`<button class="chip ${S.bait===i?'on':''}" onclick="Act.pickBait(${i})">${b[3]} ${b[0]} ×${S.baits[i]}</button>`:'').join('')}`;
+const baitButtons=()=>`<button class="chip ${S.bait<0?'on':''}" onclick="Act.pickBait(-1)">Sans appât</button>${BAIT_ORDER.map(i=>{const b=BAITS[i];return S.baits[i]>0?`<button class="chip ${S.bait===i?'on':''}" onclick="Act.pickBait(${i})">${b[3]} ${b[0]} ×${S.baits[i]}</button>`:''}).join('')}`;
+const baitEffect=b=>{
+ if(b<0||!BAITS[b])return null;
+ const x=BAITS[b],active=x[6]==null||S.zone>=x[6];
+ return active?{kind:x[5]||'',chance:x[2],value:x[4]}:{kind:'inactive',chance:1,value:1};
+};
+const baitDescription=b=>{
+ const [,price,chance,,value,kind,minZone]=b;
+ const zone=minZone>0?` · ${ZONES[minZone][0]}+`:'';
+ const effects={balanced:'Polyvalent',value:'Valeur des prises',deep:'Favorise les raretés profondes',chest:'Coffres +0,45 point (plafond 4 %)',predator:'Favorise Épique et Mythique',astral:'Favorise Astral et supérieur'};
+ return `Chance ×${chance} · Valeur ×${value}${kind?` · ${effects[kind]||kind}`:''}${zone}`;
+};
 const rodEn=r=>S.re[r]||(S.re[r]=[]);
 const fx=()=>{const f={L:1,S:1,W:1,V:1,C:1,Q:1,B:0,D:0,K:0,R:0,H:0,A:0,P:0,X:0};rodEn(S.rod).forEach(i=>{const l=S.en[i]|0;if(l>0)f[EN[i][3]]+=EN[i][4]*ENSCALE*l});
  const hr=HWRODS[S.rod-BASE_RODS];if(hr&&hr[3]==='value')f.V*=1+hr[4];
  S.ae.forEach(i=>{const x=AR[i]&&AR[i][3];if(x)for(const k in x){if(AMUL.includes(k))f[k]*=1+(x[k]-1)*ASCALE;else f[k]+=x[k]*ASCALE}});
  f.V*=1+Pr.vb()*S.pr;f.L*=1+Pr.lb()*S.pr;if(Ev.active())f.V*=Ev.mult;return f};
-const luck=(b=activeBait())=>fx().L*RODS[S.rod][2]*ZONES[S.zone][2]*(b>=0?BAITS[b][2]:1)*(1+.015*(level()-1));
+const luck=(b=activeBait())=>{const a=baitEffect(b);return fx().L*RODS[S.rod][2]*ZONES[S.zone][2]*(a?a.chance:1)*(1+.015*(level()-1))};
 const dk=(h,f=.55)=>'#'+[1,3,5].map(i=>Math.round(parseInt(h.slice(i,i+2),16)*f).toString(16).padStart(2,'0')).join('');
 // Dessin SVG d'un poisson (a/b = couleurs, sp = corps rond, g = halo pour les raretés hautes)
 const art=(f,t)=>{const a=f[5],b=f[6],sp=f[7],g=t>=3,u='q'+a.slice(1)+b.slice(1);return `<svg viewBox="0 0 180 120" class="fa"><defs><linearGradient id="${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>${g?`<circle cx="90" cy="60" r="56" fill="${a}" opacity=".22"/>`:''}${sp?`<ellipse cx="86" cy="60" rx="52" ry="46" fill="url(#${u})"/><path d="M132 60L172 36V84Z" fill="${b}"/><path d="M70 16Q86 0 102 16Z" fill="${b}"/><path d="M58 88Q70 108 84 90Z" fill="${b}"/>`:`<path d="M138 60L174 30Q164 60 174 90Z" fill="${b}"/><path d="M28 60C44 22 108 20 142 60 108 100 44 98 28 60Z" fill="url(#${u})"/><path d="M62 34Q86 8 112 38Z" fill="${b}"/><path d="M84 84Q96 104 112 84Z" fill="${b}"/>`}<path d="M74 44Q66 60 74 76" stroke="#fff6" stroke-width="3" fill="none"/><circle cx="${sp?52:48}" cy="52" r="7" fill="#fff"/><circle cx="${sp?50:46}" cy="52" r="3.5" fill="#111"/><ellipse cx="84" cy="40" rx="22" ry="6" fill="#fff" opacity=".35"/></svg>`};
@@ -391,22 +469,28 @@ const Engine={
  clear(){clearTimeout(this.t1);clearTimeout(this.t2);this.st=0;this.boss=null;Fight.s=null;Fight.in={reel:false,steer:0}},
  roll(){
   const E=fx(),L=luck(this.b),w=TIERS.map((t,i)=>pool(i).length?t[2]*Math.pow(L,.25*i)*(i>0?1+E.R*2.5*i:1):0);
+  const bs=baitEffect(this.b);
+  if(bs&&bs.kind==='deep'&&S.zone>=4)for(let i=4;i<w.length;i++)w[i]*=1.35;
+  if(bs&&bs.kind==='predator'){if(w[2])w[2]*=1.35;if(w[3])w[3]*=1.35}
+  if(bs&&bs.kind==='astral'&&S.zone>=5)for(let i=5;i<w.length;i++)w[i]*=1.45;
   let x=Math.random()*w.reduce((a,b)=>a+b,0),t=0;for(;t<w.length-1&&(x-=w[t])>0;t++);
   const tags=[];
   if(Math.random()<Math.min(.5,E.P)&&t<TIERS.length-1&&pool(t+1).length){t++;tags.push('🌊 Marée haute')}
   const p=pool(t),[f,j]=p[Math.floor(Math.random()*p.length)];
-  const bait=this.b>=0?1+(BAITS[this.b][4]-1)*(1+E.A):1;
+  const bait=bs?1+(bs.value-1)*(1+E.A):1;
   const size=Math.random();let m=ZONES[S.zone][3]*bait*E.V*(1+E.X*S.zone);
   if(Math.random()<E.K){m*=3;tags.push('🎯 Critique ×3')}
   if(Math.random()<E.D){m*=2;tags.push('✌️ Double')}
   const mi=Mut.roll();if(mi>=0)m*=MUT[mi][3];
   const val=Math.round((f[2]+(f[3]-f[2])*size)*m);
-  return{t,j,f,val,tags,mut:mi,size,kg:+(WKG[t]*(.5+size)).toFixed(WKG[t]<5?2:1),cm:Math.round(f[2]/2+size*60)};
+  const weightFactor=bs&&bs.kind==='weight'?1.15:1;
+  return{t,j,f,val,tags,mut:mi,size,kg:+(WKG[t]*(.5+size)*weightFactor).toFixed(WKG[t]<5?2:1),cm:Math.round(f[2]/2+size*60)};
  },
  reel(){
   if(this.boss)return this.bossHit();
   clearTimeout(this.t2);this.st=0;
-  if(Math.random()<Math.min(.04,.0017*Math.pow(level(),.7)*Math.pow(luck(this.b),.3)*fx().C)){
+  const chestBait=baitEffect(this.b),chestBonus=chestBait&&chestBait.kind==='chest'?.0045:0;
+  if(Math.random()<Math.min(.04,.0017*Math.pow(level(),.7)*Math.pow(luck(this.b),.3)*fx().C+chestBonus)){
    const t=pickW(CHESTS.map(c=>c[4]));S.chests[t]=(S.chests[t]||0)+1;Q.add('chest');this.last={chest:t};save();UI.caught(this.last);UI.head();return}
   const c=this.roll();
   return this.fightEnd(c,Fight.auto(c),true)},
@@ -778,7 +862,7 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
    ${HWRODS.map((r,i)=>{const id=BASE_RODS+i,own=S.rods.includes(id),lvl=level()>=r[1],used=(hstate.shop['rod'+i]|0)>=1,cost=r[2],can=!own&&!used&&lvl&&hstate.pk>=cost,label=own?'✓ Déjà obtenue':used?'✓ Déjà achetée':can?`Acheter · 🎃 ${fmt(cost)}`:`🎃 ${fmt(cost)}`;
     return `<article class="hwshop-card ${own||can?'':'lock'}" style="--a:${r[5]}"><div class="hwshop-art">${hwRodImg(i)}</div><div class="hwshop-buy"><button class="btn sm ${can?'g':''}" style="width:100%" onclick="Act.buyEventRod(${i})" ${own||used||!lvl||hstate.pk<cost?'disabled':''}>${label}</button></div></article>`}).join('')}`;
   }
-  if(this.shop==='baits')h=BAITS.map((b,i)=>`<div class="fc" style="--a:#38bdf8"><div class="em">${b[3]}</div><b>${b[0]}</b><div class="mu">Chance ×${b[2]} · Valeur ×${b[4]}<br>En stock : ${S.baits[i]||0}</div>${[1,10,100].map(n=>`<button class="btn sm" onclick="Act.buyBait(${i},${n})" ${S.c<b[1]*n?'disabled':''}>×${n} · ${fmt(b[1]*n)}</button>`).join(' ')}</div>`).join('');
+  if(this.shop==='baits')h=BAIT_ORDER.map(i=>{const b=BAITS[i];return `<div class="fc" style="--a:#38bdf8"><div class="em">${b[3]}</div><b>${b[0]}</b><div class="mu">${baitDescription(b)}<br>En stock : ${S.baits[i]||0}</div>${[1,10,100].map(n=>`<button class="btn sm" onclick="Act.buyBait(${i},${n})" ${S.c<b[1]*n?'disabled':''}>×${n} · ${fmt(b[1]*n)}</button>`).join(' ')}</div>`}).join('');
   if(this.shop==='zones')h=ZONES.map((z,i)=>{const own=S.zones.includes(i);return `<div class="fc" style="--a:${z[6]}"><div class="em" style="height:54px;border-radius:12px;background:linear-gradient(${z[4]},${z[5]} 45%,${z[6]} 45%,${z[7]})"></div><b>${z[0]}</b><div class="mu">Chance ×${z[2]} · Valeur ×${z[3]}<br>Poissons exclusifs</div><button class="btn sm" onclick="Act.buyZone(${i})" ${S.zone===i||(!own&&S.c<z[1])?'disabled':''}>${S.zone===i?'Actuelle':own?'Y aller':'🪙 '+fmt(z[1])}</button></div>`}).join('');
   return `<div class="shop">${side}<section><div class="sh"><div class="shi">${cur[1]}</div><div><h2 style="margin:0">${cur[2]}</h2><div class="mu">${cur[3]}</div></div><div class="sf">${filt}</div></div><div class="grid ${this.shop==='hwrods'?'hwshop-grid':this.shop==='rods'?'rod-list':''}">${h}</div></section></div>`;
  },

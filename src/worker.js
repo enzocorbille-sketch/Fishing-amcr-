@@ -240,7 +240,7 @@ async function restoreFor(env, userId, backupId) {
 // --- Classements tirés de la sauvegarde et recalculés à chaque sauvegarde ---
 const BOARDS = { casts: 'st_casts', coins: 'st_coins', fish: 'st_fish', rare: 'st_rare', species: 'st_species', mut: 'st_mut', ach: 'st_ach' };
 // À garder aligné avec FISH dans public/index.html, y compris les poissons météo.
-const RANKED_FISH_COUNTS = [4, 7, 9, 7, 5, 3, 3];
+const RANKED_FISH_COUNTS = [8, 11, 13, 9, 7, 5, 5, 4, 4, 4, 3, 3, 2, 3, 3];
 function statsOf(d) {
   const n = (o) => (o && typeof o === 'object' ? Object.keys(o).length : 0);
   const sum = (o) => (o && typeof o === 'object' ? Object.values(o).reduce((a, b) => a + (+b || 0), 0) : 0);
