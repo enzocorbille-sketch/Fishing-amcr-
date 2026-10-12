@@ -9,7 +9,7 @@ const ADMIN_DEFAULT = 'AMCR'; // pseudo du compte admin (remplaçable par la var
 const VERSION = '2026-10-12';
 
 // --- Contrôles de valeurs (seules les valeurs absurdes sont refusées ; plus aucun signalement automatique pour l'XP ou le rythme) ---
-const CHEST_PRICE = [250, 1e3, 5e3, 25e3, 1e5, 5e5, 2e6, 1e7];
+const CHEST_PRICE = [250, 1e3, 5e3, 25e3, 1e5, 5e5, 2e6, 1e7, 150, 300, 450, 5e7, 2e8, 1e9, 1e10, 1e11];
 const LIMITS = {
   maxCasts: 3e6, // lancers maximum sur un compte
 };
@@ -271,19 +271,23 @@ async function leaderboard(req, env, user) {
   if (!col) return J({ error: 'Classement inconnu.' }, 400);
   const adm = adminName(env);
   const rareCol = board === 'rare' ? ', st_rare_key AS fish' : '';
-  const me = await env.DB.prepare('SELECT st_hide, flagged, ' + col + ' AS v' + rareCol + ' FROM users WHERE id = ?').bind(user.id).first();
+  const me = await env.DB.prepare('SELECT st_hide, flagged, ' + col + ' AS v' + rareCol + ', (SELECT data FROM saves WHERE user_id = users.id) AS data FROM users WHERE id = ?').bind(user.id).first();
   const rows = await env.DB.prepare(
-    'SELECT username, ' + col + ' AS value' + rareCol + ' FROM users WHERE flagged = 0 AND st_hide = 0 AND username <> ? AND ' + col + ' > 0 ORDER BY ' + col + ' DESC, id ASC LIMIT 20'
+    'SELECT users.username, ' + col + ' AS value' + rareCol + ', saves.data AS data FROM users LEFT JOIN saves ON saves.user_id = users.id WHERE flagged = 0 AND username <> ? AND ' + col + ' > 0 ORDER BY ' + col + ' DESC, id ASC LIMIT 20'
   ).bind(adm).all();
-  const list = (rows.results || []).map((r) => ({ username: r.username, value: r.value, ...(board === 'rare' ? { fish: r.fish } : {}), me: r.username.toLowerCase() === user.username.toLowerCase() }));
+  const prestigeCount = (data) => {
+    try { return Math.max(0, Math.floor(+((data && JSON.parse(data).pn) || 0))); } catch (e) { return 0; }
+  };
+  const list = (rows.results || []).map((r) => ({ username: r.username, value: r.value, prestiges: prestigeCount(r.data), ...(board === 'rare' ? { fish: r.fish } : {}), me: r.username.toLowerCase() === user.username.toLowerCase() }));
   let mine = null;
-  if (me && !me.st_hide && !me.flagged && me.v > 0 && user.username.toLowerCase() !== adm.toLowerCase()) {
-    const r = await env.DB.prepare('SELECT COUNT(*) AS n FROM users WHERE flagged = 0 AND st_hide = 0 AND username <> ? AND ' + col + ' > ?').bind(adm, me.v).first();
-    mine = { rank: r.n + 1, value: me.v, ...(board === 'rare' ? { fish: me.fish } : {}) };
+  if (me && !me.flagged && me.v > 0 && user.username.toLowerCase() !== adm.toLowerCase()) {
+    const r = await env.DB.prepare('SELECT COUNT(*) AS n FROM users WHERE flagged = 0 AND username <> ? AND ' + col + ' > ?').bind(adm, me.v).first();
+    mine = { rank: r.n + 1, value: me.v, prestiges: prestigeCount(me.data), ...(board === 'rare' ? { fish: me.fish } : {}) };
   }
   return J({ rows: list, me: mine, hidden: !!(me && me.st_hide) });
 }
 async function setHidden(req, env, user) {
+  if (!isAdmin(env, user)) return J({ error: 'Seul le compte développeur peut modifier la visibilité.' }, 403);
   const b = await readJson(req);
   await env.DB.prepare('UPDATE users SET st_hide = ? WHERE id = ?').bind(b.hide ? 1 : 0, user.id).run();
   return J({ ok: true });

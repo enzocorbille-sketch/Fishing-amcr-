@@ -171,14 +171,14 @@ const RODS=[['Bambou',0,1,1,1400,'#d9a441'],['Roseau',24300,1.2,1.08,1480,'#a3e6
 const BASE_RODS=RODS.length;
 // Nom, niveau requis, prix en citrouilles, bonus, multiplicateur du bonus, couleur, icône
 const HWRODS=[
- ['Canne Citrouille',3,2000,'chance',5,'#fb923c','🎃'],
+ ['Canne Citrouille',2,2000,'chance',5,'#fb923c','🎃'],
  ['Canne Fantôme',5,3500,'chance',8,'#38bdf8','👻'],
  ['Canne Sorcière',10,5000,'value',12,'#22c55e','🧙'],
  ['Canne Vampire',15,7500,'window',.2,'#ef4444','🦇'],
  ['Canne Infernale',20,10000,'chance',10,'#f97316','🔥'],
  ['Canne Spectrale',25,15000,'value',15,'#a855f7','🌀'],
- ['Canne Lune Noire',35,22000,'chance',20,'#93c5fd','🌙'],
- ['Canne du Néant',50,35000,'value',25,'#d946ef','✨']
+ ['Canne Lune Noire',25,22000,'chance',20,'#93c5fd','🌙'],
+ ['Canne du Néant',30,35000,'value',25,'#d946ef','✨']
 ];
 const HWROD_IMAGES=['citrouille','fantome','sorciere','vampire','infernale','spectrale','lune-noire','neant'].map(n=>`images/halloween/${n}.png`);
 const hwRodImg=i=>`<img class="hwrod-img" src="${HWROD_IMAGES[i]}" alt="${HWRODS[i][0]}">`;
@@ -283,8 +283,8 @@ const AR=[['Boussole d\'or','🧭',0,{L:1.15}],['Lanterne des abysses','🏮',1,
 const AMUL='LSWVCQ',ALAB={L:'Chance',S:'Vitesse',W:'Fenêtre',V:'Valeur',C:'Coffres',Q:'Pièces des coffres',B:'Appât gratuit',R:'Raretés',K:'Critique'};
 const artDesc=a=>Object.keys(a[3]).map(k=>{const v=a[3][k];if(AMUL.includes(k)){const d=(v-1)*ASCALE*100;return ALAB[k]+' '+(d>=0?'+':'−')+Math.abs(d).toFixed(1).replace('.0','')+' %'}return ALAB[k]+' +'+(v*ASCALE*100).toFixed(1).replace('.0','')+' %'}).join(' · ');
 // Coffres : nom, couleur, fond, prix de vente, poids de drop en pêchant
-const CHESTS=[['Commun','#94a3b8','#1e293b',250,50],['Rare','#3b82f6','#172554',1e3,28],['Épique','#a855f7','#3b0764',5e3,12],['Légendaire','#fbbf24','#78350f',25e3,5],['Mythique','#ef4444','#450a0a',1e5,2],['Secret','#22e39a','#022c22',5e5,.7],['Astral','#67e8f9','#082f49',2e6,.2],['Ultra','#f0abfc','#0f0a1e',1e7,.15],['Coffre Citrouille','#fb923c','#431407',150,0],['Coffre Maudit','#a855f7','#2e1065',300,0],['Coffre du Cavalier','#ef4444','#450a0a',450,0]];
-const CSYM=['','★','★','✦','♛','?','✧','∞'];
+const CHESTS=[['Commun','#94a3b8','#1e293b',250,50],['Rare','#3b82f6','#172554',1e3,28],['Épique','#a855f7','#3b0764',5e3,12],['Légendaire','#fbbf24','#78350f',25e3,5],['Mythique','#ef4444','#450a0a',1e5,2],['Secret','#22e39a','#022c22',5e5,.7],['Astral','#67e8f9','#082f49',2e6,.2],['Ultra','#f0abfc','#0f0a1e',1e7,.15],['Coffre Citrouille','#fb923c','#431407',150,0],['Coffre Maudit','#a855f7','#2e1065',300,0],['Coffre du Cavalier','#ef4444','#450a0a',450,0],['Divin','#fef08a','#422006',5e7,.05],['Cosmique','#c084fc','#2e1065',2e8,.02],['Omniversal','#f0abfc','#3b0764',1e9,.008],['Transcendant','#f97316','#431407',1e10,.002],['Infini','#ffffff','#172554',1e11,.0005]];
+const CSYM=['','★','★','✦','♛','?','✧','∞','🎃','☠','💀','✹','✧','⬢','✺','∞'];
 const HW_CHEST_IDS=[8,9,10];
 // Butin d'un coffre de rareté t : [type, id, quantité, poids] — g pièces · b appât · r canne · f poisson (rareté)
 const loot=t=>{const P=CHESTS[t][3],B=Math.min(7,t+1),R=Math.min(17,t*2+1);
@@ -327,7 +327,7 @@ const lvlBar=()=>{const l=level(),a=4000*(l-1)**2,b=4000*l**2;return{l,p:l>=100?
 const activeBait=()=>S.bait>=0&&S.baits[S.bait]>0?S.bait:-1;
 const biteDelayMs=(rodSpeed,bonusSpeed=1)=>{
  const maxSpeed=RODS[BASE_RODS-1][3],speed=Math.max(1,rodSpeed*bonusSpeed),progress=Math.min(1,Math.log(speed)/Math.log(maxSpeed));
- return Math.round(3000-2000*progress);
+ return Math.round(5000-3000*progress);
 };
 const playRareCatchSound=tier=>{
  const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
@@ -514,7 +514,9 @@ const Engine={
   clearTimeout(this.t2);this.st=0;
   const chestBait=baitEffect(this.b),chestBonus=chestBait&&chestBait.kind==='chest'?.0045:0;
   if(Math.random()<Math.min(.04,.0017*Math.pow(level(),.7)*Math.pow(luck(this.b),.3)*fx().C+chestBonus)){
-   const t=pickW(CHESTS.map(c=>c[4]));S.chests[t]=(S.chests[t]||0)+1;Q.add('chest');this.last={chest:t};save();UI.caught(this.last);UI.head();return}
+   const chestWeights=CHESTS.map(c=>c[4]);
+   if(HW.on()){chestWeights[8]=.08;chestWeights[9]=.03;chestWeights[10]=.01}
+   const t=pickW(chestWeights);S.chests[t]=(S.chests[t]||0)+1;Q.add('chest');this.last={chest:t};save();UI.caught(this.last);UI.head();return}
   const c=this.roll();
   return this.fightEnd(c,Fight.auto(c),true)},
  // Combat simulé automatiquement, sans mini-jeu.
@@ -560,10 +562,10 @@ const Act={
   if(k>=0){e.splice(k,1);delete S.en[i];delete owners[i]}else if(!(S.en[i]|0))return;else if(owners[i]!=null&&+owners[i]!==r)return UI.toast(`Cet enchantement est lié à ${RODS[owners[i]]?RODS[owners[i]][0]:'une autre canne'}`);
   else if(e.length<3){e.push(i);owners[i]=r}else return UI.toast('3 enchantements max par canne');this.done()},
  prestige(){if(!Pr.can())return;const g=Pr.gain();
-  if(!confirm(`Prestige : tu dépenses 1 🌠 Étoile filante, tu gagnes ${g} ⭐ et tu recommences à zéro (pièces, cannes normales, zones, appâts, poissons, coffres, niveau, enchantements et pierres).\nTu gardes : tes cannes événement, tes artefacts, ton index, tes mutations, tes succès, tes quêtes et tes ⭐.\nLes citrouilles et les achats de la boutique Halloween sont réinitialisés.\nContinuer ?`))return;
+  if(!confirm(`Prestige : tu dépenses 1 🌠 Étoile filante, tu gagnes ${g} ⭐ et tu recommences à zéro (pièces, cannes normales, zones, appâts, poissons, coffres, niveau, enchantements et pierres).\nToutes tes 🌠 Étoiles filantes restantes sont aussi perdues.\nTu gardes : tes cannes événement, tes artefacts, ton index, tes mutations, tes succès, tes quêtes et tes ⭐.\nLes citrouilles et les achats de la boutique Halloween sont réinitialisés.\nContinuer ?`))return;
  const h=S.hw&&typeof S.hw==='object'?{...S.hw,pk:0,shop:{}}:null;
- const keep={rods:[0,...(S.rods||[]).filter(i=>i>=BASE_RODS&&i<RODS.length)],ao:S.ao,ae:S.ae,quests:S.quests,idx:S.idx,casts:S.casts,mu:S.mu,ach:S.ach,gr:S.gr,hwt:S.hwt,op:S.op,af:S.af,rec:S.rec,pr:(S.pr|0)+g,pn:(S.pn|0)+1,pt:(S.pt|0)-1,bk:S.bk,hw:h};
-  Engine.clear();Object.assign(S,fresh(),keep);UI.msg=`⭐ Prestige ${S.pn} · +${g} ⭐ · total ${S.pr} ⭐`;save();UI.go('prest')},
+ const keep={rods:[0,...(S.rods||[]).filter(i=>i>=BASE_RODS&&i<RODS.length)],ao:S.ao,ae:S.ae,quests:S.quests,idx:S.idx,casts:0,mu:S.mu,ach:S.ach,gr:S.gr,hwt:S.hwt,op:S.op,af:S.af,rec:S.rec,pr:(S.pr|0)+g,pn:(S.pn|0)+1,pt:0,bk:S.bk,hw:h};
+  Engine.clear();Object.assign(S,fresh(),keep);Cloud.force=1;UI.msg=`⭐ Prestige ${S.pn} · +${g} ⭐ · total ${S.pr} ⭐`;save();UI.go('prest')},
  qClaim(t,id){const q=QD[t].find(x=>x[0]===id),s=Q.st()[t];if(!q||s.done[id]||Q.prog(t,q)<q[3])return;s.done[id]=1;S.c+=Q.reward(q);UI.msg=`🎯 Quête « ${q[1]} » terminée · +${fmt(Q.reward(q))} 🪙`;this.done()},
  aeq(i){const k=S.ae.indexOf(i);if(k>=0)S.ae.splice(k,1);else if(!S.ao[i])return;else if(S.ae.length<3)S.ae.push(i);else return UI.toast('3 artefacts max');this.done()},
  enPrice(i){const l=S.en[i]|0;return l<5?EN[i][6]*(l+1)*(l+1):0},
@@ -1163,9 +1165,10 @@ const Cloud={
   const tabs=B.map(([k,n])=>`<button class="chip ${L.board===k?'on':''}" onclick="Cloud.lbLoad('${k}')">${n}</button>`).join('');
   const medal=i=>['🥇','🥈','🥉'][i]||('#'+(i+1));
   const value=(v,fish)=>L.board==='rare'?esc(this.rareFish(fish)):fmt(v);
-  const rows=L.error?`<div class="mu" style="color:var(--gold)">${esc(L.error)}</div>`:L.loading||L.rows===null?'<div class="mu">Chargement…</div>':(L.rows.length?L.rows.map((r,i)=>`<div class="row sp" style="padding:6px 0;${r.me?'font-weight:800;color:var(--gold)':''}"><span>${medal(i)} ${esc(r.username)}</span><span>${value(r.value,r.fish)}</span></div>`).join(''):'<div class="mu">Personne pour l\'instant.</div>');
-  const me=L.me&&!(L.rows||[]).some(r=>r.me)?`<div class="row sp mu" style="padding:6px 0;border-top:1px solid var(--line)"><span>#${L.me.rank} · toi</span><span>${value(L.me.value,L.me.fish)}</span></div>`:'';
-  return `<div class="row" style="margin-bottom:10px">${tabs}<button class="chip" onclick="Cloud.lb.rows=null;Cloud.lb.error='';UI.render()">↻</button></div><div class="panel">${rows}${me}</div><div class="panel row sp"><span class="mu">Mis à jour à chaque sauvegarde en ligne.</span><button class="chip" onclick="Cloud.lbHide()">${L.hide?'🙈 Masqué : me réafficher':'👁 Visible : me masquer'}</button></div>`},
+  const playerName=r=>`${r.prestiges>0?'⭐'.repeat(Math.min(20,r.prestiges))+' ':''}${r.username}`;
+  const rows=L.error?`<div class="mu" style="color:var(--gold)">${esc(L.error)}</div>`:L.loading||L.rows===null?'<div class="mu">Chargement…</div>':(L.rows.length?L.rows.map((r,i)=>`<div class="row sp" style="padding:6px 0;${r.me?'font-weight:800;color:var(--gold)':''}"><span>${medal(i)} ${esc(playerName(r))}</span><span>${value(r.value,r.fish)}</span></div>`).join(''):'<div class="mu">Personne pour l\'instant.</div>');
+  const me=L.me&&!(L.rows||[]).some(r=>r.me)?`<div class="row sp mu" style="padding:6px 0;border-top:1px solid var(--line)"><span>#${L.me.rank} · ${esc(playerName({username:'toi',prestiges:L.me.prestiges}))}</span><span>${value(L.me.value,L.me.fish)}</span></div>`:'';
+  return `<div class="row" style="margin-bottom:10px">${tabs}<button class="chip" onclick="Cloud.lb.rows=null;Cloud.lb.error='';UI.render()">↻</button></div><div class="panel">${rows}${me}</div><div class="panel row sp"><span class="mu">Tous les joueurs sont visibles dans le classement.${this.admin?' Seul le compte développeur peut modifier la visibilité.':''}</span>${this.admin?`<button class="chip" onclick="Cloud.lbHide()">${L.hide?'🙈 Masqué : me réafficher':'👁 Visible : me masquer'}</button>`:''}</div>`},
  rareFish(key){
   const m=/^(\d+)-(\d+)$/.exec(String(key||''));
   if(!m)return '—';
