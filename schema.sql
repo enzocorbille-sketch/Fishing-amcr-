@@ -4,7 +4,10 @@ CREATE TABLE IF NOT EXISTS users (
   salt TEXT NOT NULL,
   hash TEXT NOT NULL,
   recovery_hash TEXT,
-  created INTEGER NOT NULL
+  created INTEGER NOT NULL,
+  last_login INTEGER NOT NULL DEFAULT 0,
+  last_seen INTEGER NOT NULL DEFAULT 0,
+  play_seconds INTEGER NOT NULL DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS saves (
   user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
@@ -26,6 +29,15 @@ CREATE TABLE IF NOT EXISTS login_fail (
   username TEXT NOT NULL COLLATE NOCASE,
   ts INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ts INTEGER NOT NULL,
+  actor_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  target_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  action TEXT NOT NULL,
+  details TEXT NOT NULL
+);
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_fail ON login_fail(username, ts);
 CREATE INDEX IF NOT EXISTS idx_backups_user ON save_backups(user_id, ts);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_ts ON audit_logs(ts DESC);

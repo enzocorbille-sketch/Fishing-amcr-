@@ -1097,10 +1097,16 @@ const Cloud={
  },
  // --- administration (compte admin uniquement ; le serveur refuse tout autre compte)
  async admOpen(){
- this.adm={users:null,sel:null,q:'',sort:'updated'};this.msg='…';this.panel();
+ this.adm={users:null,logs:null,sel:null,q:'',sort:'updated',view:'users'};this.msg='…';this.panel();
   const r=await this.api('admin/users','GET').catch(()=>null);
   if(!r||!r.ok){this.adm=null;this.msg=(r&&r.j.error)||'⚠ Accès refusé';return this.panel()}
   this.adm.users=r.j.users;this.msg='';this.panel()
+ },
+ async admLogs(){
+ this.adm.view='logs';this.adm.logs=null;this.msg='…';this.panel();
+ const r=await this.api('admin/logs?limit=200','GET').catch(()=>null);
+ if(!r||!r.ok){this.msg=(r&&r.j.error)||'⚠ Impossible de charger les logs';return this.panel()}
+ this.adm.logs=r.j.logs;this.msg='';this.panel()
  },
  async admUser(id){
   const r=await this.api('admin/user?user_id='+id,'GET').catch(()=>null);
@@ -1111,7 +1117,7 @@ const Cloud={
  admGive(mode){const s=this.adm.sel,k=$('#gk').value,gi=$('#gi'),gn=$('#gn'),op={k,id:gi?+gi.value:0,n:gn?+gn.value:1,mode},id=s.user.id;
   this.admDo('grant',{user_id:id,op},async()=>{await this.admUser(id);this.msg='✓ Envoyé. Il s\'applique dans les 30 s si le joueur a le jeu ouvert (sinon à sa prochaine connexion).';this.panel()})},
  admUndo(){if(!confirm('Retirer au joueur tout ce que tu lui as donné (les dons non encore annulés) ?'))return;const id=this.adm.sel.user.id;this.admDo('undo',{user_id:id},async j=>{await this.admUser(id);this.msg='✓ '+j.count+' don(s) annulé(s).';this.panel()})},
- admBack(){if(this.adm&&this.adm.sel){this.adm.sel=null;this.msg=''}else this.adm=null;this.panel()},
+ admBack(){if(this.adm&&this.adm.sel){this.adm.sel=null;this.msg=''}else if(this.adm&&this.adm.view==='logs'){this.adm.view='users';this.msg=''}else this.adm=null;this.panel()},
  async admDo(path,body,after){
   const r=await this.api('admin/'+path,'POST',body).catch(()=>null);
   if(!r||!r.ok){this.msg=(r&&r.j.error)||'⚠ Erreur';return this.panel()}
@@ -1214,13 +1220,21 @@ const Cloud={
     ${s.tmp?`<div class="panel" style="margin-top:10px">Mot de passe temporaire (à donner au joueur, affiché une seule fois) :<div style="font:800 18px ui-monospace,monospace;user-select:all;text-align:center">${esc(s.tmp)}</div></div>`:''}
     <button class="chip" style="margin-top:8px" onclick="Cloud.admBack()">← Retour à la liste</button>`}
   else if(this.adm){
+   if(this.adm.view==='logs'){
+    const actionName={register:'Inscription',login:'Connexion',recover_password:'Mot de passe récupéré',save:'Sauvegarde',grant:'Don',remove_grant:'Retrait',undo_grants:'Annulation de dons',restore_save:'Restauration',unflag_user:'Désignalement',reset_password:'Réinitialisation mot de passe',delete_user:'Suppression'};
+    const logs=this.adm.logs||[];
+    inner=`<div class="row sp"><h2>📜 Journal d'activité</h2><button class="chip" onclick="Cloud.admBack()">← Joueurs</button></div>
+     <p class="mu">${this.adm.logs?logs.length+' événement(s) récent(s), conservés côté serveur.':'Chargement…'}</p>
+     <div class="panel" style="overflow:auto">${logs.map(l=>`<div class="row sp" style="gap:16px;border-bottom:1px solid var(--line);padding:10px 0;align-items:flex-start"><span style="min-width:145px"><b>${dt(l.ts)}</b><br><span class="mu">#${l.id}</span></span><span style="flex:1;min-width:180px"><b>${esc(actionName[l.action]||l.action)}</b><br><span class="mu">acteur : ${esc(l.actor)}${l.target?` · joueur : ${esc(l.target)}`:''}</span></span><code style="white-space:pre-wrap;word-break:break-word;max-width:45%;color:var(--mu)">${esc(JSON.stringify(l.details||{}))}</code></div>`).join('')||'<div class="mu">Aucun événement.</div>'}</div>`;
+   }else{
    const all=this.adm.users||[],q=(this.adm.q||'').toLowerCase(),us=all.filter(x=>!q||x.username.toLowerCase().includes(q)).sort((a,b)=>(b[this.adm.sort]||0)-(a[this.adm.sort]||0));
    const online=all.filter(x=>x.last_login&&Date.now()-x.last_login<86400000).length;
    inner=`<h2>🛠 Administration développeur</h2><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))"><div class="panel"><b>Comptes</b><br>${all.length}</div><div class="panel"><b>Actifs 24 h</b><br>${online}</div><div class="panel"><b>Signalés</b><br>${all.filter(x=>x.flagged).length}</div></div><div class="row" style="margin-bottom:8px"><input class="in" style="flex:1;min-width:220px" placeholder="Rechercher un joueur…" value="${esc(this.adm.q||'')}" oninput="Cloud.adm.q=this.value;Cloud.panel()"><select class="in" style="width:auto" onchange="Cloud.adm.sort=this.value;Cloud.panel()"><option value="updated">Dernière sauvegarde</option><option value="last_login">Dernière connexion</option><option value="play_seconds">Temps de jeu</option><option value="c">Pièces</option><option value="casts">Lancers</option></select></div>
     <p class="mu">${us.length} joueur(s) affiché(s) sur ${all.length}. Sélectionne un compte pour voir tous ses détails.</p>
     <div class="row" style="margin-bottom:8px"><button class="chip" onclick="Cloud.evPreview()">🎃 Aperçu de l'événement (toi seul) : ${localStorage.getItem('catbet-evpreview')==='1'?'ON':'OFF'}</button></div>
     ${us.map(x=>`<div class="panel row sp" style="margin:6px 0"><span><b>${esc(x.username)}${x.flagged?' ⚠️':''}</b><br><span class="mu">niv ${lv(x.xp)} · ${fmt(x.c)} 🪙 · ${fmt(x.casts)} lancers · jeu ${dur(x.play_seconds)}<br>connexion ${x.last_login?dt(x.last_login):'jamais'} · sauvegarde ${x.updated?dt(x.updated):'jamais'}</span></span><button class="chip" onclick="Cloud.admUser(${+x.id})">Ouvrir</button></div>`).join('')}
-    <div class="mu" style="margin:8px 0;min-height:18px">${esc(this.msg)}</div><button class="chip" onclick="Cloud.admBack()">← Retour</button>`}
+    <div class="mu" style="margin:8px 0;min-height:18px">${esc(this.msg)}</div><button class="chip" onclick="Cloud.admBack()">← Retour</button><button class="btn sm" onclick="Cloud.admLogs()">📜 Voir les logs détaillés</button></div>`}
+   }
   else if(this.tok)inner=`<h2>☁ ${esc(this.user)}</h2><p class="mu">Ta progression est sauvegardée en ligne et suit ton compte sur tous tes appareils.</p>
     <div class="row"><button class="btn sm" onclick="Cloud.sync()">Synchroniser maintenant</button><button class="chip" onclick="Cloud.logout()">Se déconnecter</button></div>
     <div class="mu" style="margin-top:10px;min-height:18px">${esc(this.msg)}</div>

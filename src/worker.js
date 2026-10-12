@@ -139,6 +139,11 @@ async function loadSave(env, userId) {
   const row = await env.DB.prepare('SELECT data, updated FROM saves WHERE user_id = ?').bind(userId).first();
   return row ? { data: JSON.parse(row.data), updated: row.updated } : { data: null, updated: 0 };
 }
+async function audit(env, actorId, action, targetId = null, details = {}) {
+  await env.DB.prepare(
+    'INSERT INTO audit_logs(ts, actor_id, target_id, action, details) VALUES(?,?,?,?,?)'
+  ).bind(Date.now(), actorId || null, targetId || null, action, JSON.stringify(details)).run();
+}
 
 async function checkPassword(env, username, password) {
   const user = await env.DB.prepare('SELECT id, username, salt, hash FROM users WHERE username = ?').bind(username).first();
@@ -188,6 +193,7 @@ async function register(req, env) {
   }
   const token = await newSession(env, r.meta.last_row_id);
   await env.DB.prepare('UPDATE users SET last_login = ? WHERE id = ?').bind(Date.now(), r.meta.last_row_id).run();
+  await audit(env, r.meta.last_row_id, 'register', r.meta.last_row_id, { username: u });
   return J({ token, username: u, data: null, updated: 0, recovery, admin: isAdmin(env, { username: u }) });
 }
 
@@ -203,6 +209,7 @@ async function login(req, env) {
   }
   await env.DB.prepare('DELETE FROM login_fail WHERE username = ?').bind(u).run();
   await env.DB.prepare('UPDATE users SET last_login = ? WHERE id = ?').bind(Date.now(), user.id).run();
+  await audit(env, user.id, 'login', user.id, {});
   const token = await newSession(env, user.id);
   const s = await loadSave(env, user.id);
   return J({ token, username: user.username, data: s.data, updated: s.updated, admin: isAdmin(env, user) });
@@ -229,6 +236,7 @@ async function recover(req, env) {
   ]);
   const token = await newSession(env, user.id);
   await env.DB.prepare('UPDATE users SET last_login = ? WHERE id = ?').bind(Date.now(), user.id).run();
+  await audit(env, user.id, 'recover_password', user.id, {});
   const s = await loadSave(env, user.id);
   return J({ token, username: user.username, data: s.data, updated: s.updated, recovery, admin: isAdmin(env, user) });
 }
@@ -415,6 +423,23 @@ async function adminUsers(env) {
 
 async function adminRoute(route, req, env, user) {
   if (route === 'GET /api/admin/users') return J({ users: await adminUsers(env) });
+  if (route === 'GET /api/admin/logs') {
+    const params = new URL(req.url).searchParams;
+    const limit = Math.min(200, Math.max(1, Math.floor(+params.get('limit') || 100)));
+    const rows = await env.DB.prepare(
+      `SELECT l.id, l.ts, l.action, l.details,
+              a.username AS actor, t.username AS target
+       FROM audit_logs l
+       LEFT JOIN users a ON a.id = l.actor_id
+       LEFT JOIN users t ON t.id = l.target_id
+       ORDER BY l.id DESC LIMIT ?`
+    ).bind(limit).all();
+    return J({ logs: (rows.results || []).map((r) => {
+      let details = {};
+      try { details = JSON.parse(r.details || '{}'); } catch (e) { details = { raw: r.details }; }
+      return { id: r.id, ts: r.ts, action: r.action, actor: r.actor || 'système', target: r.target || '', details };
+    }) });
+  }
   const b = route.startsWith('GET') ? Object.fromEntries(new URL(req.url).searchParams) : await readJson(req);
   const uid = +b.user_id || 0;
   const target = await env.DB.prepare('SELECT id, username, created, last_login, play_seconds, flagged, flag_reason FROM users WHERE id = ?').bind(uid).first();
@@ -434,6 +459,7 @@ async function adminRoute(route, req, env, user) {
     const op = cleanOp(b.op);
     if (!op) return J({ error: 'Don invalide.' }, 400);
     await addGrant(env, uid, op);
+    await audit(env, user.id, op.mode === 'give' ? 'grant' : 'remove_grant', uid, op);
     return J({ ok: true });
   }
   if (route === 'POST /api/admin/undo') {
@@ -447,14 +473,17 @@ async function adminRoute(route, req, env, user) {
       await env.DB.prepare('UPDATE grants SET undone = 1 WHERE id = ?').bind(r.id).run();
       n++;
     }
+    await audit(env, user.id, 'undo_grants', uid, { count: n });
     return J({ ok: true, count: n });
   }
   if (route === 'POST /api/admin/restore') {
     const r = await restoreFor(env, uid, b.id);
+    if (r) await audit(env, user.id, 'restore_save', uid, { backup_id: +b.id || 0 });
     return r ? J({ ok: true }) : J({ error: 'Sauvegarde introuvable.' }, 404);
   }
   if (route === 'POST /api/admin/unflag') {
     await env.DB.prepare('UPDATE users SET flagged = 0, flag_reason = NULL WHERE id = ?').bind(uid).run();
+    await audit(env, user.id, 'unflag_user', uid, {});
     return J({ ok: true });
   }
   if (route === 'POST /api/admin/reset-password') {
@@ -464,6 +493,7 @@ async function adminRoute(route, req, env, user) {
       env.DB.prepare('UPDATE users SET salt = ?, hash = ? WHERE id = ?').bind(hex(salt), await pbkdf2(temp, salt), uid),
       env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(uid),
     ]);
+    await audit(env, user.id, 'reset_password', uid, {});
     return J({ ok: true, password: temp });
   }
   if (route === 'POST /api/admin/delete') {
@@ -475,6 +505,7 @@ async function adminRoute(route, req, env, user) {
       env.DB.prepare('DELETE FROM saves WHERE user_id = ?').bind(uid),
       env.DB.prepare('DELETE FROM users WHERE id = ?').bind(uid),
     ]);
+    await audit(env, user.id, 'delete_user', uid, { username: target.username });
     return J({ ok: true });
   }
   return J({ error: 'Introuvable.' }, 404);
@@ -525,6 +556,7 @@ async function putSave(req, env, user) {
   await env.DB.prepare('UPDATE users SET last_seen = ?, play_seconds = MAX(play_seconds, ?) WHERE id = ?')
     .bind(Date.now(), Math.floor(+data.play || 0), user.id).run();
   await updStats(env, user.id, data);
+  await audit(env, user.id, 'save', user.id, { casts: data.casts || 0, force: !!b.force });
   return J({ ok: true, updated: now });
 }
 
@@ -537,6 +569,7 @@ const TABLES = [
   'CREATE TABLE IF NOT EXISTS sessions (token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, expires INTEGER NOT NULL)',
   'CREATE TABLE IF NOT EXISTS login_fail (username TEXT NOT NULL COLLATE NOCASE, ts INTEGER NOT NULL)',
   'CREATE TABLE IF NOT EXISTS grants (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, ts INTEGER NOT NULL, op TEXT NOT NULL)',
+  'CREATE TABLE IF NOT EXISTS audit_logs (id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER NOT NULL, actor_id INTEGER REFERENCES users(id) ON DELETE SET NULL, target_id INTEGER REFERENCES users(id) ON DELETE SET NULL, action TEXT NOT NULL, details TEXT NOT NULL)',
 ];
 const COLUMNS = {
   users: [
@@ -557,6 +590,7 @@ const INDEXES = [
   'CREATE INDEX IF NOT EXISTS idx_fail ON login_fail(username, ts)',
   'CREATE INDEX IF NOT EXISTS idx_backups_user ON save_backups(user_id, ts)',
   'CREATE INDEX IF NOT EXISTS idx_grants_user ON grants(user_id, applied)',
+  'CREATE INDEX IF NOT EXISTS idx_audit_logs_ts ON audit_logs(ts DESC)',
 ];
 let schemaReady = null;
 function ensureSchema(env) {
