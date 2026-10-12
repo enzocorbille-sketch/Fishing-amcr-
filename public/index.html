@@ -21,7 +21,7 @@ h2{margin:6px 0 12px;font-size:18px}.mu{color:var(--mu);font-size:13px}
 .btn:disabled{opacity:.4;cursor:not-allowed}.btn.g{background:var(--gr)}.btn.sm{padding:8px 12px;font-size:13px}
 .chip{background:var(--card2);border:1px solid var(--line);color:var(--tx);padding:8px 12px;border-radius:10px;cursor:pointer}
 .chip.on{border-color:var(--pu);box-shadow:0 0 0 1px var(--pu) inset}
-.scene{position:relative;width:100%;aspect-ratio:1332/743;border:0;border-radius:0;overflow:hidden;background:#080b17 url('images/fishing-scene.png?v=2') center/100% 100% no-repeat;margin-bottom:12px;box-shadow:0 14px 35px #0008}
+.scene{position:relative;width:100%;aspect-ratio:1332/743;border:0;border-radius:0;overflow:hidden;background:#080b17 url('images/fishing-scene.png') center/100% 100% no-repeat;margin-bottom:12px;box-shadow:0 14px 35px #0008}
 .scene .st{position:absolute;z-index:5;left:1.8%;top:4.2%;width:32%;height:8.3%;display:flex;align-items:center;overflow:hidden;padding:0 4px 0 6.5%;background:transparent;color:#fff1d5;font-family:Georgia,serif;font-size:clamp(8px,1.2vw,16px);font-weight:700;white-space:nowrap;text-shadow:0 1px 3px #000;opacity:0;pointer-events:none}
 .scene.status-active .st{opacity:1}
 #bob{position:absolute;z-index:4;left:49.55%;top:52%;width:clamp(9px,1.45vw,20px);height:clamp(20px,3.4vw,44px);border:1px solid #201820;border-radius:48% 48% 44% 44%;background:linear-gradient(90deg,#6d171e 0%,#e12d31 24%,#ff8270 48%,#cf1d2d 74%,#56131b 100%);box-shadow:inset 0 1px 2px #ffe8d9,0 2px 5px #030511,0 0 9px #fa6e4e77;transform:translate(-50%,-50%);transition:top .3s;animation:float 2s ease-in-out infinite}
@@ -60,6 +60,11 @@ h2{margin:6px 0 12px;font-size:18px}.mu{color:var(--mu);font-size:13px}
 @media(prefers-reduced-motion:reduce){.catch.legendary,.catch.legendary:before,.catch.legendary .fa{animation:none}}
 input.in{width:100%;margin-bottom:8px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font-size:16px}
 .catch.mut{box-shadow:0 0 22px -6px var(--a)}.em.pr{animation:hue 3s linear infinite}@keyframes hue{to{filter:hue-rotate(360deg)}}
+.rare-showcase{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 50% 42%,color-mix(in srgb,var(--rare) 24%,#050611 76%),#02030a 68%);color:#fff;text-align:center;animation:rareFade .35s ease-out}
+.rare-showcase:before,.rare-showcase:after{position:absolute;inset:0;content:"";pointer-events:none}.rare-showcase:before{background:repeating-conic-gradient(from 0deg,transparent 0deg 11deg,color-mix(in srgb,var(--rare) 18%,transparent) 12deg 13deg,transparent 14deg 28deg);animation:rareSpin 24s linear infinite}.rare-showcase:after{background:radial-gradient(circle at 50% 48%,transparent 0 18%,#0008 65%,#000 100%)}
+.rare-showcase-content{position:relative;z-index:1;max-width:720px;opacity:0}.rare-showcase.show .rare-showcase-content{animation:rareRise .8s cubic-bezier(.2,.8,.2,1);opacity:1}.rare-showcase-fish{margin:10px auto 18px;min-height:170px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 0 28px var(--rare));animation:rareFish 2.4s ease-in-out infinite}.rare-showcase-fish .fa{width:min(62vw,430px);height:min(45vw,300px)}.rare-showcase-tier{color:var(--rare);font-size:clamp(18px,3vw,32px);font-weight:900;letter-spacing:3px;text-shadow:0 0 18px var(--rare)}.rare-showcase-name{font-size:clamp(24px,5vw,52px);font-weight:900;margin:8px 0}.rare-showcase-meta{color:#b8c7df;font-size:14px}.rare-showcase .chip{margin-top:24px;background:#ffffff18;border-color:#ffffff66}.rare-showcase:not(.show) .chip{visibility:hidden}
+@keyframes rareFade{from{opacity:0}to{opacity:1}}@keyframes rareRise{from{transform:translateY(24px) scale(.9);opacity:0}to{transform:none;opacity:1}}@keyframes rareSpin{to{transform:rotate(360deg)}}@keyframes rareFish{50%{transform:scale(1.08) rotate(-2deg);filter:drop-shadow(0 0 45px var(--rare))}}
+@media(prefers-reduced-motion:reduce){.rare-showcase,.rare-showcase:before,.rare-showcase-content,.rare-showcase-fish{animation:none}}
 .weather-banner{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;border-color:#60a5fa;background:linear-gradient(110deg,#0e3150,#19294d)}
 .weather-banner b{color:#bfdbfe}
 #hwb{margin-top:10px}#hwb .hwb{display:inline-block;cursor:pointer;background:linear-gradient(90deg,#7c3aed,#fb923c);color:#fff;font-weight:800;padding:8px 12px;border-radius:12px;animation:gl 2.2s ease-in-out infinite}
@@ -147,6 +152,8 @@ body.hw .btn{color:#1a0a2e}body.hw .btn.eq{color:var(--tx)}body.hw .panel{border
 /* ============ 1. DONNÉES ============ */
 // Raretés : nom, couleur, poids de base, XP gagnée
 const TIERS=[['Commun','#94a3b8',70,4],['Rare','#3b82f6',22,10],['Épique','#a855f7',6,30],['Mythique','#ef4444',1.5,90],['Secret','#22e39a',0.25,250],['Astral','#67e8f9',0.03,700],['Ultra','#f0abfc',0.0001,1800],['Légendaire','#fbbf24',0.000002,4500],['Primordial','#fb7185',0.00000002,10000],['Transcendant','#f97316',0.000000001,25000],['Infini','#f43f5e',0.00000000003,65000],['Omniversal','#c084fc',0.0000000000008,180000],['Créateur','#fef08a',0.000000000000015,500000],['Singularité','#67e8f9',0.0000000000000002,1500000],['Au-delà','#ffffff',0.000000000000000002,5000000]];
+const RARE_SHOWCASE_COLORS=['#22d3ee','#ec4899','#facc15','#ef4444','#f97316','#dc2626','#a855f7','#fde047','#14b8a6','#f8fafc'];
+const rareShowcaseColor=t=>t>=5?RARE_SHOWCASE_COLORS[Math.min(t-5,RARE_SHOWCASE_COLORS.length-1)]:TIERS[t][1];
 // Poissons par rareté : nom, (libre), valeur min, valeur max, zone exclusive ou null, couleur haut, couleur bas, corps rond (1/0)
 const FISH=[
 [["Sardine",'',18,45,null,'#e2e8f0','#64748b',0],["Carpe",'',24,54,null,'#d6c58a','#78633a',0],["Gardon",'',15,42,null,'#cbd5e1','#475569',0],["Goujon",'',12,36,null,'#fde68a','#a16207',0]],
@@ -817,7 +824,14 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
   if(c.chest!=null){const C=CHESTS[c.chest];this.fishState('Un coffre est remonté ! 📦','');if(b)b.innerHTML=`<div class="panel catch pop" style="--a:${C[1]}"><div class="em">${chestArt(c.chest)}</div><div><div style="color:${C[1]};font-weight:900">COFFRE ${C[0].toUpperCase()} !</div><div class="mu">Ouvre-le depuis l'inventaire</div></div></div>`;return}
   this.fishState('Prise réussie ! 🎉','');const T=TIERS[c.t],mu=c.mut>=0?MUT[c.mut]:null;
   if(b)b.innerHTML=`<div class="panel catch pop${mu?' mut':''}${c.t>=7?' legendary':''}" style="--a:${mu?mu[2]:T[1]}"><div class="em${mu&&c.mut===6?' pr':''}"${mu?` style="filter:${mu[5]}"`:''}>${art(c.f,c.t)}</div><div>${c.t>=7?`<div style="color:${T[1]};font-weight:900;font-size:15px">${c.t>=8?'👑 PRISE PRIMORDIALE !':'✨ PRISE LÉGENDAIRE !'}</div>`:''}${mu?`<div style="color:${mu[2]};font-weight:900">${mu[1]} MUTATION ${mu[0].toUpperCase()} · ×${mu[3]}</div>`:''}<div style="color:${T[1]};font-weight:900">${T[0].toUpperCase()} · ${c.f[0]}</div><div class="mu">${c.cm} cm · ⚖️ ${c.kg} kg${c.rec?' · 🏅 nouveau record !':''} · ${S.idx[c.t+'-'+c.j]} capturé(s)</div><b style="color:var(--gold)">+${fmt(c.val)} 🪙 de valeur</b>${favBtn(c)}${c.tags&&c.tags.length?`<div class="mu">${c.tags.join(' · ')}</div>`:''}${c.stone?'<div style="color:var(--gr);font-weight:800">🪨 Pierre d\'enchante trouvée !</div>':''}${c.ptok?'<div style="color:var(--gold);font-weight:900">🌠 ÉTOILE FILANTE trouvée ! (prestige possible)</div>':''}</div></div>`;
+  if(c.t>=5)this.rareShowcase(c,T,mu);
   const lb=lvlBar(),p=$('#lv');if(p)p.innerHTML=`Niv. ${lb.l} <div class="bar"><i style="width:${lb.p*100}%"></i></div>`;
+ },
+ rareShowcase(c,T,mu){
+  const old=$('#rare-showcase');if(old)old.remove();
+  const el=document.createElement('div');el.id='rare-showcase';el.className='rare-showcase';el.style.setProperty('--rare',rareShowcaseColor(c.t));
+  el.innerHTML=`<div class="rare-showcase-content"><div class="rare-showcase-tier">${T[0].toUpperCase()}</div><div class="rare-showcase-fish">${art(c.f,c.t)}</div><div class="rare-showcase-name">${esc(c.f[0])}</div><div class="rare-showcase-meta">${c.cm} cm · ⚖️ ${c.kg} kg · +${fmt(c.val)} 🪙</div><button class="chip" type="button">Passer l'animation</button></div>`;
+  const close=()=>{clearTimeout(el._timer);clearTimeout(el._showTimer);el.remove()};el.addEventListener('click',e=>{if(e.target===el||e.target.closest('button'))close()});document.body.appendChild(el);el._showTimer=setTimeout(()=>el.classList.add('show'),2000);el._timer=setTimeout(close,c.t>=8?8500:6500);
  },
  v_fish(){
   const z=ZONES[S.zone],r=RODS[S.rod],hr=HWRODS[S.rod-BASE_RODS],lb=lvlBar();setTimeout(()=>this.refreshGo());
