@@ -3,6 +3,8 @@ main = "src/worker.js"
 compatibility_date = "2026-01-01"
 
 # Le jeu (public/index.html) est servi tel quel ; seules les routes /api/* passent par le Worker.
+# Définir ADMIN_USERNAME comme secret/variable Worker avant le déploiement.
+# Sans cette variable, aucune session ne possède les droits administrateur.
 [assets]
 directory = "./public"
 binding = "ASSETS"

@@ -5,7 +5,6 @@ const MAX_SAVE = 200000; // octets max pour une sauvegarde
 const MAX_FAILS = 8, FAIL_WINDOW = 15 * 60 * 1000;
 const FLAG_PASSWORD = "mot de passe : trop d'essais"; // SEUL motif de signalement automatique
 const BACKUP_EVERY = 30 * 60 * 1000, BACKUP_KEEP = 5; // sauvegardes automatiques : 5 conservées, la plus ancienne est supprimée à l'arrivée d'une nouvelle
-const ADMIN_DEFAULT = 'AMCR'; // pseudo du compte admin (remplaçable par la variable ADMIN_USERNAME)
 const VERSION = '2026-10-12';
 
 // --- Contrôles de valeurs (seules les valeurs absurdes sont refusées ; plus aucun signalement automatique pour l'XP ou le rythme) ---
@@ -18,6 +17,53 @@ function wealth(d) {
   for (const k in d.inv || {}) w += +(d.inv[k] && d.inv[k].v) || 0;
   for (const t in d.chests || {}) w += (+d.chests[t] || 0) * (CHEST_PRICE[t] || 0);
   return w;
+}
+function isObject(value) {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+function validNumber(value, max = 1e15) {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= max;
+}
+function validNumberMap(value, max = 1e9) {
+  if (value == null) return true;
+  if (!isObject(value) || Object.keys(value).length > 500) return false;
+  return Object.entries(value).every(([key, item]) => /^\d+$/.test(key) && validNumber(item, max));
+}
+function validIdArray(value, maxLength = 500) {
+  return value == null || (Array.isArray(value) && value.length <= maxLength &&
+    value.every((item) => Number.isInteger(item) && item >= 0 && item < 200));
+}
+function validInventory(value) {
+  if (value == null) return true;
+  if (!isObject(value) || Object.keys(value).length > 1000) return false;
+  return Object.entries(value).every(([key, item]) =>
+    /^[0-9]+-[0-9]+$/.test(key) && isObject(item) &&
+    validNumber(item.n, 1e9) && validNumber(item.v, 1e15)
+  );
+}
+function validFishArray(value) {
+  return value == null || (Array.isArray(value) && value.length <= 300 &&
+    value.every((item) => isObject(item) && Number.isInteger(item.t) && item.t >= 0 && item.t < 200 &&
+      Number.isInteger(item.j) && item.j >= 0 && item.j < 500 && validNumber(item.v, 1e15)));
+}
+function validSaveShape(data) {
+  if (!isObject(data)) return false;
+  for (const key of ['c', 'xp', 'casts', 'pr', 'pn', 'pt', 'es', 'rod', 'zone', 'bait', 'af']) {
+    if (key in data && !validNumber(data[key])) return false;
+  }
+  for (const key of ['rods', 'zones', 'ae', 'gr']) {
+    if (!validIdArray(data[key])) return false;
+  }
+  for (const key of ['chests', 'baits', 'en', 'eb', 'idx', 'rec', 'bk']) {
+    if (!validNumberMap(data[key])) return false;
+  }
+  if (!validInventory(data.inv) || !validFishArray(data.fav)) return false;
+  for (const key of ['ach', 'quests', 'mu', 'hw', 'op']) {
+    if (data[key] != null && !isObject(data[key])) return false;
+  }
+  if (data.ao != null && (!isObject(data.ao) || Object.keys(data.ao).length > 200 ||
+      !Object.entries(data.ao).every(([key, value]) => /^\d+$/.test(key) && value === 1))) return false;
+  return true;
 }
 // Valeurs absurdes (NaN, négatives, énormes) : seule raison de REFUSER une sauvegarde
 function invalid(next, al) {
@@ -124,6 +170,9 @@ async function register(req, env) {
   const u = String(b.username || '').trim();
   const p = String(b.password || '');
   if (!/^[A-Za-z0-9_-]{3,20}$/.test(u)) return J({ error: 'Pseudo : 3 à 20 caractères (lettres, chiffres, _ ou -).' }, 400);
+  if (adminName(env) && u.toLowerCase() === adminName(env).toLowerCase()) {
+    return J({ error: 'Ce pseudo est réservé au compte administrateur.' }, 403);
+  }
   if (p.length < 8 || p.length > 128) return J({ error: 'Mot de passe : 8 caractères minimum.' }, 400);
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const h = await pbkdf2(p, salt);
@@ -322,13 +371,19 @@ async function addGrant(env, uid, op) {
   ]);
 }
 async function pendingGrants(env, user) {
-  const rows = await env.DB.prepare('SELECT id, op FROM grants WHERE user_id = ? AND applied = 0 ORDER BY id LIMIT 50').bind(user.id).all();
+  const rows = await env.DB.prepare(
+    `UPDATE grants SET applied = 1, applied_ts = ?
+     WHERE id IN (SELECT id FROM grants WHERE user_id = ? AND applied = 0 ORDER BY id LIMIT 50)
+     RETURNING id, op`
+  ).bind(Date.now(), user.id).all();
   return J({ list: (rows.results || []).map((r) => ({ id: r.id, op: JSON.parse(r.op) })) });
 }
 async function ackGrants(req, env, user) {
   const b = await readJson(req);
   const ids = (Array.isArray(b.ids) ? b.ids : []).map((x) => Math.floor(+x)).filter((x) => x > 0).slice(0, 50);
-  for (const id of ids) await env.DB.prepare('UPDATE grants SET applied = 1, applied_ts = ? WHERE id = ? AND user_id = ?').bind(Date.now(), id, user.id).run();
+  // Grants are claimed atomically by pendingGrants; this endpoint remains
+  // idempotent for older clients that still acknowledge received IDs.
+  for (const id of ids) await env.DB.prepare('UPDATE grants SET applied_ts = COALESCE(applied_ts, ?) WHERE id = ? AND user_id = ?').bind(Date.now(), id, user.id).run();
   return J({ ok: true });
 }
 function saveSummary(data) {
@@ -338,8 +393,11 @@ function saveSummary(data) {
 }
 
 // --- Administration : réservée au compte dont le pseudo est ADMIN_USERNAME (voir wrangler.toml) ---
-const adminName = (env) => String(env.ADMIN_USERNAME || ADMIN_DEFAULT);
-const isAdmin = (env, user) => !!(user && user.username.toLowerCase() === adminName(env).toLowerCase());
+const adminName = (env) => String(env.ADMIN_USERNAME || '');
+const isAdmin = (env, user) => {
+  const configured = adminName(env);
+  return !!(configured && user && user.username.toLowerCase() === configured.toLowerCase());
+};
 
 async function adminUsers(env) {
   const rows = await env.DB.prepare(
@@ -426,7 +484,7 @@ async function putSave(req, env, user) {
     return J({ error: 'Sauvegarde trop grosse ou invalide.' }, 413);
   }
   const data = b.data;
-  if (!data || typeof data !== 'object' || Array.isArray(data)) return J({ error: 'Sauvegarde invalide.' }, 400);
+  if (!validSaveShape(data)) return J({ error: 'Sauvegarde invalide.' }, 400);
   for (const k of ['c', 'xp', 'casts']) {
     if (k in data && (typeof data[k] !== 'number' || !isFinite(data[k]) || data[k] < 0)) {
       return J({ error: 'Sauvegarde invalide.' }, 400);
