@@ -169,23 +169,23 @@ FISH.push(
 // Cannes : nom, prix, chance, vitesse, fenêtre de ferrage (ms), couleur
 const RODS=[['Bambou',0,1,1,1400,'#d9a441'],['Roseau',24300,1.2,1.08,1480,'#a3e635'],['Carbone',40400,1.45,1.18,1550,'#94a3b8'],['Fibre de verre',262000,1.75,1.28,1650,'#67e8f9'],['Titane',494000,2.1,1.45,1800,'#7dd3fc'],['Corail',1200000,2.55,1.6,1900,'#fda4af'],['Tempête',8430000,3.1,1.8,2050,'#93c5fd'],['Astrale',16000000,3.8,2,2200,'#c4b5fd'],['Sanguine',29700000,4.6,2.25,2350,'#f87171'],['Spectrale',158000000,5.6,2.55,2500,'#a7f3d0'],['Dragon des mers',281000000,6.9,2.9,2700,'#fde047'],['Cosmique',501000000,8.5,3.3,2900,'#fbcfe8'],['Éclipse',2770000000,10.5,3.8,3100,'#a5b4fc'],['Nébuleuse',4900000000,13,4.3,3300,'#f0abfc'],['Aurore',8590000000,16,4.9,3500,'#5eead4'],['Trident du Léviathan',15000000000,20,5.6,3800,'#fde68a'],['Divine du Chat',86400000000,26,6.5,4200,'#f0abfc'],['Primordiale',141000000000,34,7.5,4600,'#fff']];
 const BASE_RODS=RODS.length;
-// Nom, niveau requis, prix en citrouilles, bonus, valeur du bonus, couleur, icône
+// Nom, niveau requis, prix en citrouilles, bonus, multiplicateur du bonus, couleur, icône
 const HWRODS=[
- ['Canne Citrouille',3,2000,'chance',.05,'#fb923c','🎃'],
- ['Canne Fantôme',5,3500,'chance',.08,'#38bdf8','👻'],
- ['Canne Sorcière',10,5000,'value',.12,'#22c55e','🧙'],
+ ['Canne Citrouille',3,2000,'chance',5,'#fb923c','🎃'],
+ ['Canne Fantôme',5,3500,'chance',8,'#38bdf8','👻'],
+ ['Canne Sorcière',10,5000,'value',12,'#22c55e','🧙'],
  ['Canne Vampire',15,7500,'window',.2,'#ef4444','🦇'],
- ['Canne Infernale',20,10000,'chance',.10,'#f97316','🔥'],
- ['Canne Spectrale',25,15000,'value',.15,'#a855f7','🌀'],
- ['Canne Lune Noire',35,22000,'chance',.20,'#93c5fd','🌙'],
- ['Canne du Néant',50,35000,'value',.25,'#d946ef','✨']
+ ['Canne Infernale',20,10000,'chance',10,'#f97316','🔥'],
+ ['Canne Spectrale',25,15000,'value',15,'#a855f7','🌀'],
+ ['Canne Lune Noire',35,22000,'chance',20,'#93c5fd','🌙'],
+ ['Canne du Néant',50,35000,'value',25,'#d946ef','✨']
 ];
 const HWROD_IMAGES=['citrouille','fantome','sorciere','vampire','infernale','spectrale','lune-noire','neant'].map(n=>`images/halloween/${n}.png`);
 const hwRodImg=i=>`<img class="hwrod-img" src="${HWROD_IMAGES[i]}" alt="${HWRODS[i][0]}">`;
 const ROD_SHOP_IMAGES=['bambou','roseau','carbone','fibre-de-verre','titane','corail','tempete','astrale','sanguine','spectrale','dragon-des-mers','cosmique','eclipse','nebuleuse','aurore','trident-du-leviathan','divine-du-chat','primordiale'].map(n=>`images/rods/${n}.png`);
 const rodShopArt=i=>`<img class="rod-shop-art" src="${ROD_SHOP_IMAGES[i]}" alt="${RODS[i][0]}">`;
 const eventRodSpeed=requiredLevel=>1+(requiredLevel-HWRODS[0][1])/(HWRODS[HWRODS.length-1][1]-HWRODS[0][1])*(RODS[BASE_RODS-1][3]-1);
-RODS.push(...HWRODS.map(r=>[r[0],0,1+(r[3]==='chance'?r[4]:0),eventRodSpeed(r[1]),1400+(r[3]==='window'?r[4]*1000:0),r[5]]));
+RODS.push(...HWRODS.map(r=>[r[0],0,r[3]==='chance'?r[4]:1,eventRodSpeed(r[1]),1400+(r[3]==='window'?r[4]*1000:0),r[5]]));
 // Appâts : nom, prix, chance, emoji, valeur, effet spécialisé, zone minimale.
 const BAITS=[
  ['Mouche',15,1.1,'🪰',1.11],
@@ -279,19 +279,31 @@ const EN=[['Fortune des mers','🍀','Chance de touche','L',.04,10,1800],['Rapid
 // Artefacts (3 équipés max, uniquement dans les coffres) : nom, emoji, rareté (= rang de coffre), effets
 // ASCALE : échelle de la puissance des artefacts (BUFF : .3 → .7 ; ex. Trident de Poséidon +35 % valeur, Cœur astral +28 % chance)
 const ASCALE=.7;
-const AR=[['Boussole d\'or','🧭',0,{L:1.15}],['Lanterne des abysses','🏮',1,{W:1.25}],['Sablier marin','⌛',1,{S:1.3}],['Perle de sirène','🫧',2,{C:1.5}],['Amulette du chat','😺',2,{B:.15}],['Trident de Poséidon','🔱',3,{V:1.5}],['Œil de Léviathan','🧿',4,{R:.08}],['Ancre maudite','⚓',4,{V:2,S:.8}],['Couronne des mers','👑',6,{V:1.2,Q:1.5}],['Cœur astral','💠',7,{L:1.4,K:.1}]];
+const AR=[['Boussole d\'or','🧭',0,{L:1.15}],['Lanterne des abysses','🏮',1,{W:1.25}],['Sablier marin','⌛',1,{S:1.3}],['Perle de sirène','🫧',2,{C:1.5}],['Amulette du chat','😺',2,{B:.15}],['Trident de Poséidon','🔱',3,{V:1.5}],['Œil de Léviathan','🧿',4,{R:.08}],['Ancre maudite','⚓',4,{V:2,S:.8}],['Couronne des mers','👑',6,{V:1.2,Q:1.5}],['Cœur astral','💠',7,{L:1.4,K:.1}],['Cœur citrouille','🎃',2,{V:1.18},1],['Grimoire spectral','📕',3,{L:1.22,W:1.12},1],['Médaillon du Cavalier','💀',4,{R:.04,K:.04},1]];
 const AMUL='LSWVCQ',ALAB={L:'Chance',S:'Vitesse',W:'Fenêtre',V:'Valeur',C:'Coffres',Q:'Pièces des coffres',B:'Appât gratuit',R:'Raretés',K:'Critique'};
 const artDesc=a=>Object.keys(a[3]).map(k=>{const v=a[3][k];if(AMUL.includes(k)){const d=(v-1)*ASCALE*100;return ALAB[k]+' '+(d>=0?'+':'−')+Math.abs(d).toFixed(1).replace('.0','')+' %'}return ALAB[k]+' +'+(v*ASCALE*100).toFixed(1).replace('.0','')+' %'}).join(' · ');
 // Coffres : nom, couleur, fond, prix de vente, poids de drop en pêchant
-const CHESTS=[['Commun','#94a3b8','#1e293b',250,50],['Rare','#3b82f6','#172554',1e3,28],['Épique','#a855f7','#3b0764',5e3,12],['Légendaire','#fbbf24','#78350f',25e3,5],['Mythique','#ef4444','#450a0a',1e5,2],['Secret','#22e39a','#022c22',5e5,.7],['Astral','#67e8f9','#082f49',2e6,.2],['Ultra','#f0abfc','#0f0a1e',1e7,.15]];
+const CHESTS=[['Commun','#94a3b8','#1e293b',250,50],['Rare','#3b82f6','#172554',1e3,28],['Épique','#a855f7','#3b0764',5e3,12],['Légendaire','#fbbf24','#78350f',25e3,5],['Mythique','#ef4444','#450a0a',1e5,2],['Secret','#22e39a','#022c22',5e5,.7],['Astral','#67e8f9','#082f49',2e6,.2],['Ultra','#f0abfc','#0f0a1e',1e7,.15],['Coffre Citrouille','#fb923c','#431407',150,0],['Coffre Maudit','#a855f7','#2e1065',300,0],['Coffre du Cavalier','#ef4444','#450a0a',450,0]];
 const CSYM=['','★','★','✦','♛','?','✧','∞'];
+const HW_CHEST_IDS=[8,9,10];
 // Butin d'un coffre de rareté t : [type, id, quantité, poids] — g pièces · b appât · r canne · f poisson (rareté)
 const loot=t=>{const P=CHESTS[t][3],B=Math.min(7,t+1),R=Math.min(17,t*2+1);
  const L=[['g',0,Math.round(P*.6),30],['g',0,Math.round(P*1.5),20],['g',0,Math.round(P*4),6],['b',B,8+t*2,14],['b',Math.max(0,B-2),12,10],['f',t>=7?6:Math.min(5,t),1,10]];
  if(t>0)L.push(['r',R,1,3],['r',Math.min(17,R+1),1,1.5]);
  if(t>=4)L.push(['p',0,1,t>=6?1.5:1]);
- const ids=AR.map((a,i)=>i).filter(i=>Math.abs(AR[i][2]-t)<=1);if(ids.length){const w=Math.min(4,10/ids.length);ids.forEach(i=>L.push(['a',i,1,AR[i][2]===t?w*1.2:w*.8]))}
+ const ids=AR.map((a,i)=>i).filter(i=>!AR[i][4]&&Math.abs(AR[i][2]-t)<=1);if(ids.length){const w=Math.min(4,10/ids.length);ids.forEach(i=>L.push(['a',i,1,AR[i][2]===t?w*1.2:w*.8]))}
  return L};
+const hwLoot=t=>{
+ const tier=t-8,rods=[[0],[1,2],[3,4]][tier],artifact=10+tier;
+ const L=[
+  ['g',0,[120,240,360][tier],28],
+  ['b',Math.min(7,3+tier),[4,6,8][tier],20],
+  ['r',BASE_RODS+rods[0],1,[5,3,2][tier]],
+  ['a',artifact,1,[4,5,6][tier]]
+ ];
+ if(rods[1]!=null)L.push(['r',BASE_RODS+rods[1],1,1]);
+ return L
+};
 
 /* ============ 2. ÉTAT & SAUVEGARDE ============ */
 const KEY='catbet-fishing-v3';
@@ -349,7 +361,7 @@ const baitDescription=b=>{
 };
 const rodEn=r=>S.re[r]||(S.re[r]=[]);
 const fx=()=>{const f={L:1,S:1,W:1,V:1,C:1,Q:1,B:0,D:0,K:0,R:0,H:0,A:0,P:0,X:0};rodEn(S.rod).forEach(i=>{const l=S.en[i]|0;if(l>0)f[EN[i][3]]+=EN[i][4]*ENSCALE*l});
- const hr=HWRODS[S.rod-BASE_RODS];if(hr&&hr[3]==='value')f.V*=1+hr[4];
+ const hr=HWRODS[S.rod-BASE_RODS];if(hr&&hr[3]==='value')f.V*=hr[4];
  S.ae.forEach(i=>{const x=AR[i]&&AR[i][3];if(x)for(const k in x){if(AMUL.includes(k))f[k]*=1+(x[k]-1)*ASCALE;else f[k]+=x[k]*ASCALE}});
  f.V*=1+Pr.vb()*S.pr;f.L*=1+Pr.lb()*S.pr;if(Ev.active())f.V*=Ev.mult;return f};
 const luck=(b=activeBait())=>{const a=baitEffect(b);return fx().L*RODS[S.rod][2]*ZONES[S.zone][2]*(a?a.chance:1)*(1+.015*(level()-1))};
@@ -367,7 +379,7 @@ const resolve=x=>{const[k,v,q]=x;
  if(k==='b'){const B=BAITS[v];return{c:'#38bdf8',html:`<div class="em">${B[3]}</div><b>${B[0]} ×${q}</b>`,lab:`${B[0]} ×${q}`,apply:()=>{S.baits[v]=(S.baits[v]||0)+q}}}
  if(k==='p')return{c:'#fbbf24',html:`<div class="em">🌠</div><b>Étoile filante</b>`,lab:'Étoile filante 🌠 · permet un prestige',apply:()=>{S.pt=(S.pt|0)+1}};
  if(k==='a'){const A=AR[v],own=S.ao[v],ref=Math.max(1000,Math.round(CHESTS[Math.min(7,A[2])][3]*20));return{c:CHESTS[A[2]][1],html:`<div class="em">${A[1]}</div><b>${A[0]}</b>`,lab:own?`Artefact ${A[0]} (déjà possédé → +${fmt(ref)} 🪙)`:`NOUVEL ARTEFACT : ${A[0]} !`,apply:()=>{if(own)S.c+=ref;else S.ao[v]=1}}}
- if(k==='r'){const R=RODS[v],own=S.rods.includes(v),ref=Math.round(R[1]/2);return{c:R[5],html:`<div class="em">${rodArt(R[5])}</div><b>${R[0]}</b>`,lab:own?`Canne ${R[0]} (déjà possédée → +${fmt(ref)} 🪙)`:`Nouvelle canne : ${R[0]} !`,apply:()=>{if(own)S.c+=ref;else S.rods.push(v)}}}
+ if(k==='r'){const R=RODS[v],own=S.rods.includes(v),hr=v>=BASE_RODS?HWRODS[v-BASE_RODS]:null,ref=hr?Math.round(hr[2]*.5):Math.round(R[1]/2);return{c:R[5],html:`<div class="em">${rodArt(R[5])}</div><b>${R[0]}</b>`,lab:own?`Canne ${R[0]} (déjà possédée → +${fmt(ref)} ${hr?'🎃':'🪙'})`:`Nouvelle canne : ${R[0]} !`,apply:()=>{if(own){if(hr)HW.pk(ref);else S.c+=ref}else S.rods.push(v)}}}
  const E=fx(),p=pool(v),[f,j]=p[Math.floor(Math.random()*p.length)],val=Math.round(rnd(f[2],f[3])*ZONES[S.zone][3]*E.V*baitValueMultiplier(activeBait(),E));
  return{c:TIERS[v][1],html:`<div class="em">${art(f,v)}</div><b>${f[0]}</b>`,lab:`${f[0]} (${TIERS[v][0]}) · valeur ${fmt(val)} 🪙`,apply:()=>{const key=v+'-'+j,e=S.inv[key]||{n:0,v:0};e.n++;e.v+=val;S.inv[key]=e;S.idx[key]=(S.idx[key]||0)+1}}};
 
@@ -671,7 +683,7 @@ const HQ=[
  ['hw_boss','Boss d\'Halloween','Bats 4 boss.',4,'boss',30,2000],
  ['hw_cast','Nuit blanche','Effectue 700 lancers.',700,'cast',50,3000]];
 // id, nom, coût en 🎃, limite d'achats par événement
-const HS=[['stone','🪨 Pierre d\'enchantement',40,5],['cl','📦 Coffre Légendaire',60,5],['cm','📦 Coffre Mythique',150,3],['coins','🪙 Sac de pièces',25,20],['star','🌠 Étoile filante',500,1],['hw_pumpkin','🎃 Coffre Citrouille',300,10,'Coffre spécial Halloween · récompenses de rareté épique.'],['hw_cursed','👻 Coffre Maudit',600,5,'Meilleur butin · coffre de rareté légendaire.'],['hw_headless','💀 Coffre du Cavalier sans tête',900,3,'Le plus puissant · coffre de rareté mythique.']];
+const HS=[['stone','🪨 Pierre d\'enchantement',40,5],['cl','📦 Coffre Légendaire',60,5],['cm','📦 Coffre Mythique',150,3],['coins','🪙 Sac de pièces',25,20],['star','🌠 Étoile filante',500,1],['hw_pumpkin','🎃 Coffre Citrouille',300,10,'Coffre Halloween · chance de Canne Citrouille et Cœur citrouille.'],['hw_cursed','👻 Coffre Maudit',600,5,'Coffre Halloween · chance de Canne Fantôme et Grimoire spectral.'],['hw_headless','💀 Coffre du Cavalier sans tête',900,3,'Coffre Halloween · chance de Canne Vampire et Médaillon du Cavalier.']];
 const HW={
  pv(){try{return !!Cloud.admin&&localStorage.getItem('catbet-evpreview')==='1'}catch(e){return false}},
  real(){return Mut.on(new Date())},
@@ -689,7 +701,7 @@ const HW={
   h.pk-=it[2];h.shop[id]=(h.shop[id]|0)+1;
   S.chests=S.chests&&typeof S.chests==='object'?S.chests:{};
   if(id==='stone')S.es=(S.es|0)+1;else if(id==='cl')S.chests[3]=(S.chests[3]||0)+1;else if(id==='cm')S.chests[4]=(S.chests[4]||0)+1;
-  else if(id==='hw_pumpkin')S.chests[2]=(S.chests[2]||0)+1;else if(id==='hw_cursed')S.chests[3]=(S.chests[3]||0)+1;else if(id==='hw_headless')S.chests[4]=(S.chests[4]||0)+1;
+  else if(id==='hw_pumpkin')S.chests[8]=(S.chests[8]||0)+1;else if(id==='hw_cursed')S.chests[9]=(S.chests[9]||0)+1;else if(id==='hw_headless')S.chests[10]=(S.chests[10]||0)+1;
   else if(id==='coins')S.c+=Math.round(2500*Q.mult());else if(id==='star')S.pt=(S.pt|0)+1;
   UI.msg=`🎃 Acheté : ${it[1]}`;Act.done()},
  ui(){const e=$('#hwb');if(!e)return;e.innerHTML=this.on()?`<span class="hwb" onclick="UI.qt='e';UI.go('quest')">🎃 Événement Halloween · mutation ×${MUT[5][3]} · ${this.left()} · 🎃 ${this.st().pk}</span>`:''}};
@@ -854,7 +866,7 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
   <rect width="960" height="360" filter="url(#grain)" opacity=".22"/>
   </svg><svg class="scene-line${hr?' event':''}" viewBox="0 0 410 280" preserveAspectRatio="none" aria-hidden="true"><path d="M410 0C360 90 218 270 10 275"/></svg><div class="${hr?'scene-rod-event':'scene-rod'}">${sceneRod(r[5])}</div><div class="st" id="st">Prêt à pêcher dans ${z[0]}</div><div id="bob"></div>
   <div class="panel cast-panel"><button class="btn" id="go" onclick="Engine.act()">Lancer</button><div class="bar" id="tm"><i></i></div><span class="mu cast-hint">Espace pour lancer ou ferrer · combat automatique</span></div></div>
-  <div class="panel weather-banner" id="weather-banner"></div><div class="panel water-info"><div class="row sp"><span><b style="color:${r[5]}">${r[0]}</b> · chance ×${luck().toFixed(2)}${hr&&hr[3]==='value'?' · valeur +'+Math.round(hr[4]*100)+' %':''} · ferrage ${r[4]} ms</span><span class="row" id="lv">Niv. ${lb.l} <div class="bar"><i style="width:${lb.p*100}%"></i></div></span></div>
+  <div class="panel weather-banner" id="weather-banner"></div><div class="panel water-info"><div class="row sp"><span><b style="color:${r[5]}">${r[0]}</b> · chance ×${luck().toFixed(2)}${hr&&hr[3]==='value'?' · valeur ×'+hr[4]:''} · ferrage ${r[4]} ms</span><span class="row" id="lv">Niv. ${lb.l} <div class="bar"><i style="width:${lb.p*100}%"></i></div></span></div>
   <div class="row bait-row">${baitButtons()}</div></div>
   <div id="res">${Engine.last?'':'<div class="panel mu">Ta dernière prise apparaîtra ici.</div>'}</div>
   <div id="evb"></div><div id="hwb"></div>`;
@@ -951,9 +963,9 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
   },
  /* --- Ouverture de coffre : aperçu des probabilités + roulette --- */
  openChest(t){this.ct=t;this.tab='open';this.render()},
- strip(t,n=44,win=-1,w=null){const L=loot(t),ws=L.map(x=>x[3]);return Array.from({length:n},()=>{const r=resolve(L[pickW(ws)]);return `<div class="fc rc" style="--a:${r.c}">${r.html}</div>`}).join('')},
+ strip(t,n=44,win=-1,w=null){const L=HW_CHEST_IDS.includes(t)?hwLoot(t):loot(t),ws=L.map(x=>x[3]);return Array.from({length:n},()=>{const r=resolve(L[pickW(ws)]);return `<div class="fc rc" style="--a:${r.c}">${r.html}</div>`}).join('')},
  v_open(){
-  const t=this.ct,C=CHESTS[t],L=loot(t),tot=L.reduce((a,x)=>a+x[3],0);
+  const t=this.ct,C=CHESTS[t],L=HW_CHEST_IDS.includes(t)?hwLoot(t):loot(t),tot=L.reduce((a,x)=>a+x[3],0);
   setTimeout(()=>{const rl=$('#rl');if(rl&&!this.busy)rl.innerHTML=this.strip(t)});
   return `<div class="panel row sp"><b style="color:${C[1]}">Coffre ${C[0]} <span id="cn">×${S.chests[t]||0}</span></b><button class="chip" onclick="UI.go('inv')">← Retour</button></div>
   <div class="panel"><div class="roul"><div class="pin"></div><div class="rl" id="rl"></div></div><div class="row" style="justify-content:center;margin-top:12px"><button class="btn gold" id="ob" onclick="UI.open()" ${S.chests[t]>0?'':'disabled'}>Ouvrir le coffre</button></div><div id="rw"></div></div>
@@ -962,7 +974,7 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
  open(){
   const t=this.ct;if(this.busy||!(S.chests[t]>0))return;
   this.busy=1;S.chests[t]--;Q.add('open');HW.add('open');S.op=(S.op|0)+1;$('#ob').disabled=true;$('#rw').innerHTML='';
-  const L=loot(t),ws=L.map(x=>x[3]),win=resolve(L[pickW(ws)]),W=36;
+  const L=HW_CHEST_IDS.includes(t)?hwLoot(t):loot(t),ws=L.map(x=>x[3]),win=resolve(L[pickW(ws)]),W=36;
   const cells=Array.from({length:44},(_,i)=>i===W?win:resolve(L[pickW(ws)]));
   const rl=$('#rl'),box=rl.parentNode;
   rl.style.transition='none';rl.style.transform='translateX(0)';
