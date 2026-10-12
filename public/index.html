@@ -171,7 +171,7 @@ const RODS=[['Bambou',0,1,1,1400,'#d9a441'],['Roseau',24300,1.2,1.08,1480,'#a3e6
 const BASE_RODS=RODS.length;
 // Nom, niveau requis, prix en citrouilles, bonus, valeur du bonus, couleur, icône
 const HWRODS=[
- ['Canne Citrouille',1,2000,'chance',.05,'#fb923c','🎃'],
+ ['Canne Citrouille',3,2000,'chance',.05,'#fb923c','🎃'],
  ['Canne Fantôme',5,3500,'chance',.08,'#38bdf8','👻'],
  ['Canne Sorcière',10,5000,'value',.12,'#22c55e','🧙'],
  ['Canne Vampire',15,7500,'window',.2,'#ef4444','🦇'],
@@ -299,6 +299,7 @@ const fresh=()=>({c:150,xp:0,rod:0,rods:[0],zone:0,zones:[0],bait:-1,baits:{},in
 const S=(()=>{try{return Object.assign(fresh(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return fresh()}})();
 delete S.fa;
 S.eb=S.eb&&typeof S.eb==='object'?S.eb:{};
+S.chests=S.chests&&typeof S.chests==='object'?S.chests:{};
 for(const [r,ids] of Object.entries(S.re||{})){
  const rod=+r;if(!Number.isInteger(rod)||!Array.isArray(ids))continue;
  S.re[rod]=ids.filter(i=>{if(!EN[i]||(S.en[i]|0)<1)return false;if(S.eb[i]==null){S.eb[i]=rod;return true}return +S.eb[i]===rod});
@@ -547,8 +548,9 @@ const Act={
   if(k>=0){e.splice(k,1);delete S.en[i];delete owners[i]}else if(!(S.en[i]|0))return;else if(owners[i]!=null&&+owners[i]!==r)return UI.toast(`Cet enchantement est lié à ${RODS[owners[i]]?RODS[owners[i]][0]:'une autre canne'}`);
   else if(e.length<3){e.push(i);owners[i]=r}else return UI.toast('3 enchantements max par canne');this.done()},
  prestige(){if(!Pr.can())return;const g=Pr.gain();
-  if(!confirm(`Prestige : tu dépenses 1 🌠 Étoile filante, tu gagnes ${g} ⭐ et tu recommences à zéro (pièces, cannes classiques, zones, appâts, inventaire, favoris, coffres, niveau).\nTu gardes : tes cannes Halloween, enchantements, artefacts, pierres, quêtes, index, mutations, succès et tes ⭐.\nContinuer ?`))return;
-  const keep={rods:[0,...(S.rods||[]).filter(i=>i>=BASE_RODS&&i<RODS.length)],en:S.en,re:S.re,eb:S.eb,es:S.es,ao:S.ao,ae:S.ae,quests:S.quests,idx:S.idx,casts:S.casts,ev:S.ev,mu:S.mu,ach:S.ach,gr:S.gr,hw:S.hw,hwt:S.hwt,op:S.op,af:S.af,rec:S.rec,pr:(S.pr|0)+g,pn:(S.pn|0)+1,pt:(S.pt|0)-1,bk:S.bk};
+  if(!confirm(`Prestige : tu dépenses 1 🌠 Étoile filante, tu gagnes ${g} ⭐ et tu recommences à zéro (pièces, cannes normales, zones, appâts, poissons, coffres, niveau, enchantements et pierres).\nTu gardes : tes cannes événement, tes artefacts, ton index, tes mutations, tes succès, tes quêtes et tes ⭐.\nLes citrouilles et les achats de la boutique Halloween sont réinitialisés.\nContinuer ?`))return;
+ const h=S.hw&&typeof S.hw==='object'?{...S.hw,pk:0,shop:{}}:null;
+ const keep={rods:[0,...(S.rods||[]).filter(i=>i>=BASE_RODS&&i<RODS.length)],ao:S.ao,ae:S.ae,quests:S.quests,idx:S.idx,casts:S.casts,mu:S.mu,ach:S.ach,gr:S.gr,hwt:S.hwt,op:S.op,af:S.af,rec:S.rec,pr:(S.pr|0)+g,pn:(S.pn|0)+1,pt:(S.pt|0)-1,bk:S.bk,hw:h};
   Engine.clear();Object.assign(S,fresh(),keep);UI.msg=`⭐ Prestige ${S.pn} · +${g} ⭐ · total ${S.pr} ⭐`;save();UI.go('prest')},
  qClaim(t,id){const q=QD[t].find(x=>x[0]===id),s=Q.st()[t];if(!q||s.done[id]||Q.prog(t,q)<q[3])return;s.done[id]=1;S.c+=Q.reward(q);UI.msg=`🎯 Quête « ${q[1]} » terminée · +${fmt(Q.reward(q))} 🪙`;this.done()},
  aeq(i){const k=S.ae.indexOf(i);if(k>=0)S.ae.splice(k,1);else if(!S.ao[i])return;else if(S.ae.length<3)S.ae.push(i);else return UI.toast('3 artefacts max');this.done()},
@@ -583,7 +585,7 @@ const Ev={mult:2,dur:8*60000,
  ui(){HW.ui();const e=$('#evb');if(!e)return;e.innerHTML=this.active()?`<span class="evb">🌟 Heure dorée · valeur ×${this.mult} · ${this.left()}</span>`:''}};
 // Prestige : on recommence contre des ⭐ (bonus permanent). Il faut dépenser 1 « Étoile filante » 🌠, objet rare qui se pêche (1 chance sur PDROP par prise) ou sort des gros coffres
 const PDROP=1/8000;
-const Pr={vb(){return .02},lb(){return .01},
+const Pr={vb(){return .10},lb(){return .10},
  can(){return (S.pt|0)>0},
  gain(){return Math.max(1,Math.floor(Math.sqrt((S.fv||0)/1e9)))}};
 
@@ -685,6 +687,7 @@ const HW={
   h.done[id]=1;this.pk(q[5]);const c=Math.round(q[6]*Q.mult());S.c+=c;UI.msg=`🎃 « ${q[1]} » · +${q[5]} 🎃 · +${fmt(c)} 🪙`;Act.done()},
  buy(id){const it=HS.find(x=>x[0]===id),h=this.st();if(!it||!this.on()||(h.shop[id]|0)>=it[3]||h.pk<it[2])return;
   h.pk-=it[2];h.shop[id]=(h.shop[id]|0)+1;
+  S.chests=S.chests&&typeof S.chests==='object'?S.chests:{};
   if(id==='stone')S.es=(S.es|0)+1;else if(id==='cl')S.chests[3]=(S.chests[3]||0)+1;else if(id==='cm')S.chests[4]=(S.chests[4]||0)+1;
   else if(id==='hw_pumpkin')S.chests[2]=(S.chests[2]||0)+1;else if(id==='hw_cursed')S.chests[3]=(S.chests[3]||0)+1;else if(id==='hw_headless')S.chests[4]=(S.chests[4]||0)+1;
   else if(id==='coins')S.c+=Math.round(2500*Q.mult());else if(id==='star')S.pt=(S.pt|0)+1;
@@ -907,7 +910,7 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
   <div class="panel"><h2 style="margin-top:0">⭐ Prestige</h2><div class="row"><span class="chip">⭐ ${S.pr|0} étoile(s)</span><span class="chip">Valeur +${((S.pr|0)*Pr.vb()*100).toFixed(0)} %</span><span class="chip">Chance +${((S.pr|0)*Pr.lb()*100).toFixed(0)} %</span><span class="chip">${S.pn|0} prestige(s)</span></div>
   <p class="mu">Chaque ⭐ donne <b>+${Pr.vb()*100} % de valeur</b> et <b>+${Pr.lb()*100} % de chance</b> pour toujours. Le nombre d'étoiles gagnées dépend de la valeur de poissons pêchés pendant cette partie : <b>${fmt(S.fv||0)} 🪙</b>.</p>
   <p class="mu">Il te faut <b>1 🌠 Étoile filante</b> (tu en as <b>${S.pt|0}</b> ${can?'✅':'❌'}). C'est un objet très rare : il se pêche au hasard, ou sort des coffres Mythique et au-dessus.</p>
-  <div class="mu">Tu gardes : cannes Halloween, enchantements, artefacts, pierres, quêtes, index, mutations, succès, ⭐ et tes autres 🌠.<br>Tu perds : pièces, cannes classiques, zones, appâts, inventaire, coffres, niveau de pêche.</div>
+  <div class="mu">Tu gardes : cannes événement, artefacts, quêtes, index, mutations, succès, ⭐ et tes autres 🌠.<br>Tu perds : pièces, cannes normales, zones, appâts, poissons, coffres, enchantements, pierres, niveau de pêche et citrouilles. La boutique Halloween est réinitialisée.</div>
   <button class="btn gold" style="margin-top:12px" onclick="Act.prestige()" ${can?'':'disabled'}>${can?`Faire un prestige · +${g} ⭐`:'Il te faut une 🌠 Étoile filante'}</button></div>`;
  },
  qt:'h',
@@ -1025,7 +1028,8 @@ const Cloud={
    const c=r.j.data,u=r.j.updated;
    if(!c){this.base=0;this.set('base',0);if(S.xp||S.casts)await this.push();return}
    if(u===this.base){if(this.pending)await this.push();return}
-   if(!this.pending||!this.ahead(S,c))this.adopt(c,u);
+   if(!this.pending)this.adopt(c,u);
+   else if(this.ahead(c,S))this.adopt(c,u);
    else{this.base=u;this.set('base',u);await this.push()}
   }catch(e){this.msg='⚠ Hors ligne';this.badge()}
  },
