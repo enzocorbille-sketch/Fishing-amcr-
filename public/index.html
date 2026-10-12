@@ -358,7 +358,7 @@ const resolve=x=>{const[k,v,q]=x;
  if(k==='p')return{c:'#fbbf24',html:`<div class="em">🌠</div><b>Étoile filante</b>`,lab:'Étoile filante 🌠 · permet un prestige',apply:()=>{S.pt=(S.pt|0)+1}};
  if(k==='a'){const A=AR[v],own=S.ao[v],ref=Math.max(1000,Math.round(CHESTS[Math.min(7,A[2])][3]*20));return{c:CHESTS[A[2]][1],html:`<div class="em">${A[1]}</div><b>${A[0]}</b>`,lab:own?`Artefact ${A[0]} (déjà possédé → +${fmt(ref)} 🪙)`:`NOUVEL ARTEFACT : ${A[0]} !`,apply:()=>{if(own)S.c+=ref;else S.ao[v]=1}}}
  if(k==='r'){const R=RODS[v],own=S.rods.includes(v),ref=Math.round(R[1]/2);return{c:R[5],html:`<div class="em">${rodArt(R[5])}</div><b>${R[0]}</b>`,lab:own?`Canne ${R[0]} (déjà possédée → +${fmt(ref)} 🪙)`:`Nouvelle canne : ${R[0]} !`,apply:()=>{if(own)S.c+=ref;else S.rods.push(v)}}}
- const p=pool(v),[f,j]=p[Math.floor(Math.random()*p.length)],val=Math.round(rnd(f[2],f[3])*ZONES[S.zone][3]*fx().V);
+ const p=pool(v),[f,j]=p[Math.floor(Math.random()*p.length)],E=fx(),bs=baitEffect(activeBait()),baitValue=bs?1+(bs.value-1)*(1+E.A):1,val=Math.round(rnd(f[2],f[3])*ZONES[S.zone][3]*baitValue*E.V*(1+E.X*S.zone));
  return{c:TIERS[v][1],html:`<div class="em">${art(f,v)}</div><b>${f[0]}</b>`,lab:`${f[0]} (${TIERS[v][0]}) · valeur ${fmt(val)} 🪙`,apply:()=>{const key=v+'-'+j,e=S.inv[key]||{n:0,v:0};e.n++;e.v+=val;S.inv[key]=e;S.idx[key]=(S.idx[key]||0)+1}}};
 
 /* ============ 3b. MUTATIONS ============ */
