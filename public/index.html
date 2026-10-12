@@ -329,15 +329,7 @@ const baitButtons=()=>`<button class="chip ${S.bait<0?'on':''}" onclick="Act.pic
 const baitEffect=b=>{
  if(b<0||!BAITS[b])return null;
  const x=BAITS[b],active=x[6]==null||S.zone>=x[6];
- return active?{kind:x[5]||'',chance:x[2],value:Number(x[4])||1}:{kind:'inactive',chance:1,value:1};
-};
-// Multiplicateur de valeur effectif de l'appât sélectionné pour CETTE prise.
-// L'enchantement « Appât raffiné » amplifie uniquement le bonus au-dessus de ×1.
-const baitValueMultiplier=(baitIndex,effects=fx())=>{
- const bait=baitEffect(baitIndex);
- if(!bait)return 1;
- const base=Math.max(1,Number(bait.value)||1);
- return 1+(base-1)*(1+Math.max(0,Number(effects.A)||0));
+ return active?{kind:x[5]||'',chance:x[2],value:x[4]}:{kind:'inactive',chance:1,value:1};
 };
 const baitDescription=b=>{
  const [,price,chance,,value,kind,minZone]=b;
@@ -366,7 +358,7 @@ const resolve=x=>{const[k,v,q]=x;
  if(k==='p')return{c:'#fbbf24',html:`<div class="em">🌠</div><b>Étoile filante</b>`,lab:'Étoile filante 🌠 · permet un prestige',apply:()=>{S.pt=(S.pt|0)+1}};
  if(k==='a'){const A=AR[v],own=S.ao[v],ref=Math.max(1000,Math.round(CHESTS[Math.min(7,A[2])][3]*20));return{c:CHESTS[A[2]][1],html:`<div class="em">${A[1]}</div><b>${A[0]}</b>`,lab:own?`Artefact ${A[0]} (déjà possédé → +${fmt(ref)} 🪙)`:`NOUVEL ARTEFACT : ${A[0]} !`,apply:()=>{if(own)S.c+=ref;else S.ao[v]=1}}}
  if(k==='r'){const R=RODS[v],own=S.rods.includes(v),ref=Math.round(R[1]/2);return{c:R[5],html:`<div class="em">${rodArt(R[5])}</div><b>${R[0]}</b>`,lab:own?`Canne ${R[0]} (déjà possédée → +${fmt(ref)} 🪙)`:`Nouvelle canne : ${R[0]} !`,apply:()=>{if(own)S.c+=ref;else S.rods.push(v)}}}
- const p=pool(v),[f,j]=p[Math.floor(Math.random()*p.length)],E=fx(),baitValue=baitValueMultiplier(activeBait(),E),val=Math.round(rnd(f[2],f[3])*ZONES[S.zone][3]*E.V*(1+E.X*S.zone)*baitValue);
+ const p=pool(v),[f,j]=p[Math.floor(Math.random()*p.length)],val=Math.round(rnd(f[2],f[3])*ZONES[S.zone][3]*fx().V);
  return{c:TIERS[v][1],html:`<div class="em">${art(f,v)}</div><b>${f[0]}</b>`,lab:`${f[0]} (${TIERS[v][0]}) · valeur ${fmt(val)} 🪙`,apply:()=>{const key=v+'-'+j,e=S.inv[key]||{n:0,v:0};e.n++;e.v+=val;S.inv[key]=e;S.idx[key]=(S.idx[key]||0)+1}}};
 
 /* ============ 3b. MUTATIONS ============ */
@@ -485,10 +477,8 @@ const Engine={
   const tags=[];
   if(Math.random()<Math.min(.5,E.P)&&t<TIERS.length-1&&pool(t+1).length){t++;tags.push('🌊 Marée haute')}
   const p=pool(t),[f,j]=p[Math.floor(Math.random()*p.length)];
-  // Utiliser this.b, mémorisé au lancer : l'appât peut déjà avoir été consommé.
-  const bait=baitValueMultiplier(this.b,E);
-  const size=Math.random();let m=ZONES[S.zone][3]*E.V*(1+E.X*S.zone)*bait;
-  if(bs&&bs.kind!=='inactive')tags.push(`🪱 Valeur appât ×${bait.toFixed(2)}`);
+  const bait=bs?1+(bs.value-1)*(1+E.A):1;
+  const size=Math.random();let m=ZONES[S.zone][3]*bait*E.V*(1+E.X*S.zone);
   if(Math.random()<E.K){m*=3;tags.push('🎯 Critique ×3')}
   if(Math.random()<E.D){m*=2;tags.push('✌️ Double')}
   const mi=Mut.roll();if(mi>=0)m*=MUT[mi][3];
@@ -669,7 +659,7 @@ const HQ=[
  ['hw_boss','Boss d\'Halloween','Bats 4 boss.',4,'boss',30,2000],
  ['hw_cast','Nuit blanche','Effectue 700 lancers.',700,'cast',50,3000]];
 // id, nom, coût en 🎃, limite d'achats par événement
-const HS=[['stone','🪨 Pierre d\'enchantement',40,5],['cl','📦 Coffre Légendaire',60,5],['cm','📦 Coffre Mythique',150,3],['coins','🪙 Sac de pièces',25,20],['star','🌠 Étoile filante',500,1]];
+const HS=[['stone','🪨 Pierre d\'enchantement',40,5],['cl','📦 Coffre Légendaire',60,5],['cm','📦 Coffre Mythique',150,3],['coins','🪙 Sac de pièces',25,20],['star','🌠 Étoile filante',500,1],['hw_pumpkin','🎃 Coffre Citrouille',300,10,'Coffre spécial Halloween · récompenses de rareté épique.'],['hw_cursed','👻 Coffre Maudit',600,5,'Meilleur butin · coffre de rareté légendaire.'],['hw_headless','💀 Coffre du Cavalier sans tête',900,3,'Le plus puissant · coffre de rareté mythique.']];
 const HW={
  pv(){try{return !!Cloud.admin&&localStorage.getItem('catbet-evpreview')==='1'}catch(e){return false}},
  real(){return Mut.on(new Date())},
@@ -686,6 +676,7 @@ const HW={
  buy(id){const it=HS.find(x=>x[0]===id),h=this.st();if(!it||!this.on()||(h.shop[id]|0)>=it[3]||h.pk<it[2])return;
   h.pk-=it[2];h.shop[id]=(h.shop[id]|0)+1;
   if(id==='stone')S.es=(S.es|0)+1;else if(id==='cl')S.chests[3]=(S.chests[3]||0)+1;else if(id==='cm')S.chests[4]=(S.chests[4]||0)+1;
+  else if(id==='hw_pumpkin')S.chests[2]=(S.chests[2]||0)+1;else if(id==='hw_cursed')S.chests[3]=(S.chests[3]||0)+1;else if(id==='hw_headless')S.chests[4]=(S.chests[4]||0)+1;
   else if(id==='coins')S.c+=Math.round(2500*Q.mult());else if(id==='star')S.pt=(S.pt|0)+1;
   UI.msg=`🎃 Acheté : ${it[1]}`;Act.done()},
  ui(){const e=$('#hwb');if(!e)return;e.innerHTML=this.on()?`<span class="hwb" onclick="UI.qt='e';UI.go('quest')">🎃 Événement Halloween · mutation ×${MUT[5][3]} · ${this.left()} · 🎃 ${this.st().pk}</span>`:''}};
@@ -917,7 +908,7 @@ const UI={tab:'fish',shop:'rods',ed:null,msg:'',
   <div class="row sp" style="margin-bottom:12px"><span class="row">${tabs}</span><span class="mu">Fin dans ${HW.left()}</span></div>
   <div class="panel row sp" style="border-color:#fb923c"><b>🎃 ${fmt(h.pk)} citrouille(s)</b><span class="mu">+1 par poisson · +2 si muté · +20 mutation Halloween · +10 par boss</span></div>
   <h2>Quêtes de l'événement</h2><div class="grid">${HQ.map(q=>{const p=HW.prog(q),done=!!h.done[q[0]],ok=p>=q[3];return `<div class="fc" style="--a:${done?'#22e39a':ok?'#fbbf24':'#fb923c'}"><small style="font-weight:800;color:${done?'var(--gr)':'#fb923c'}">${done?'TERMINÉE':'ÉVÉNEMENT'}</small><b>${q[1]}</b><div class="mu" style="font-size:12px">${q[2]}</div><div class="bar" style="margin:8px auto;max-width:90%"><i style="width:${p/q[3]*100}%"></i></div><div class="mu">${fmt(p)} / ${fmt(q[3])} · <b style="color:#fb923c">${q[5]} 🎃</b> · <b style="color:var(--gold)">${fmt(Math.round(q[6]*Q.mult()))} 🪙</b></div><button class="btn sm ${ok&&!done?'g':''}" style="margin-top:6px" onclick="HW.claim('${q[0]}')" ${ok&&!done?'':'disabled'}>${done?'✔ Réclamée':ok?'Réclamer':'En cours'}</button></div>`}).join('')}</div>
-  <h2>Boutique de l'événement</h2><div class="grid">${HS.map(it=>{const n=h.shop[it[0]]|0,can=h.pk>=it[2]&&n<it[3];return `<div class="fc" style="--a:#fb923c"><b>${it[1]}</b><div class="mu">${it[2]} 🎃 · ${n}/${it[3]} achetés</div><button class="btn sm ${can?'g':''}" style="margin-top:6px" onclick="HW.buy('${it[0]}')" ${can?'':'disabled'}>${n>=it[3]?'Épuisé':'Acheter'}</button></div>`}).join('')}</div>`}
+  <h2>Boutique de l'événement</h2><div class="grid">${HS.map(it=>{const n=h.shop[it[0]]|0,can=h.pk>=it[2]&&n<it[3];return `<div class="fc" style="--a:#fb923c"><b>${it[1]}</b>${it[4]?`<div class="mu" style="font-size:12px;margin-top:4px">${it[4]}</div>`:''}<div class="mu">${it[2]} 🎃 · ${n}/${it[3]} achetés</div><button class="btn sm ${can?'g':''}" style="margin-top:6px" onclick="HW.buy('${it[0]}')" ${can?'':'disabled'}>${n>=it[3]?'Épuisé':'Acheter'}</button></div>`}).join('')}</div>`}
   return `${msg?`<div class="panel pop" style="border-color:var(--gr)">${msg}</div>`:''}
   <div class="row sp" style="margin-bottom:12px"><span class="row">${tabs}</span><span class="mu">Réinitialisation dans ${Q.left(t)}</span></div>
   <div class="grid">${QD[t].map(q=>{const p=Q.prog(t,q),done=!!s[t].done[q[0]],ok=p>=q[3];
