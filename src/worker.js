@@ -3,19 +3,15 @@ const enc = new TextEncoder();
 const SESSION_MS = 90 * 24 * 3600 * 1000;
 const MAX_SAVE = 200000; // octets max pour une sauvegarde
 const MAX_FAILS = 8, FAIL_WINDOW = 15 * 60 * 1000;
+const FLAG_PASSWORD = "mot de passe : trop d'essais"; // SEUL motif de signalement automatique
 const BACKUP_EVERY = 30 * 60 * 1000, BACKUP_KEEP = 5; // sauvegardes automatiques : 5 conservées, la plus ancienne est supprimée à l'arrivée d'une nouvelle
 const ADMIN_DEFAULT = 'AMCR'; // pseudo du compte admin (remplaçable par la variable ADMIN_USERNAME)
-const VERSION = '2026-10-07b';
+const VERSION = '2026-10-12';
 
-// --- Contrôles anti-triche (volontairement larges : mieux vaut laisser passer que bloquer un vrai joueur) ---
-// À régler ici si tu ajoutes des fonctionnalités qui donnent de l'XP ou des pièces en dehors de la pêche.
+// --- Contrôles de valeurs (seules les valeurs absurdes sont refusées ; plus aucun signalement automatique pour l'XP ou le rythme) ---
 const CHEST_PRICE = [250, 1e3, 5e3, 25e3, 1e5, 5e5, 2e6, 1e7];
 const LIMITS = {
   maxCasts: 3e6, // lancers maximum sur un compte
-  xpPerCast: 1800, // XP maximum gagnée par lancer (poisson Ultra)
-  minCastSeconds: 0.6, // durée minimale d'un lancer (délai d'attente minimum du jeu)
-  slackCasts: 60, // marge de lancers pour les décalages d'horloge
-  wealthPerCast: 1e11, // richesse maximale (pièces + stock + coffres) par lancer : très large
 };
 function wealth(d) {
   let w = +d.c || 0;
@@ -23,25 +19,13 @@ function wealth(d) {
   for (const t in d.chests || {}) w += (+d.chests[t] || 0) * (CHEST_PRICE[t] || 0);
   return w;
 }
-// 1) Valeurs absurdes (NaN, négatives, énormes) : seule raison de REFUSER une sauvegarde
+// Valeurs absurdes (NaN, négatives, énormes) : seule raison de REFUSER une sauvegarde
 function invalid(next, al) {
   const casts = +next.casts || 0, xp = +next.xp || 0, c = +next.c || 0;
   if (![casts, xp, c].every(isFinite) || casts < 0 || xp < 0 || c < 0) return 'valeur non valide';
   if (casts > LIMITS.maxCasts) return 'lancers';
   if (xp > 1e12 + al.xp) return 'xp';
   if (wealth(next) > 1e17 + al.c) return 'richesse';
-  return null;
-}
-// 2) Progression suspecte : la sauvegarde est TOUJOURS ACCEPTÉE, mais le compte est SIGNALÉ pour l'admin
-//    (la sauvegarde d'un vrai joueur n'est donc jamais bloquée)
-function suspicious(next, prev, elapsedMs, al) {
-  const casts = +next.casts || 0, xp = +next.xp || 0;
-  if (!al.xp && xp > casts * LIMITS.xpPerCast) return 'xp supérieure à ce que permettent les lancers';
-  if (!al.c && wealth(next) > 150 + casts * LIMITS.wealthPerCast) return 'richesse supérieure à ce que permettent les lancers';
-  if (!prev) return null;
-  const dc = casts - (+prev.casts || 0);
-  if (dc > elapsedMs / (LIMITS.minCastSeconds * 1000) + LIMITS.slackCasts) return 'rythme (+' + dc + ' lancers en ' + Math.round(elapsedMs / 1000) + ' s)';
-  if (dc >= 0 && !al.xp && xp - (+prev.xp || 0) > dc * LIMITS.xpPerCast) return 'xp trop rapide';
   return null;
 }
 
@@ -122,12 +106,17 @@ async function tooManyFails(env, u) {
   const f = await env.DB.prepare('SELECT COUNT(*) AS n FROM login_fail WHERE username = ? AND ts > ?').bind(u, Date.now() - FAIL_WINDOW).first();
   return f.n >= MAX_FAILS;
 }
+// Enregistre un échec de connexion ; au MAX_FAILS-ième échec, le compte est SIGNALÉ (seul signalement automatique)
 async function addFail(env, u) {
   const now = Date.now();
   await env.DB.batch([
     env.DB.prepare('DELETE FROM login_fail WHERE ts < ?').bind(now - FAIL_WINDOW),
     env.DB.prepare('INSERT INTO login_fail(username, ts) VALUES(?,?)').bind(u, now),
   ]);
+  const f = await env.DB.prepare('SELECT COUNT(*) AS n FROM login_fail WHERE username = ? AND ts > ?').bind(u, now - FAIL_WINDOW).first();
+  if (f.n >= MAX_FAILS) {
+    await env.DB.prepare('UPDATE users SET flagged = 1, flag_reason = ?, flag_ts = ? WHERE username = ? AND flagged = 0').bind(FLAG_PASSWORD, now, u).run();
+  }
 }
 
 async function register(req, env) {
@@ -313,7 +302,7 @@ function cleanOp(o) {
   if (!(n >= 1 && n <= max)) return null;
   return { k: o.k, id, n, mode: o.mode };
 }
-// valeur « comptable » d'un don, pour que les contrôles anti-triche ne le prennent pas pour de la triche
+// valeur « comptable » d'un don, pour que le contrôle des valeurs absurdes ne le refuse pas
 function allowDelta(op) {
   const sign = op.mode === 'give' ? 1 : -1;
   if (op.k === 'coins') return { c: sign * op.n, xp: 0 };
@@ -453,7 +442,6 @@ async function putSave(req, env, user) {
   const allow = { c: (al && al.ga_c) || 0, xp: (al && al.ga_xp) || 0 };
   const why = invalid(data, allow);
   if (why) return J({ error: 'Sauvegarde refusée (valeurs impossibles : ' + why + ').', refused: true }, 422);
-  const flag = b.force ? null : suspicious(data, prev, cur ? now - cur.updated : 0, allow);
   let ok;
   if (!cur) {
     ok = (await env.DB.prepare('INSERT OR IGNORE INTO saves(user_id, data, updated) VALUES(?,?,?)').bind(user.id, json, now).run()).meta.changes === 1;
@@ -469,7 +457,6 @@ async function putSave(req, env, user) {
   }
   if (cur) await autoBackup(env, user.id, cur.data, !!b.force);
   await updStats(env, user.id, data);
-  if (flag) await env.DB.prepare('UPDATE users SET flagged = 1, flag_reason = ?, flag_ts = ? WHERE id = ?').bind(flag, now, user.id).run();
   return J({ ok: true, updated: now });
 }
 
@@ -537,6 +524,14 @@ function ensureSchema(env) {
         }
         if (updates.length) await env.DB.batch(updates);
         await env.DB.prepare("INSERT OR IGNORE INTO schema_migrations (id, applied) VALUES ('leaderboard-v2', ?)")
+          .bind(Date.now()).run();
+      }
+      // Une seule fois : retire tous les signalements qui ne viennent pas des essais de mot de passe (XP, richesse, rythme),
+      // pour que ces comptes réapparaissent dans le classement
+      const unflagMigration = await env.DB.prepare("SELECT id FROM schema_migrations WHERE id = 'unflag-xp-v1'").first();
+      if (!unflagMigration) {
+        await env.DB.prepare("UPDATE users SET flagged = 0, flag_reason = NULL, flag_ts = NULL WHERE flagged = 1 AND (flag_reason IS NULL OR flag_reason NOT LIKE 'mot de passe%')").run();
+        await env.DB.prepare("INSERT OR IGNORE INTO schema_migrations (id, applied) VALUES ('unflag-xp-v1', ?)")
           .bind(Date.now()).run();
       }
     })().catch((e) => {
