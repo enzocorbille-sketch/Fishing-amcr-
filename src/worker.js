@@ -48,7 +48,7 @@ function validFishArray(value) {
 }
 function validSaveShape(data) {
   if (!isObject(data)) return false;
-  for (const key of ['c', 'xp', 'casts', 'pr', 'pn', 'pt', 'es', 'rod', 'zone', 'bait', 'af']) {
+  for (const key of ['c', 'xp', 'casts', 'pr', 'pn', 'pt', 'es', 'rod', 'zone', 'bait', 'af', 'play']) {
     if (key in data && !validNumber(data[key])) return false;
   }
   for (const key of ['rods', 'zones', 'ae', 'gr']) {
@@ -187,6 +187,7 @@ async function register(req, env) {
     throw e;
   }
   const token = await newSession(env, r.meta.last_row_id);
+  await env.DB.prepare('UPDATE users SET last_login = ? WHERE id = ?').bind(Date.now(), r.meta.last_row_id).run();
   return J({ token, username: u, data: null, updated: 0, recovery, admin: isAdmin(env, { username: u }) });
 }
 
@@ -201,6 +202,7 @@ async function login(req, env) {
     return J({ error: 'Pseudo ou mot de passe incorrect.' }, 401);
   }
   await env.DB.prepare('DELETE FROM login_fail WHERE username = ?').bind(u).run();
+  await env.DB.prepare('UPDATE users SET last_login = ? WHERE id = ?').bind(Date.now(), user.id).run();
   const token = await newSession(env, user.id);
   const s = await loadSave(env, user.id);
   return J({ token, username: user.username, data: s.data, updated: s.updated, admin: isAdmin(env, user) });
@@ -226,6 +228,7 @@ async function recover(req, env) {
     env.DB.prepare('DELETE FROM login_fail WHERE username = ?').bind(u),
   ]);
   const token = await newSession(env, user.id);
+  await env.DB.prepare('UPDATE users SET last_login = ? WHERE id = ?').bind(Date.now(), user.id).run();
   const s = await loadSave(env, user.id);
   return J({ token, username: user.username, data: s.data, updated: s.updated, recovery, admin: isAdmin(env, user) });
 }
@@ -401,12 +404,12 @@ const isAdmin = (env, user) => {
 
 async function adminUsers(env) {
   const rows = await env.DB.prepare(
-    'SELECT u.id, u.username, u.created, u.flagged, u.flag_reason, s.data, s.updated FROM users u LEFT JOIN saves s ON s.user_id = u.id ORDER BY u.flagged DESC, s.updated DESC LIMIT 500'
+    'SELECT u.id, u.username, u.created, u.last_login, u.play_seconds, u.flagged, u.flag_reason, s.data, s.updated FROM users u LEFT JOIN saves s ON s.user_id = u.id ORDER BY u.flagged DESC, s.updated DESC LIMIT 500'
   ).all();
   return (rows.results || []).map((r) => {
     let d = {};
     try { d = r.data ? JSON.parse(r.data) : {}; } catch (e) {}
-    return { id: r.id, username: r.username, created: r.created, updated: r.updated || 0, xp: d.xp || 0, c: d.c || 0, casts: d.casts || 0, flagged: !!r.flagged, flag_reason: r.flag_reason || '' };
+    return { id: r.id, username: r.username, created: r.created, updated: r.updated || 0, last_login: r.last_login || 0, play_seconds: r.play_seconds || 0, xp: d.xp || 0, c: d.c || 0, casts: d.casts || 0, flagged: !!r.flagged, flag_reason: r.flag_reason || '' };
   });
 }
 
@@ -414,13 +417,14 @@ async function adminRoute(route, req, env, user) {
   if (route === 'GET /api/admin/users') return J({ users: await adminUsers(env) });
   const b = route.startsWith('GET') ? Object.fromEntries(new URL(req.url).searchParams) : await readJson(req);
   const uid = +b.user_id || 0;
-  const target = await env.DB.prepare('SELECT id, username, flagged, flag_reason FROM users WHERE id = ?').bind(uid).first();
+  const target = await env.DB.prepare('SELECT id, username, created, last_login, play_seconds, flagged, flag_reason FROM users WHERE id = ?').bind(uid).first();
   if (!target) return J({ error: 'Compte introuvable.' }, 404);
   if (route === 'GET /api/admin/user') {
-    const sv = await env.DB.prepare('SELECT data FROM saves WHERE user_id = ?').bind(uid).first();
+    const sv = await env.DB.prepare('SELECT data, updated FROM saves WHERE user_id = ?').bind(uid).first();
     const gr = await env.DB.prepare('SELECT id, ts, op, applied, undone FROM grants WHERE user_id = ? ORDER BY id DESC LIMIT 20').bind(uid).all();
     return J({
       user: target,
+      last_save: (sv && sv.updated) || 0,
       backups: await backupsOf(env, uid),
       summary: saveSummary(sv && sv.data),
       grants: (gr.results || []).map((g) => ({ id: g.id, ts: g.ts, op: JSON.parse(g.op), applied: !!g.applied, undone: !!g.undone })),
@@ -518,6 +522,8 @@ async function putSave(req, env, user) {
     return J({ conflict: true, data: s.data, updated: s.updated }, 409);
   }
   if (cur) await autoBackup(env, user.id, cur.data, !!b.force);
+  await env.DB.prepare('UPDATE users SET last_seen = ?, play_seconds = MAX(play_seconds, ?) WHERE id = ?')
+    .bind(Date.now(), Math.floor(+data.play || 0), user.id).run();
   await updStats(env, user.id, data);
   return J({ ok: true, updated: now });
 }
@@ -540,6 +546,8 @@ const COLUMNS = {
     ['st_rare', 'INTEGER NOT NULL DEFAULT 0'], ['st_rare_key', 'TEXT NOT NULL DEFAULT \'\''],
     ['st_species', 'INTEGER NOT NULL DEFAULT 0'], ['st_mut', 'INTEGER NOT NULL DEFAULT 0'],
     ['st_ach', 'INTEGER NOT NULL DEFAULT 0'], ['st_hide', 'INTEGER NOT NULL DEFAULT 0'],
+    ['last_login', 'INTEGER NOT NULL DEFAULT 0'], ['last_seen', 'INTEGER NOT NULL DEFAULT 0'],
+    ['play_seconds', 'INTEGER NOT NULL DEFAULT 0'],
   ],
   save_backups: [['kind', "TEXT NOT NULL DEFAULT 'auto'"]],
   grants: [['applied', 'INTEGER NOT NULL DEFAULT 0'], ['applied_ts', 'INTEGER'], ['undone', 'INTEGER NOT NULL DEFAULT 0']],

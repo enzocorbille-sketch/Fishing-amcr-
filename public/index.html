@@ -307,7 +307,7 @@ const hwLoot=t=>{
 
 /* ============ 2. ÉTAT & SAUVEGARDE ============ */
 const KEY='catbet-fishing-v3';
-const fresh=()=>({c:150,xp:0,rod:0,rods:[0],zone:0,zones:[0],bait:-1,baits:{},inv:{},idx:{},chests:{},casts:0,en:{},re:{},eb:{},es:0,ao:{},ae:[],quests:null,ev:{end:0,next:0},pr:0,pn:0,fv:0,pt:0,bk:{},avg:0,mu:{},fav:[],af:1,ach:{},hw:null,hwt:0,op:0,gr:[],rec:{}});
+const fresh=()=>({c:150,xp:0,rod:0,rods:[0],zone:0,zones:[0],bait:-1,baits:{},inv:{},idx:{},chests:{},casts:0,en:{},re:{},eb:{},es:0,ao:{},ae:[],quests:null,ev:{end:0,next:0},pr:0,pn:0,fv:0,pt:0,bk:{},avg:0,mu:{},fav:[],af:1,ach:{},hw:null,hwt:0,op:0,gr:[],rec:{},play:0});
 const S=(()=>{try{return Object.assign(fresh(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return fresh()}})();
 delete S.fa;
 S.eb=S.eb&&typeof S.eb==='object'?S.eb:{};
@@ -685,7 +685,7 @@ const HQ=[
  ['hw_boss','Boss d\'Halloween','Bats 4 boss.',4,'boss',30,2000],
  ['hw_cast','Nuit blanche','Effectue 700 lancers.',700,'cast',50,3000]];
 // id, nom, coût en 🎃, limite d'achats par événement
-const HS=[['stone','🪨 Pierre d\'enchantement',40,5],['cl','📦 Coffre Légendaire',60,5],['cm','📦 Coffre Mythique',150,3],['coins','🪙 Sac de pièces',25,20],['star','🌠 Étoile filante',500,1],['hw_pumpkin','🎃 Coffre Citrouille',300,10,'Coffre Halloween · chance de Canne Citrouille et Cœur citrouille.'],['hw_cursed','👻 Coffre Maudit',600,5,'Coffre Halloween · chance de Canne Fantôme et Grimoire spectral.'],['hw_headless','💀 Coffre du Cavalier sans tête',900,3,'Coffre Halloween · chance de Canne Vampire et Médaillon du Cavalier.']];
+const HS=[['stone','🪨 Pierre d\'enchantement',40,5],['cl','📦 Coffre Légendaire',60,5],['cm','📦 Coffre Mythique',150,3],['coins','🪙 Sac de pièces',25,20],['hw_pumpkin','🎃 Coffre Citrouille',300,10,'Coffre Halloween · chance de Canne Citrouille et Cœur citrouille.'],['hw_cursed','👻 Coffre Maudit',600,5,'Coffre Halloween · chance de Canne Fantôme et Grimoire spectral.'],['hw_headless','💀 Coffre du Cavalier sans tête',900,3,'Coffre Halloween · chance de Canne Vampire et Médaillon du Cavalier.']];
 const HW={
  pv(){try{return !!Cloud.admin&&localStorage.getItem('catbet-evpreview')==='1'}catch(e){return false}},
  real(){return Mut.on(new Date())},
@@ -704,7 +704,7 @@ const HW={
   S.chests=S.chests&&typeof S.chests==='object'?S.chests:{};
   if(id==='stone')S.es=(S.es|0)+1;else if(id==='cl')S.chests[3]=(S.chests[3]||0)+1;else if(id==='cm')S.chests[4]=(S.chests[4]||0)+1;
   else if(id==='hw_pumpkin')S.chests[8]=(S.chests[8]||0)+1;else if(id==='hw_cursed')S.chests[9]=(S.chests[9]||0)+1;else if(id==='hw_headless')S.chests[10]=(S.chests[10]||0)+1;
-  else if(id==='coins')S.c+=Math.round(2500*Q.mult());else if(id==='star')S.pt=(S.pt|0)+1;
+  else if(id==='coins')S.c+=Math.round(2500*Q.mult());
   UI.msg=`🎃 Acheté : ${it[1]}`;Act.done()},
  ui(){const e=$('#hwb');if(!e)return;e.innerHTML=this.on()?`<span class="hwb" onclick="UI.qt='e';UI.go('quest')">🎃 Événement Halloween · mutation ×${MUT[5][3]} · ${this.left()} · 🎃 ${this.st().pk}</span>`:''}};
 
@@ -1002,7 +1002,7 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const Cloud={
  tok:localStorage.getItem('catbet-tok')||'',user:localStorage.getItem('catbet-user')||'',
  base:+localStorage.getItem('catbet-base')||0,pending:localStorage.getItem('catbet-pend')==='1',
- busy:0,force:0,timer:0,v:0,msg:'',mode:'login',code:'',bk:null,refused:0,admin:false,adm:null,lb:{board:'casts',rows:null,me:null,hide:false,loading:false,error:'',request:0},
+ busy:0,force:0,timer:0,v:0,msg:'',mode:'login',code:'',bk:null,refused:0,admin:false,adm:null,sessionStart:Date.now(),lastPlaySync:Date.now(),lb:{board:'casts',rows:null,me:null,hide:false,loading:false,error:'',request:0},
  set(k,v){try{v==null?localStorage.removeItem('catbet-'+k):localStorage.setItem('catbet-'+k,v)}catch(e){}},
  async api(path,method,body,keep){
   const r=await fetch('/api/'+path,{method,keepalive:!!keep,headers:{'Content-Type':'application/json',...(this.tok?{Authorization:'Bearer '+this.tok}:{})},body:body?JSON.stringify(body):undefined});
@@ -1011,9 +1011,15 @@ const Cloud={
  ahead(a,b){const x=a.casts||0,y=b.casts||0;return x>y||(x===y&&(a.xp||0)>(b.xp||0))},
  dirty(){this.v++;this.pending=true;this.set('pend','1');if(!this.tok||this.refusedNow()){this.badge();return}if(!this.timer)this.timer=setTimeout(()=>{this.timer=0;this.push()},5000);this.badge()},
  refusedNow(){return this.refused&&Date.now()-this.refused<6e4},
+ syncPlay(){
+  if(!this.tok||document.hidden)return;
+  const now=Date.now(),elapsed=Math.floor((now-this.lastPlaySync)/1000);
+  if(elapsed>0){S.play=(S.play||0)+elapsed;this.lastPlaySync=now}
+ },
  async push(retry){
   if(!this.tok||this.busy||this.refusedNow())return;this.busy=1;clearTimeout(this.timer);this.timer=0;let again=0;const v=this.v;
   try{
+   this.syncPlay();
    const r=await this.api('save','PUT',{data:S,base:this.base,force:this.force},document.hidden);
    if(r.status===401){return this.drop()}
    if(r.status===422){this.refused=Date.now();this.msg='⚠ '+(r.j.error||'Sauvegarde en ligne refusée')+' Ta partie reste sur cet appareil.'}
@@ -1091,7 +1097,7 @@ const Cloud={
  },
  // --- administration (compte admin uniquement ; le serveur refuse tout autre compte)
  async admOpen(){
-  this.adm={users:null,sel:null};this.msg='…';this.panel();
+ this.adm={users:null,sel:null,q:'',sort:'updated'};this.msg='…';this.panel();
   const r=await this.api('admin/users','GET').catch(()=>null);
   if(!r||!r.ok){this.adm=null;this.msg=(r&&r.j.error)||'⚠ Accès refusé';return this.panel()}
   this.adm.users=r.j.users;this.msg='';this.panel()
@@ -1184,6 +1190,7 @@ const Cloud={
   const lg=this.mode==='login',rc=this.mode==='recover';
   const lv=x=>Math.min(100,Math.floor(Math.sqrt((x||0)/4000))+1);
   const dt=t=>esc(new Date(t).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}));
+  const dur=s=>{s=Math.max(0,Math.floor(+s||0));const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);return(d?d+' j ':'')+(h? h+' h ':'')+m+' min'};
   const kind=b=>b.kind==='manual'?'💾 Manuelle':'🔄 Auto';
   const bkRows=(list,fn)=>`<div style="margin-top:10px">${list.map(b=>`<div class="row sp mu" style="margin:6px 0"><span>${kind(b)} · ${dt(b.ts)}<br>niv ${lv(b.xp)} · ${fmt(b.c)} 🪙 · ${fmt(b.casts)} lancers</span><button class="chip" onclick="${fn}(${+b.id})">Restaurer</button></div>`).join('')}</div>`;
   let inner;
@@ -1192,8 +1199,9 @@ const Cloud={
     <div class="row"><button class="chip" onclick="Cloud.copy()">Copier</button><button class="btn sm" onclick="Cloud.codeOk()">J'ai noté mon code</button></div>`;
   else if(this.adm&&this.adm.sel){const s=this.adm.sel,u=s.user,sm=s.summary||{},nm=(l,i)=>(l[i]||['?'])[0],names=(arr,l)=>(arr||[]).map(i=>nm(l,i)).join(', ')||'—',cnt=(o,l)=>Object.entries(o||{}).map(([k,v])=>v+'× '+nm(l,k)).join(', ')||'—';
    const KINDS=[['coins','Pièces'],['xp','XP'],['rod','Canne'],['zone','Zone'],['chest','Coffre'],['bait','Appât'],['art','Artefact'],['stone','Pierre d\'enchantement'],['star','Étoile filante']],LISTS={rod:RODS,zone:ZONES,chest:CHESTS,bait:BAITS,art:AR};
-   inner=`<h2>🛠 ${esc(u.username)}</h2>
-    <div class="panel mu">🪙 ${fmt(sm.c||0)} · XP ${fmt(sm.xp||0)} · ${fmt(sm.casts||0)} lancers<br>Cannes : ${esc(names(sm.rods,RODS))}<br>Zones : ${esc(names(sm.zones,ZONES))}<br>Coffres : ${esc(cnt(sm.chests,CHESTS))}<br>Appâts : ${esc(cnt(sm.baits,BAITS))}<br>Artefacts : ${esc(names(Object.keys(sm.ao||{}),AR))}<br>Pierres : ${sm.es||0} · Étoiles filantes : ${sm.pt||0}</div>
+   inner=`<div class="row sp"><h2>🛠 ${esc(u.username)}</h2><button class="chip" onclick="Cloud.admBack()">← Joueurs</button></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))"><div class="panel"><b>Niveau</b><br>${lv(sm.xp)} · ${fmt(sm.xp)} XP</div><div class="panel"><b>Économie</b><br>${fmt(sm.c)} 🪙</div><div class="panel"><b>Activité</b><br>${fmt(sm.casts)} lancers · ${dur(u.play_seconds)}</div><div class="panel"><b>Dates</b><br>Connexion : ${u.last_login?dt(u.last_login):'jamais'}<br>Sauvegarde : ${s.last_save?dt(s.last_save):'jamais'}</div></div>
+    <div class="panel mu">Cannes : ${esc(names(sm.rods,RODS))}<br>Zones : ${esc(names(sm.zones,ZONES))}<br>Coffres : ${esc(cnt(sm.chests,CHESTS))}<br>Appâts : ${esc(cnt(sm.baits,BAITS))}<br>Artefacts : ${esc(names(Object.keys(sm.ao||{}),AR))}<br>Pierres : ${sm.es||0} · Étoiles filantes : ${sm.pt||0}</div>
     <h2 style="font-size:16px">🎁 Donner / retirer</h2>
     <select class="in" id="gk" onchange="Cloud.admCat(this.value)">${KINDS.map(([k,l])=>`<option value="${k}"${k===s.k?' selected':''}>${l}</option>`).join('')}</select>
     ${LISTS[s.k]?`<select class="in" id="gi">${LISTS[s.k].map((x,i)=>`<option value="${i}">${esc(x[0])}</option>`).join('')}</select>`:''}
@@ -1206,10 +1214,12 @@ const Cloud={
     ${s.tmp?`<div class="panel" style="margin-top:10px">Mot de passe temporaire (à donner au joueur, affiché une seule fois) :<div style="font:800 18px ui-monospace,monospace;user-select:all;text-align:center">${esc(s.tmp)}</div></div>`:''}
     <button class="chip" style="margin-top:8px" onclick="Cloud.admBack()">← Retour à la liste</button>`}
   else if(this.adm){
-   const us=this.adm.users;
-   inner=`<h2>🛠 Administration</h2><p class="mu">${us?us.length+' compte(s).':'Chargement…'}</p>
+   const all=this.adm.users||[],q=(this.adm.q||'').toLowerCase(),us=all.filter(x=>!q||x.username.toLowerCase().includes(q)).sort((a,b)=>(b[this.adm.sort]||0)-(a[this.adm.sort]||0));
+   const online=all.filter(x=>x.last_login&&Date.now()-x.last_login<86400000).length;
+   inner=`<h2>🛠 Administration développeur</h2><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))"><div class="panel"><b>Comptes</b><br>${all.length}</div><div class="panel"><b>Actifs 24 h</b><br>${online}</div><div class="panel"><b>Signalés</b><br>${all.filter(x=>x.flagged).length}</div></div><div class="row" style="margin-bottom:8px"><input class="in" style="flex:1;min-width:220px" placeholder="Rechercher un joueur…" value="${esc(this.adm.q||'')}" oninput="Cloud.adm.q=this.value;Cloud.panel()"><select class="in" style="width:auto" onchange="Cloud.adm.sort=this.value;Cloud.panel()"><option value="updated">Dernière sauvegarde</option><option value="last_login">Dernière connexion</option><option value="play_seconds">Temps de jeu</option><option value="c">Pièces</option><option value="casts">Lancers</option></select></div>
+    <p class="mu">${us.length} joueur(s) affiché(s) sur ${all.length}. Sélectionne un compte pour voir tous ses détails.</p>
     <div class="row" style="margin-bottom:8px"><button class="chip" onclick="Cloud.evPreview()">🎃 Aperçu de l'événement (toi seul) : ${localStorage.getItem('catbet-evpreview')==='1'?'ON':'OFF'}</button></div>
-    ${us?us.map(x=>`<div class="row sp" style="margin:6px 0"><span><b>${esc(x.username)}</b><br><span class="mu">niv ${lv(x.xp)} · ${fmt(x.c)} 🪙 · ${fmt(x.casts)} lancers · ${x.updated?dt(x.updated):'jamais sauvegardé'}</span></span><button class="chip" onclick="Cloud.admUser(${+x.id})">Ouvrir</button></div>`).join(''):''}
+    ${us.map(x=>`<div class="panel row sp" style="margin:6px 0"><span><b>${esc(x.username)}${x.flagged?' ⚠️':''}</b><br><span class="mu">niv ${lv(x.xp)} · ${fmt(x.c)} 🪙 · ${fmt(x.casts)} lancers · jeu ${dur(x.play_seconds)}<br>connexion ${x.last_login?dt(x.last_login):'jamais'} · sauvegarde ${x.updated?dt(x.updated):'jamais'}</span></span><button class="chip" onclick="Cloud.admUser(${+x.id})">Ouvrir</button></div>`).join('')}
     <div class="mu" style="margin:8px 0;min-height:18px">${esc(this.msg)}</div><button class="chip" onclick="Cloud.admBack()">← Retour</button>`}
   else if(this.tok)inner=`<h2>☁ ${esc(this.user)}</h2><p class="mu">Ta progression est sauvegardée en ligne et suit ton compte sur tous tes appareils.</p>
     <div class="row"><button class="btn sm" onclick="Cloud.sync()">Synchroniser maintenant</button><button class="chip" onclick="Cloud.logout()">Se déconnecter</button></div>
@@ -1235,13 +1245,15 @@ const Cloud={
     <div class="mu" style="margin-top:8px;min-height:18px">${esc(this.msg)}</div>
     ${lg?`<button class="chip" onclick="Cloud.mode='recover';Cloud.msg='';Cloud.panel()">Mot de passe oublié ?</button>`:''}
     <div class="mu" style="margin-top:8px">Sans compte, ta partie reste seulement sur cet appareil.</div>`;
-  m.innerHTML=`<div class="panel" style="max-width:380px;width:100%;margin:0;max-height:88vh;overflow:auto">${inner}</div>`;
+  const wide=!!this.adm;
+  m.style.alignItems=wide?'stretch':'center';m.style.padding=wide?'0':'16px';
+  m.innerHTML=`<div class="panel" style="max-width:${wide?'1400px':'380px'};width:100%;margin:${wide?'0 auto':'0'};min-height:${wide?'100vh':'0'};max-height:${wide?'100vh':'88vh'};overflow:auto;border-radius:${wide?'0':'16px'}">${inner}</div>`;
  },
  init(){
   this.badge();
   addEventListener('online',()=>this.pull());
   document.addEventListener('visibilitychange',()=>{if(document.hidden){if(this.pending)this.push()}else this.pull()});
-  setInterval(()=>{if(this.pending&&!document.hidden)this.push()},30000);
+  setInterval(()=>{this.syncPlay();if(this.pending&&!document.hidden)this.push()},30000);
   setInterval(()=>this.grantsPoll(),30000);
   this.pull()
  }
