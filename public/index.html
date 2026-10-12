@@ -1138,7 +1138,7 @@ const Cloud={
   const value=(v,fish)=>L.board==='rare'?esc(this.rareFish(fish)):fmt(v);
   const rows=L.error?`<div class="mu" style="color:var(--gold)">${esc(L.error)}</div>`:L.loading||L.rows===null?'<div class="mu">Chargement…</div>':(L.rows.length?L.rows.map((r,i)=>`<div class="row sp" style="padding:6px 0;${r.me?'font-weight:800;color:var(--gold)':''}"><span>${medal(i)} ${esc(r.username)}</span><span>${value(r.value,r.fish)}</span></div>`).join(''):'<div class="mu">Personne pour l\'instant.</div>');
   const me=L.me&&!(L.rows||[]).some(r=>r.me)?`<div class="row sp mu" style="padding:6px 0;border-top:1px solid var(--line)"><span>#${L.me.rank} · toi</span><span>${value(L.me.value,L.me.fish)}</span></div>`:'';
-  return `<div class="row" style="margin-bottom:10px">${tabs}<button class="chip" onclick="Cloud.lb.rows=null;Cloud.lb.error='';UI.render()">↻</button></div><div class="panel">${rows}${me}</div><div class="panel row sp"><span class="mu">Mis à jour à chaque sauvegarde en ligne. Les comptes signalés ne sont pas classés.</span><button class="chip" onclick="Cloud.lbHide()">${L.hide?'🙈 Masqué : me réafficher':'👁 Visible : me masquer'}</button></div>`},
+  return `<div class="row" style="margin-bottom:10px">${tabs}<button class="chip" onclick="Cloud.lb.rows=null;Cloud.lb.error='';UI.render()">↻</button></div><div class="panel">${rows}${me}</div><div class="panel row sp"><span class="mu">Mis à jour à chaque sauvegarde en ligne.</span><button class="chip" onclick="Cloud.lbHide()">${L.hide?'🙈 Masqué : me réafficher':'👁 Visible : me masquer'}</button></div>`},
  rareFish(key){
   const m=/^(\d+)-(\d+)$/.exec(String(key||''));
   if(!m)return '—';
@@ -1162,7 +1162,7 @@ const Cloud={
     <div class="row"><button class="chip" onclick="Cloud.copy()">Copier</button><button class="btn sm" onclick="Cloud.codeOk()">J'ai noté mon code</button></div>`;
   else if(this.adm&&this.adm.sel){const s=this.adm.sel,u=s.user,sm=s.summary||{},nm=(l,i)=>(l[i]||['?'])[0],names=(arr,l)=>(arr||[]).map(i=>nm(l,i)).join(', ')||'—',cnt=(o,l)=>Object.entries(o||{}).map(([k,v])=>v+'× '+nm(l,k)).join(', ')||'—';
    const KINDS=[['coins','Pièces'],['xp','XP'],['rod','Canne'],['zone','Zone'],['chest','Coffre'],['bait','Appât'],['art','Artefact'],['stone','Pierre d\'enchantement'],['star','Étoile filante']],LISTS={rod:RODS,zone:ZONES,chest:CHESTS,bait:BAITS,art:AR};
-   inner=`<h2>🛠 ${esc(u.username)}</h2>${u.flagged?`<div class="panel" style="border-color:#f59e0b">⚠ Signalé : ${esc(u.flag_reason||'')}<br><button class="chip" onclick="Cloud.admUnflag()">Retirer le signalement</button></div>`:''}
+   inner=`<h2>🛠 ${esc(u.username)}</h2>
     <div class="panel mu">🪙 ${fmt(sm.c||0)} · XP ${fmt(sm.xp||0)} · ${fmt(sm.casts||0)} lancers<br>Cannes : ${esc(names(sm.rods,RODS))}<br>Zones : ${esc(names(sm.zones,ZONES))}<br>Coffres : ${esc(cnt(sm.chests,CHESTS))}<br>Appâts : ${esc(cnt(sm.baits,BAITS))}<br>Artefacts : ${esc(names(Object.keys(sm.ao||{}),AR))}<br>Pierres : ${sm.es||0} · Étoiles filantes : ${sm.pt||0}</div>
     <h2 style="font-size:16px">🎁 Donner / retirer</h2>
     <select class="in" id="gk" onchange="Cloud.admCat(this.value)">${KINDS.map(([k,l])=>`<option value="${k}"${k===s.k?' selected':''}>${l}</option>`).join('')}</select>
@@ -1177,9 +1177,9 @@ const Cloud={
     <button class="chip" style="margin-top:8px" onclick="Cloud.admBack()">← Retour à la liste</button>`}
   else if(this.adm){
    const us=this.adm.users;
-   inner=`<h2>🛠 Administration</h2><p class="mu">${us?us.length+' compte(s). Les comptes signalés sont en premier.':'Chargement…'}</p>
+   inner=`<h2>🛠 Administration</h2><p class="mu">${us?us.length+' compte(s).':'Chargement…'}</p>
     <div class="row" style="margin-bottom:8px"><button class="chip" onclick="Cloud.evPreview()">🎃 Aperçu de l'événement (toi seul) : ${localStorage.getItem('catbet-evpreview')==='1'?'ON':'OFF'}</button></div>
-    ${us?us.map(x=>`<div class="row sp" style="margin:6px 0"><span>${x.flagged?'⚠ ':''}<b>${esc(x.username)}</b><br><span class="mu">niv ${lv(x.xp)} · ${fmt(x.c)} 🪙 · ${fmt(x.casts)} lancers · ${x.updated?dt(x.updated):'jamais sauvegardé'}</span></span><button class="chip" onclick="Cloud.admUser(${+x.id})">Ouvrir</button></div>`).join(''):''}
+    ${us?us.map(x=>`<div class="row sp" style="margin:6px 0"><span><b>${esc(x.username)}</b><br><span class="mu">niv ${lv(x.xp)} · ${fmt(x.c)} 🪙 · ${fmt(x.casts)} lancers · ${x.updated?dt(x.updated):'jamais sauvegardé'}</span></span><button class="chip" onclick="Cloud.admUser(${+x.id})">Ouvrir</button></div>`).join(''):''}
     <div class="mu" style="margin:8px 0;min-height:18px">${esc(this.msg)}</div><button class="chip" onclick="Cloud.admBack()">← Retour</button>`}
   else if(this.tok)inner=`<h2>☁ ${esc(this.user)}</h2><p class="mu">Ta progression est sauvegardée en ligne et suit ton compte sur tous tes appareils.</p>
     <div class="row"><button class="btn sm" onclick="Cloud.sync()">Synchroniser maintenant</button><button class="chip" onclick="Cloud.logout()">Se déconnecter</button></div>
