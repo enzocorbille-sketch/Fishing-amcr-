@@ -4,7 +4,7 @@ var BASE_RODS=RODS.length;
 // Nom, niveau requis, prix en citrouilles, bonus, multiplicateur du bonus, couleur, icône
 var HWRODS=[
  ['Canne Citrouille',2,2000,'chance',5,'#fb923c','🎃'],
- ['Canne Fantôme',2,3500,'chance',8,'#38bdf8','👻'],
+ ['Canne Fantôme',5,3500,'chance',8,'#38bdf8','👻'],
  ['Canne Sorcière',10,5000,'value',12,'#22c55e','🧙'],
  ['Canne Vampire',15,7500,'window',.2,'#ef4444','🦇'],
  ['Canne Infernale',20,10000,'chance',10,'#f97316','🔥'],
