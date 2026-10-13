@@ -8,7 +8,7 @@ var Act={
   S.rod=id;this.done()},
  buyZone(i){const p=ZONES[i][1];if(S.zones.includes(i))S.zone=i;else if(S.c>=p){S.c-=p;S.zones.push(i);S.zone=i}else return;this.done()},
  buyBait(i,n){const p=BAITS[i][1]*n;if(S.c<p)return;S.c-=p;S.baits[i]=(S.baits[i]||0)+n;this.done()},
- sellChest(t){if(!(S.chests[t]>0))return;S.c+=CHESTS[t][3];if(!--S.chests[t])delete S.chests[t];this.done()},
+ sellChest(t){Inventory.sellChest(t)},
  pickBait(i){S.bait=i;this.done()},
  rerollPrice(r=UI.er()){const p=RODS[r]?RODS[r][1]:RODS[S.rod][1];return Math.round(10000*Math.pow(1+Math.max(0,p)/10000,.28))},
  reroll(){const r=UI.er(),e=rodEn(r),pr=this.rerollPrice(r),owners=S.eb||(S.eb={});
@@ -33,13 +33,11 @@ var Act={
  upgrade(i){const l=S.en[i]|0,owner=(S.eb||{})[i];if(owner!=null&&+owner!==UI.er())return;if(l<1||l>=EN[i][5])return;
   if(l<5){const p=this.enPrice(i);if(S.c<p)return;S.c-=p}else{if(!(S.es>0))return UI.toast('Il te faut une pierre d\'enchante 🪨');S.es--}
   S.en[i]=l+1;this.done()},
- favLast(){const c=Engine.last;if(!c||c.t==null||c.fav)return;const k=c.t+'-'+c.j,e=S.inv[k];
-  if(!e||e.n<1||e.v<c.val-1e-6||(S.fav||[]).length>=FAVMAX)return;
-  e.n--;e.v=Math.max(0,e.v-c.val);if(e.n<=0)delete S.inv[k];S.fav=S.fav||[];S.fav.push({t:c.t,j:c.j,v:c.val,m:c.mut});c.fav=1;save();UI.caught(c);UI.head()},
- unfav(i){const f=(S.fav||[])[i];if(!f)return;const k=f.t+'-'+f.j,e=S.inv[k]||{n:0,v:0};e.n++;e.v+=f.v;S.inv[k]=e;S.fav.splice(i,1);this.done()},
- sellFav(i){const f=(S.fav||[])[i];if(!f)return;S.c+=f.v;S.fav.splice(i,1);this.done()},
- toggleAf(){S.af=S.af===0?1:0;this.done()},
- sell(t){let g=0;for(const k in S.inv){if(t<0||k.startsWith(t+'-')){g+=S.inv[k].v;delete S.inv[k]}}S.c+=g;this.done()},
- reset(){if(confirm('Tout effacer et repartir de zéro ?')){Object.assign(S,fresh());Cloud.force=1;this.done()}},
+ favLast(i){Inventory.favLast(i)},
+ unfav(i){Inventory.unfav(i)},
+ sellFav(i){Inventory.sellFav(i)},
+ toggleAf(){Inventory.toggleAf()},
+ sell(t){Inventory.sell(t)},
+ reset(){Inventory.reset()},
  done(){save();UI.render()}};
 
