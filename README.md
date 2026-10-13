@@ -20,7 +20,7 @@ Le frontend est maintenant séparé en fichiers lisibles :
 
 - `public/index.html` : structure de la page ;
 - `public/css/app.css` : styles ;
-- `public/js/data/game-data.js` : poissons, cannes, zones, coffres et données ;
+- `public/js/data/catalog/` : poissons, cannes, appâts, zones, coffres et données ;
 - `public/js/core/game.js` : fonctionnement du jeu ;
 - `public/js/data/events/` : données des futurs événements ;
 - `public/js/systems/` : emplacement des prochains systèmes extraits.

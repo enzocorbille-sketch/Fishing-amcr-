@@ -10,7 +10,7 @@ Ce dossier est réservé aux prochaines extractions de logique :
 - `quests.js` : quêtes horaires, quotidiennes et hebdomadaires ;
 - `achievements.js` : favoris, succès et trophées ;
 - `data/events/halloween.js` : quêtes et boutique Halloween ;
-- la météo est dans `data/game-data.js`, car elle ne contient que des données
+- la météo est dans `data/catalog/game-data.js`, car elle ne contient que des données
   et son affichage est appelé depuis `ui.js` ;
 - `inventory.js` : vente, coffres, favoris et remise à zéro.
 

@@ -9,7 +9,7 @@ public/js/data/events/
 ```
 
 Halloween n'est pas encore extrait : ses données sont encore dans
-`data/game-data.js` et sa logique est dans `core/game.js`. Les fichiers
+`data/catalog/game-data.js` et sa logique est dans `core/game.js`. Les fichiers
 `noel.js` et `paques.js` sont des emplacements prévus, pas des fonctionnalités
 actives.
 

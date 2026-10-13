@@ -3,9 +3,8 @@
 Le jeu fonctionne avec des scripts classiques chargés dans cet ordre par
 `index.html` :
 
-1. `data/tiers-fish.js`, `rods.js`, `baits.js`, `world.js`, `equipment.js` et
-   `chests.js` : données des raretés, poissons, cannes, appâts, zones, météo,
-   enchantements, artefacts et coffres.
+1. `data/catalog/` : catalogue des raretés, poissons, cannes, appâts, zones,
+   météo, enchantements, artefacts et coffres.
 2. `systems/shop.js` : affichage et navigation de la boutique.
 3. `systems/fishing.js` : moteur de pêche et combats.
 4. `systems/actions.js` : actions du joueur et achats.
@@ -25,7 +24,7 @@ actuel et les anciennes sauvegardes.
 
 ## Modifier les poissons
 
-Ouvre `data/tiers-fish.js`, puis cherche `var FISH`.
+Ouvre `data/catalog/tiers-fish.js`, puis cherche `var FISH`.
 
 Une entrée suit ce format :
 
@@ -66,7 +65,7 @@ sauvegarde.
 Après chaque modification, vérifie :
 
 ```powershell
-node --check public\js\data\game-data.js
+node --check public\js\data\catalog\game-data.js
 node --check public\js\core\game.js
 git diff --check
 ```
