@@ -29,11 +29,13 @@ Le guide de modification sans IA se trouve dans
 `public/js/README.md`. Les clés de sauvegarde, les identifiants et le format
 Cloudflare sont conservés.
 
-## Publier automatiquement après un enregistrement
+## Publier après confirmation
 
-Lance la tâche VS Code `CATBET - publier apres Ctrl+S` avec `Terminal >
-Run Task...`. Ensuite, chaque modification enregistrée avec `Ctrl+S` est
-détectée, commitée puis poussée vers GitHub après quelques secondes.
+Lance la tâche VS Code `CATBET - publier avec GOOD` avec `Terminal > Run
+Task...`. Enregistre tes fichiers, vérifie tes changements, puis tape `GOOD`
+dans le terminal de la tâche et appuie sur Entrée. Les changements sont alors
+commités puis poussés vers GitHub.
 
 Git doit déjà être connecté à GitHub sur cet ordinateur. Aucun token n'est
-enregistré dans le projet. Arrête la tâche avec `Ctrl+C`.
+enregistré dans le projet. Arrête la tâche avec `Ctrl+C`. La tâche ne démarre
+plus automatiquement à l'ouverture du dossier.
