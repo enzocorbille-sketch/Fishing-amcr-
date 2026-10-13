@@ -45,7 +45,13 @@ var fx=()=>{const f={L:1,S:1,W:1,V:1,C:1,Q:1,B:0,D:0,K:0,R:0,H:0,A:0,P:0,X:0};ro
  const hr=HWRODS[S.rod-BASE_RODS];if(hr&&hr[3]==='value')f.V*=hr[4];
  S.ae.forEach(i=>{const x=AR[i]&&AR[i][3];if(x)for(const k in x){if(AMUL.includes(k))f[k]*=1+(x[k]-1)*ASCALE;else f[k]+=x[k]*ASCALE}});
  f.V*=1+Pr.vb()*S.pr;f.L*=1+Pr.lb()*S.pr;if(Ev.active())f.V*=Ev.mult;return f};
-var luck=(b=activeBait())=>{const a=baitEffect(b);return fx().L*RODS[S.rod][2]*ZONES[S.zone][2]*(a?a.chance:1)*(1+.015*(level()-1))};
+// Les multiplicateurs de chance ont des rendements décroissants : les bonus
+// restent utiles sans permettre à une combinaison extrême de dépasser environ ×100.
+var luck=(b=activeBait())=>{
+ const a=baitEffect(b);
+ const raw=fx().L*RODS[S.rod][2]*ZONES[S.zone][2]*(a?a.chance:1)*(1+.015*(level()-1));
+ return 1+100*(Math.max(1,raw)-1)/(100+Math.max(1,raw)-1);
+};
 var dk=(h,f=.55)=>'#'+[1,3,5].map(i=>Math.round(parseInt(h.slice(i,i+2),16)*f).toString(16).padStart(2,'0')).join('');
 // Dessin SVG d'un poisson (a/b = couleurs, sp = corps rond, g = halo pour les raretés hautes)
 var art=(f,t)=>{const a=f[5],b=f[6],sp=f[7],g=t>=3,u='q'+a.slice(1)+b.slice(1);return `<svg viewBox="0 0 180 120" class="fa"><defs><linearGradient id="${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>${g?`<circle cx="90" cy="60" r="56" fill="${a}" opacity=".22"/>`:''}${sp?`<ellipse cx="86" cy="60" rx="52" ry="46" fill="url(#${u})"/><path d="M132 60L172 36V84Z" fill="${b}"/><path d="M70 16Q86 0 102 16Z" fill="${b}"/><path d="M58 88Q70 108 84 90Z" fill="${b}"/>`:`<path d="M138 60L174 30Q164 60 174 90Z" fill="${b}"/><path d="M28 60C44 22 108 20 142 60 108 100 44 98 28 60Z" fill="url(#${u})"/><path d="M62 34Q86 8 112 38Z" fill="${b}"/><path d="M84 84Q96 104 112 84Z" fill="${b}"/>`}<path d="M74 44Q66 60 74 76" stroke="#fff6" stroke-width="3" fill="none"/><circle cx="${sp?52:48}" cy="52" r="7" fill="#fff"/><circle cx="${sp?50:46}" cy="52" r="3.5" fill="#111"/><ellipse cx="84" cy="40" rx="22" ry="6" fill="#fff" opacity=".35"/></svg>`};
