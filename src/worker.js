@@ -556,14 +556,24 @@ async function putSave(req, env, user) {
     const s = await loadSave(env, user.id);
     return J({ conflict: true, data: s.data, updated: s.updated }, 409);
   }
-  if (cur) await autoBackup(env, user.id, cur.data, !!b.force);
+  if (cur) {
+    try {
+      await autoBackup(env, user.id, cur.data, !!b.force);
+    } catch (e) {
+      console.error('Automatic save backup unavailable; continuing the save.', e);
+    }
+  }
   try {
     await env.DB.prepare('UPDATE users SET last_seen = ?, play_seconds = MAX(play_seconds, ?) WHERE id = ?')
       .bind(Date.now(), Math.floor(+data.play || 0), user.id).run();
   } catch (e) {
     console.error('Activity metadata unavailable; continuing the save.', e);
   }
-  await updStats(env, user.id, data);
+  try {
+    await updStats(env, user.id, data);
+  } catch (e) {
+    console.error('Leaderboard stats unavailable; continuing the save.', e);
+  }
   if (b.force || !cur || (+data.casts || 0) !== +((prev && prev.casts) || 0)) {
     await audit(env, user.id, 'save', user.id, { casts: data.casts || 0, force: !!b.force });
   }
