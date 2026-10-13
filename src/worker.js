@@ -29,6 +29,11 @@ function validNumberMap(value, max = 1e9) {
   if (!isObject(value) || Object.keys(value).length > 500) return false;
   return Object.entries(value).every(([key, item]) => /^\d+$/.test(key) && validNumber(item, max));
 }
+function validFishNumberMap(value, max = 1e15) {
+  if (value == null) return true;
+  if (!isObject(value) || Object.keys(value).length > 1000) return false;
+  return Object.entries(value).every(([key, item]) => /^\d+-\d+$/.test(key) && validNumber(item, max));
+}
 function validIdArray(value, maxLength = 500) {
   return value == null || (Array.isArray(value) && value.length <= maxLength &&
     value.every((item) => Number.isInteger(item) && item >= 0 && item < 200));
@@ -56,9 +61,10 @@ function validSaveShape(data) {
   for (const key of ['rods', 'zones', 'ae', 'gr']) {
     if (!validIdArray(data[key])) return false;
   }
-  for (const key of ['chests', 'baits', 'en', 'eb', 'idx', 'rec', 'bk']) {
+  for (const key of ['chests', 'baits', 'en', 'eb', 'bk']) {
     if (!validNumberMap(data[key])) return false;
   }
+  if (!validFishNumberMap(data.idx) || !validFishNumberMap(data.rec)) return false;
   if (!validInventory(data.inv) || !validFishArray(data.fav)) return false;
   for (const key of ['ach', 'quests', 'mu', 'hw']) {
     if (data[key] != null && !isObject(data[key])) return false;
