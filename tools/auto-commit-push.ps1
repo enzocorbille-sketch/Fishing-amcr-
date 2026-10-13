@@ -3,8 +3,8 @@ $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
 Write-Host "Publication manuelle active dans $root"
-Write-Host "Tape IMAGE pour ouvrir l'aperçu local avec rechargement automatique."
-Write-Host "Enregistre tes fichiers, puis tape GOOD et appuie sur Entree pour publier."
+Write-Host "IMAGE = aperçu local uniquement, sans commit ni push."
+Write-Host "GOOD = commit et push vers GitHub."
 Write-Host "Arret : Ctrl+C"
 
 while ($true) {
@@ -17,10 +17,11 @@ while ($true) {
     )
     Start-Process 'http://127.0.0.1:8766/index.html'
     Write-Host 'Aperçu local ouvert sur http://127.0.0.1:8766/index.html'
+    Write-Host 'IMAGE ne commit ni ne push aucun fichier.'
     continue
   }
   if ($command -ne 'GOOD') {
-    Write-Host "Aucune publication. Tape GOOD pour confirmer."
+    Write-Host "Aucune action. Tape IMAGE pour l'aperçu ou GOOD pour publier."
     continue
   }
 

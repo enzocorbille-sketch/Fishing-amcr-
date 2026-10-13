@@ -84,3 +84,13 @@ node --check public\js\data\catalog\game-data.js
 node --check public\js\core\game.js
 git diff --check
 ```
+## Aperçu local sans publication
+
+Dans VS Code, ouvre `Terminal > Run Task...` puis lance la tâche
+`CATBET - commandes locales (IMAGE ou GOOD)`. Tape `IMAGE` dans le terminal de
+la tâche pour ouvrir l'aperçu local du jeu. L'adresse est
+`http://127.0.0.1:8766/index.html`.
+
+L'aperçu utilise les fichiers locaux du dossier `public` et se recharge après
+l'enregistrement d'une modification. `IMAGE` ne crée aucun commit et ne fait
+aucun push. Pour publier volontairement, utilise `GOOD`.

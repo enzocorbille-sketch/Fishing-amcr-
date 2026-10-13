@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "CATBET - publier avec GOOD",
+      "label": "CATBET - commandes locales (IMAGE ou GOOD)",
       "type": "shell",
       "command": "powershell.exe",
       "args": [
