@@ -13,6 +13,8 @@ Ce dossier est réservé aux prochaines extractions de logique :
 - la météo est dans `data/catalog/game-data.js`, car elle ne contient que des données
   et son affichage est appelé depuis `ui.js` ;
 - `inventory.js` : vente, coffres, favoris et remise à zéro.
+- `ui/scene.js` : dessin de la scène de pêche ;
+- `ui/views.js` : affichage des différents écrans.
 
 `actions.js` modifie la sauvegarde via `Act.buyRod`, `Act.buyBait`,
 `Act.buyZone` et `Act.buyEventRod`. `shop.js` ne modifie pas directement la

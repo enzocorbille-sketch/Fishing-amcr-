@@ -13,10 +13,11 @@ Le jeu fonctionne avec des scripts classiques chargés dans cet ordre par
 7. `systems/quests.js` : quêtes récurrentes.
 8. `systems/achievements.js` : favoris, succès et trophées.
 9. `data/events/halloween.js` : quêtes et boutique Halloween.
-10. `systems/ui.js` : affichage des écrans et navigation.
+10. `systems/ui.js` et `systems/ui/` : navigation, scène et écrans.
 11. `core/state.js` et `core/compatibility.js` : état local et migrations
    compatibles avec les anciennes sauvegardes.
-12. `core/cloud.js` : connexion, synchronisation et administration Cloudflare.
+12. `core/cloud.js` : connexion, synchronisation, classement et administration
+    Cloudflare.
 13. `core/game.js` : outils partagés et démarrage du jeu.
 
 Les variables restent globales volontairement pour préserver le comportement
@@ -25,6 +26,20 @@ actuel et les anciennes sauvegardes.
 ## Modifier les poissons
 
 Ouvre `data/catalog/tiers-fish.js`, puis cherche `var FISH`.
+
+## Modifier l'interface
+
+- `systems/ui.js` : navigation, barre du haut et résultats de pêche ;
+- `systems/ui/scene.js` : scène de pêche et illustrations SVG ;
+- `systems/ui/views.js` : boutique, bonus, quêtes, inventaire, succès,
+  prestige, classement et index.
+
+## Modifier le compte en ligne
+
+- `core/cloud.js` : synchronisation principale et fenêtre de compte ;
+- `core/cloud/auth.js` : connexion, inscription et déconnexion ;
+- `core/cloud/admin.js` : outils développeur et dons ;
+- `core/cloud/leaderboard.js` : classement.
 
 Une entrée suit ce format :
 
