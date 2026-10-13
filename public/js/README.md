@@ -8,12 +8,15 @@ Le jeu fonctionne avec des scripts classiques chargés dans cet ordre par
 2. `systems/shop.js` : affichage et navigation de la boutique.
 3. `systems/fishing.js` : moteur de pêche et combats.
 4. `systems/actions.js` : actions du joueur et achats.
-5. `systems/progression.js` : boss, prestige, quêtes, succès et Halloween.
-6. `systems/ui.js` : affichage des écrans et navigation.
-7. `core/state.js` et `core/compatibility.js` : état local et migrations
+5. `systems/prestige.js` : boss, heure dorée et prestige.
+6. `systems/quests.js` : quêtes récurrentes.
+7. `systems/achievements.js` : favoris, succès et trophées.
+8. `data/events/halloween.js` : quêtes et boutique Halloween.
+9. `systems/ui.js` : affichage des écrans et navigation.
+10. `core/state.js` et `core/compatibility.js` : état local et migrations
    compatibles avec les anciennes sauvegardes.
-8. `core/cloud.js` : connexion, synchronisation et administration Cloudflare.
-9. `core/game.js` : outils partagés et démarrage du jeu.
+11. `core/cloud.js` : connexion, synchronisation et administration Cloudflare.
+12. `core/game.js` : outils partagés et démarrage du jeu.
 
 Les variables restent globales volontairement pour préserver le comportement
 actuel et les anciennes sauvegardes.
