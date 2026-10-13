@@ -15,8 +15,8 @@ while ($true) {
     Start-Process powershell.exe -ArgumentList @(
       '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $preview
     )
-    Start-Process 'http://127.0.0.1:8766/index.html'
-    Write-Host 'Aperçu local ouvert sur http://127.0.0.1:8766/index.html'
+    Start-Process 'vscode://vscode.simple-browser/show?url=http%3A%2F%2F127.0.0.1%3A8766%2Findex.html'
+    Write-Host 'Aperçu local ouvert dans le navigateur intégré de VS Code.'
     Write-Host 'IMAGE ne commit ni ne push aucun fichier.'
     continue
   }
