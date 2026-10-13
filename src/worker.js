@@ -49,7 +49,9 @@ function validFishArray(value) {
 function validSaveShape(data) {
   if (!isObject(data)) return false;
   for (const key of ['c', 'xp', 'casts', 'pr', 'pn', 'pt', 'es', 'rod', 'zone', 'bait', 'af', 'play']) {
-    if (key in data && !validNumber(data[key])) return false;
+    if (key in data && (key === 'bait'
+      ? (typeof data[key] !== 'number' || !Number.isInteger(data[key]) || data[key] < -1 || data[key] > 199)
+      : !validNumber(data[key]))) return false;
   }
   for (const key of ['rods', 'zones', 'ae', 'gr']) {
     if (!validIdArray(data[key])) return false;

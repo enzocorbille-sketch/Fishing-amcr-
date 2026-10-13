@@ -31,7 +31,7 @@ var Cloud={
    }else if(r.ok){
     this.base=r.j.updated;this.set('base',this.base);this.force=0;this.msg='✓ Synchronisé';
     if(v===this.v){this.pending=false;this.set('pend',null)}else again=1;
-   }else this.msg='⚠ Erreur serveur'
+   }else this.msg='⚠ '+(r.j.error||('Erreur serveur (HTTP '+r.status+')'))
   }catch(e){this.msg='⚠ Hors ligne'}
   finally{this.busy=0;this.badge()}
   if(again)await this.push(true)
@@ -273,4 +273,3 @@ var Cloud={
   this.pull()
  }
 };
-
