@@ -15,3 +15,8 @@ run_worker_first = ["/api/*"]
 binding = "DB"
 database_name = "catbet"
 database_id = "954a9588-8a54-4182-b8b0-80dcaabd7b0a"   # donné par : npx wrangler d1 create catbet
+
+[observability.logs]
+enabled = true
+invocation_logs = true
+persist = true
