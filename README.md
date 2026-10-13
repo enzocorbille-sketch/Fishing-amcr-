@@ -28,3 +28,12 @@ Le frontend est maintenant séparé en fichiers lisibles :
 Le guide de modification sans IA se trouve dans
 `public/js/README.md`. Les clés de sauvegarde, les identifiants et le format
 Cloudflare sont conservés.
+
+## Publier automatiquement après un enregistrement
+
+Lance la tâche VS Code `CATBET - publier apres Ctrl+S` avec `Terminal >
+Run Task...`. Ensuite, chaque modification enregistrée avec `Ctrl+S` est
+détectée, commitée puis poussée vers GitHub après quelques secondes.
+
+Git doit déjà être connecté à GitHub sur cet ordinateur. Aucun token n'est
+enregistré dans le projet. Arrête la tâche avec `Ctrl+C`.

@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CATBET - publier apres Ctrl+S",
+      "type": "shell",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}\\tools\\auto-commit-push.ps1"
+      ],
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}
