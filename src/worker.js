@@ -140,9 +140,13 @@ async function loadSave(env, userId) {
   return row ? { data: JSON.parse(row.data), updated: row.updated } : { data: null, updated: 0 };
 }
 async function audit(env, actorId, action, targetId = null, details = {}) {
-  await env.DB.prepare(
-    'INSERT INTO audit_logs(ts, actor_id, target_id, action, details) VALUES(?,?,?,?,?)'
-  ).bind(Date.now(), actorId || null, targetId || null, action, JSON.stringify(details)).run();
+  try {
+    await env.DB.prepare(
+      'INSERT INTO audit_logs(ts, actor_id, target_id, action, details) VALUES(?,?,?,?,?)'
+    ).bind(Date.now(), actorId || null, targetId || null, action, JSON.stringify(details)).run();
+  } catch (e) {
+    console.error('Audit log unavailable; continuing the requested action.', action, e);
+  }
 }
 
 async function checkPassword(env, username, password) {
@@ -553,10 +557,16 @@ async function putSave(req, env, user) {
     return J({ conflict: true, data: s.data, updated: s.updated }, 409);
   }
   if (cur) await autoBackup(env, user.id, cur.data, !!b.force);
-  await env.DB.prepare('UPDATE users SET last_seen = ?, play_seconds = MAX(play_seconds, ?) WHERE id = ?')
-    .bind(Date.now(), Math.floor(+data.play || 0), user.id).run();
+  try {
+    await env.DB.prepare('UPDATE users SET last_seen = ?, play_seconds = MAX(play_seconds, ?) WHERE id = ?')
+      .bind(Date.now(), Math.floor(+data.play || 0), user.id).run();
+  } catch (e) {
+    console.error('Activity metadata unavailable; continuing the save.', e);
+  }
   await updStats(env, user.id, data);
-  await audit(env, user.id, 'save', user.id, { casts: data.casts || 0, force: !!b.force });
+  if (b.force || !cur || (+data.casts || 0) !== +((prev && prev.casts) || 0)) {
+    await audit(env, user.id, 'save', user.id, { casts: data.casts || 0, force: !!b.force });
+  }
   return J({ ok: true, updated: now });
 }
 
