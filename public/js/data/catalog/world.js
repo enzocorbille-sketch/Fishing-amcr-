@@ -1,4 +1,15 @@
-var ZONES=[['Étang paisible',0,1,1.0,'#1e1b4b','#f472b6','#0ea5e9','#082f49'],['Rivière',86100,1.22,1.28,'#1e3a8a','#fdba74','#22d3ee','#0e4f5c'],['Lac brumeux',2670000,1.48,1.73,'#334155','#cbd5e1','#64748b','#0f172a'],['Récif corallien',54200000,1.9,2.63,'#0ea5e9','#fde68a','#2dd4bf','#134e4a'],['Abysses',893000000,2.45,4.44,'#020617','#1e1b4b','#1e3a8a','#020617'],['Mer astrale',26200000000,3.2,7.7,'#0f0a1e','#a855f7','#4c1d95','#0f0a1e'],['Faille temporelle',120000000000,4.2,12.5,'#172554','#f0abfc','#312e81','#0b102e'],['Dimension miroir',1500000000000,5.8,21,'#581c87','#fef08a','#7e22ce','#2e1065'],['Forge des mondes',12000000000000,8,38,'#431407','#fb923c','#c2410c','#450a0a'],['Néant ultime',120000000000000,11,75,'#020617','#67e8f9','#164e63','#020617']];
+var ZONES=[
+ ['Étang paisible',0,1,1.0,'#1e1b4b','#f472b6','#0ea5e9','#082f49'],
+ ['Rivière',86100,1.22,1.28,'#1e3a8a','#fdba74','#22d3ee','#0e4f5c'],
+ ['Lac brumeux',2670000,1.48,1.73,'#334155','#cbd5e1','#64748b','#0f172a'],
+ ['Récif corallien',54200000,1.9,2.63,'#0ea5e9','#fde68a','#2dd4bf','#134e4a'],
+ ['Abysses',893000000,2.45,4.44,'#020617','#1e1b4b','#1e3a8a','#020617'],
+ ['Mer astrale',26200000000,3.2,7.7,'#0f0a1e','#a855f7','#4c1d95','#0f0a1e'],
+ ['Faille temporelle',120000000000,4.2,12.5,'#172554','#f0abfc','#312e81','#0b102e'],
+ ['Dimension miroir',1500000000000,5.8,21,'#581c87','#fef08a','#7e22ce','#2e1065'],
+ ['Forge des mondes',12000000000000,8,38,'#431407','#fb923c','#c2410c','#450a0a'],
+ ['Néant ultime',120000000000000,11,75,'#020617','#67e8f9','#164e63','#020617']
+];
 var WEATHER=[
  ['rain','Pluie fine','🌧️','Une carpe argentée se montre dans les eaux calmes.',0],
  ['sun','Grand soleil','☀️','Un poisson-lune apparaît près des rivières.',1],
@@ -64,4 +75,3 @@ FISH[10].push(['Roi sans océan','',2000000000,4000000000,9,'#fda4af','#9f1239',
 FISH[11].push(['Constellation vivante','',20000000000,40000000000,8,'#c4b5fd','#6d28d9',1]);
 FISH[13].push(['Cœur de singularité','',300000000000,650000000000,9,'#67e8f9','#155e75',1]);
 FISH[14].push(['Dernier battement','',8000000000000,18000000000000,9,'#fef08a','#f97316',1]);
-

@@ -1,5 +1,22 @@
-// Coffres : nom, couleur, fond, prix de vente, poids de drop en pêchant
-var CHESTS=[['Commun','#94a3b8','#1e293b',250,50],['Rare','#3b82f6','#172554',1e3,28],['Épique','#a855f7','#3b0764',5e3,12],['Légendaire','#fbbf24','#78350f',25e3,5],['Mythique','#ef4444','#450a0a',1e5,2],['Secret','#22e39a','#022c22',5e5,.7],['Astral','#67e8f9','#082f49',2e6,.2],['Ultra','#f0abfc','#0f0a1e',1e7,.15],['Coffre Citrouille','#fb923c','#431407',150,0],['Coffre Maudit','#a855f7','#2e1065',300,0],['Coffre du Cavalier','#ef4444','#450a0a',450,0],['Divin','#fef08a','#422006',5e7,.05],['Cosmique','#c084fc','#2e1065',2e8,.02],['Omniversal','#f0abfc','#3b0764',1e9,.008],['Transcendant','#f97316','#431407',1e10,.002],['Infini','#ffffff','#172554',1e11,.0005]];
+// Coffres : nom, couleur, fond, prix de vente, taux de drop (en %)
+var CHESTS=[
+ ['Commun','#94a3b8','#1e293b',250,50],
+ ['Rare','#3b82f6','#172554',1e3,28],
+ ['Épique','#a855f7','#3b0764',5e3,12],
+ ['Légendaire','#fbbf24','#78350f',25e3,5],
+ ['Mythique','#ef4444','#450a0a',1e5,2],
+ ['Secret','#22e39a','#022c22',5e5,.7],
+ ['Astral','#67e8f9','#082f49',2e6,.2],
+ ['Ultra','#f0abfc','#0f0a1e',1e7,.15],
+ ['Coffre Citrouille','#fb923c','#431407',150,1],
+ ['Coffre Maudit','#a855f7','#2e1065',300,.07],
+ ['Coffre du Cavalier','#ef4444','#450a0a',450,.05],
+ ['Divin','#fef08a','#422006',5e7,.05],
+ ['Cosmique','#c084fc','#2e1065',2e8,.02],
+ ['Omniversal','#f0abfc','#2e1065',1e9,.008],
+ ['Transcendant','#f97316','#431407',1e10,.002],
+ ['Infini','#ffffff','#172554',1e11,.0005]
+];
 var CSYM=['','★','★','✦','♛','?','✧','∞','🎃','☠','💀','✹','✧','⬢','✺','∞'];
 var HW_CHEST_IDS=[8,9,10];
 // Butin d'un coffre de rareté t : [type, id, quantité, poids] — g pièces · b appât · r canne · f poisson (rareté)
@@ -22,4 +39,3 @@ var hwLoot=t=>{
 };
 
 /* ============ 2. ÉTAT & SAUVEGARDE ============ */
-

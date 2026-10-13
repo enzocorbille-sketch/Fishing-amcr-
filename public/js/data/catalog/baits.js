@@ -16,4 +16,3 @@ var BAITS=[
  ['Nectar astral',12000,3.1,'🌌',3.4,'astral',5]
 ];
 var BAIT_ORDER=BAITS.map((b,i)=>i).sort((a,b)=>BAITS[a][1]-BAITS[b][1]);
-// Zones : nom, prix, chance, valeur, ciel, horizon, eau haut, eau bas

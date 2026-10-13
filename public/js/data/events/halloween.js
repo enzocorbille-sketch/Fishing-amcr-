@@ -7,9 +7,18 @@ var HQ=[
  ['hw_hal','Pêche maudite','Obtiens 2 poissons de mutation Halloween.',2,'hal',40,2000],
  ['hw_open','Coffres hantés','Ouvre 25 coffres.',25,'open',20,1200],
  ['hw_boss','Boss d\'Halloween','Bats 4 boss.',4,'boss',30,2000],
- ['hw_cast','Nuit blanche','Effectue 700 lancers.',700,'cast',50,3000]];
+ ['hw_cast','Nuit blanche','Effectue 700 lancers.',700,'cast',50,3000]
+];
 // id, nom, coût en 🎃, limite d'achats par événement
-var HS=[['stone','🪨 Pierre d\'enchantement',40,5],['cl','📦 Coffre Légendaire',60,5],['cm','📦 Coffre Mythique',150,3],['coins','🪙 Sac de pièces',25,20],['hw_pumpkin','🎃 Coffre Citrouille',300,10,'Coffre Halloween · chance de Canne Citrouille et Cœur citrouille.'],['hw_cursed','👻 Coffre Maudit',600,5,'Coffre Halloween · chance de Canne Fantôme et Grimoire spectral.'],['hw_headless','💀 Coffre du Cavalier sans tête',900,3,'Coffre Halloween · chance de Canne Vampire et Médaillon du Cavalier.']];
+var HS=[
+ ['stone','🪨 Pierre d\'enchantement',40,5],
+ ['cl','📦 Coffre Légendaire',60,5],
+ ['cm','📦 Coffre Mythique',150,3],
+ ['coins','🪙 Sac de pièces',25,20],
+ ['hw_pumpkin','🎃 Coffre Citrouille',300,10,'Coffre Halloween · chance de Canne Citrouille et Cœur citrouille.'],
+ ['hw_cursed','👻 Coffre Maudit',600,5,'Coffre Halloween · chance de Canne Fantôme et Grimoire spectral.'],
+ ['hw_headless','💀 Coffre du Cavalier sans tête',900,3,'Coffre Halloween · chance de Canne Vampire et Médaillon du Cavalier.']
+];
 var HW={
  pv(){try{return !!Cloud.admin&&localStorage.getItem('catbet-evpreview')==='1'}catch(e){return false}},
  real(){return Mut.on(new Date())},
@@ -31,4 +40,3 @@ var HW={
   else if(id==='coins')S.c+=Math.round(2500*Q.mult());
   UI.msg=`🎃 Acheté : ${it[1]}`;Act.done()},
  ui(){const e=$('#hwb');if(!e)return;e.innerHTML=this.on()?`<span class="hwb" onclick="UI.qt='e';UI.go('quest')">🎃 Événement Halloween · mutation ×${MUT[5][3]} · ${this.left()} · 🎃 ${this.st().pk}</span>`:''}};
-
