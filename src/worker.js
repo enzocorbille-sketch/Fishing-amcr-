@@ -60,9 +60,10 @@ function validSaveShape(data) {
     if (!validNumberMap(data[key])) return false;
   }
   if (!validInventory(data.inv) || !validFishArray(data.fav)) return false;
-  for (const key of ['ach', 'quests', 'mu', 'hw', 'op']) {
+  for (const key of ['ach', 'quests', 'mu', 'hw']) {
     if (data[key] != null && !isObject(data[key])) return false;
   }
+  if (data.op != null && !validNumber(data.op)) return false;
   if (data.ao != null && (!isObject(data.ao) || Object.keys(data.ao).length > 200 ||
       !Object.entries(data.ao).every(([key, value]) => /^\d+$/.test(key) && value === 1))) return false;
   return true;
