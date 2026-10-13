@@ -1,6 +1,6 @@
 // Boutique : affichage et navigation des produits.
 // Le module reste un script classique pour conserver les sauvegardes et les API globales existantes.
-const Shop={render(){
+var Shop={render(){
   if(this.shop==='hwrods'&&!HW.on())this.shop='rods';
   const SB=[['rods','🎣','Cannes','Choisissez la canne qui correspond à votre style de pêche.'],['baits','🪱','Appâts','Plus de chance et plus de valeur à chaque lancer.'],['zones','🗺️','Zones','Chaque zone a ses propres poissons.']];
   if(HW.on())SB.push(['hwrods','🎃','Cannes Halloween','Édition limitée · prix en citrouilles.']);
