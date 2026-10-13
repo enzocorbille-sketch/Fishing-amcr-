@@ -5,8 +5,9 @@ Le jeu fonctionne avec des scripts classiques chargés dans cet ordre par
 
 1. `data/game-data.js` : raretés, poissons, cannes, appâts, zones, coffres,
    météo, artefacts et données Halloween.
-2. `core/game.js` : état de la partie, pêche, inventaire, quêtes, prestige,
-   interface, synchronisation et administration.
+2. `systems/shop.js` : affichage et navigation de la boutique.
+3. `core/game.js` : état de la partie, pêche, achats, inventaire, quêtes,
+   prestige, interface, synchronisation et administration.
 
 Les variables restent globales volontairement pour préserver le comportement
 actuel et les anciennes sauvegardes.
@@ -31,6 +32,13 @@ Les données Halloween sont actuellement dans `data/game-data.js` et la logique
 de l'événement est dans `core/game.js`, dans la section `ÉVÉNEMENT HALLOWEEN`.
 Pour ajouter un événement futur, crée d'abord ses données dans un fichier
 `data/events/<nom>.js`, puis charge-le avant `core/game.js` dans `index.html`.
+
+## Modifier la boutique
+
+La présentation de la boutique se trouve dans `systems/shop.js`. Les achats
+restent dans `core/game.js`, dans `Act.buyRod`, `Act.buyBait`, `Act.buyZone`
+et `Act.buyEventRod`, afin de conserver un seul chemin de modification de la
+sauvegarde.
 
 ## Modifier la pêche
 
