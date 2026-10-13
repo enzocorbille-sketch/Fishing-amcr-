@@ -13,7 +13,7 @@ var BAITS=[
  ['Calamar spectral',2500,1.85,'👻',1.25,'deep',4],
  ['Perle enchantée',3500,1.08,'🔮',1,'chest',0],
  ['Appât prédateur',5000,1.35,'🦷',1,'predator',0],
- ['Nectar astral',12000,3.1,'🌌',3.4,'astral',5]
- ['Mathieu',1000000000,1000,'🪰',1000,'balanced',0]
+ ['Nectar astral',12000,3.1,'🌌',3.4,'astral',5],
+ ['Mathieu',1000000000,1000,'🪰',1000,'balanced',0],
 ];
 var BAIT_ORDER=BAITS.map((b,i)=>i).sort((a,b)=>BAITS[a][1]-BAITS[b][1]);
