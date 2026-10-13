@@ -36,6 +36,11 @@ Task...`. Enregistre tes fichiers, vérifie tes changements, puis tape `GOOD`
 dans le terminal de la tâche et appuie sur Entrée. Les changements sont alors
 commités puis poussés vers GitHub.
 
+Dans le même terminal, tape `IMAGE` pour ouvrir l'aperçu local du jeu sur
+`http://127.0.0.1:8766/index.html`. L'aperçu recharge automatiquement la page
+quand un fichier du dossier `public` est enregistré. Cette commande ne fait
+aucun commit et ne publie rien.
+
 Git doit déjà être connecté à GitHub sur cet ordinateur. Aucun token n'est
 enregistré dans le projet. Arrête la tâche avec `Ctrl+C`. La tâche ne démarre
 plus automatiquement à l'ouverture du dossier.

@@ -3,12 +3,23 @@ $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
 Write-Host "Publication manuelle active dans $root"
+Write-Host "Tape IMAGE pour ouvrir l'aperçu local avec rechargement automatique."
 Write-Host "Enregistre tes fichiers, puis tape GOOD et appuie sur Entree pour publier."
 Write-Host "Arret : Ctrl+C"
 
 while ($true) {
   $command = Read-Host 'Commande'
-  if ($command.Trim().ToUpperInvariant() -ne 'GOOD') {
+  $command = $command.Trim().ToUpperInvariant()
+  if ($command -eq 'IMAGE') {
+    $preview = Join-Path $PSScriptRoot 'preview.ps1'
+    Start-Process powershell.exe -ArgumentList @(
+      '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $preview
+    )
+    Start-Process 'http://127.0.0.1:8766/index.html'
+    Write-Host 'Aperçu local ouvert sur http://127.0.0.1:8766/index.html'
+    continue
+  }
+  if ($command -ne 'GOOD') {
     Write-Host "Aucune publication. Tape GOOD pour confirmer."
     continue
   }
