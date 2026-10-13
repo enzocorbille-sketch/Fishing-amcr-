@@ -13,6 +13,9 @@
         "${workspaceFolder}\\tools\\auto-commit-push.ps1"
       ],
       "isBackground": true,
+      "runOptions": {
+        "runOn": "folderOpen"
+      },
       "problemMatcher": []
     }
   ]
