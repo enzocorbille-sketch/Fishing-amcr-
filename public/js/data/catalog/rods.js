@@ -8,7 +8,7 @@ var RODS=[
  ['Dragon des mers',281000000,6.9,2.9,2700,'#fde047'], ['Cosmique',501000000,8.5,3.3,2900,'#fbcfe8'],
  ['Éclipse',2770000000,10.5,3.8,3100,'#a5b4fc'], ['Nébuleuse',4900000000,13,4.3,3300,'#f0abfc'],
  ['Aurore',8590000000,16,4.9,3500,'#5eead4'], ['Trident du Léviathan',15000000000,20,5.6,3800,'#fde68a'],
- ['Divine du Chat',86400000000,26,6.5,4200,'#f0abfc'], ['Primordiale',141000000000,50,7.5,'#fff']
+ ['Divine du Chat',86400000000,26,6.5,4200,'#f0abfc'], ['Primordiale',141000000000,50,7.5, 4200,'#fde68b']
 ];
 var BASE_RODS=RODS.length;
 // Nom, niveau requis, prix en citrouilles, bonus, multiplicateur du bonus, couleur, icône
