@@ -50,7 +50,7 @@ var fx=()=>{const f={L:1,S:1,W:1,V:1,C:1,Q:1,B:0,D:0,K:0,R:0,H:0,A:0,P:0,X:0};ro
 var luck=(b=activeBait())=>{
  const a=baitEffect(b);
  const raw=fx().L*RODS[S.rod][2]*ZONES[S.zone][2]*(a?a.chance:1)*(1+.015*(level()-1));
- return 1+100*(Math.max(1,raw)-1)/(100+Math.max(1,raw)-1);
+ return 1+1000*(Math.max(1,raw)-1)/(1000+Math.max(1,raw)-1);
 };
 var dk=(h,f=.55)=>'#'+[1,3,5].map(i=>Math.round(parseInt(h.slice(i,i+2),16)*f).toString(16).padStart(2,'0')).join('');
 // Dessin SVG d'un poisson (a/b = couleurs, sp = corps rond, g = halo pour les raretés hautes)
