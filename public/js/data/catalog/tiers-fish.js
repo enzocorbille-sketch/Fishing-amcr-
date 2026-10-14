@@ -1,6 +1,7 @@
 /* ============ 1. DONNÉES ============ */
 // Raretés : nom, couleur, poids de base, XP gagnée
-var TIERS=[['Commun','#94a3b8',70,4],['Rare','#3b82f6',22,10],['Épique','#a855f7',6,30],['Mythique','#ef4444',1.5,90],['Secret','#22e39a',0.25,250],['Astral','#67e8f9',0,700],['Ultra','#f0abfc',0.01,1800],['Légendaire','#fbbf24',0.000002,4500],['Primordial','#fb7185',0.00000002,10000],['Transcendant','#f97316',0.000000001,25000],['Infini','#f43f5e',0.00000000003,65000],['Omniversal','#c084fc',0.0000000000008,180000],['Créateur','#fef08a',3,500000],['Singularité','#67e8f9',0.000000000000000002,1500000],['Au-delà','#ffffff',0.0000000000000000001,5000000]];
+// Les poids décroissent à chaque rareté (plus la rareté est haute, plus elle est rare)
+var TIERS=[['Commun','#94a3b8',70,4],['Rare','#3b82f6',22,10],['Épique','#a855f7',6,30],['Mythique','#ef4444',1.5,90],['Secret','#22e39a',0.25,250],['Astral','#67e8f9',0.015,700],['Ultra','#f0abfc',0.01,1800],['Légendaire','#fbbf24',0.000002,4500],['Primordial','#fb7185',0.00000002,10000],['Transcendant','#f97316',0.000000001,25000],['Infini','#f43f5e',0.00000000003,65000],['Omniversal','#c084fc',0.0000000000008,180000],['Créateur','#fef08a',0.000000000000015,500000],['Singularité','#67e8f9',0.000000000000000002,1500000],['Au-delà','#ffffff',0.0000000000000000001,5000000]];
 var RARE_SHOWCASE_COLORS=['#22d3ee','#ec4899','#facc15','#ef4444','#f97316','#dc2626','#a855f7','#fde047','#14b8a6','#f8fafc'];
 var rareShowcaseColor=t=>t>=5?RARE_SHOWCASE_COLORS[Math.min(t-5,RARE_SHOWCASE_COLORS.length-1)]:TIERS[t][1];
 // Poissons par rareté : nom, (libre), valeur min, valeur max, zone exclusive ou null, couleur haut, couleur bas, corps rond (1/0)
