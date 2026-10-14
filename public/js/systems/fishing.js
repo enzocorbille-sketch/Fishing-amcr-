@@ -1,3 +1,12 @@
+/* ============ CORRECTIF NaN kg ============ */
+// Poids de base (kg) par rareté : index 0 = Commun … index 14 = Au-delà
+// ⚠️ Supprime l'ancienne ligne "var WKG=..." ailleurs dans ton projet, sinon elle peut écraser celle-ci.
+var WKG=[0.4, 1.5, 6, 20, 70, 200, 600, 2000, 7000, 25000, 90000, 300000, 1000000, 4000000, 15000000];
+// Si tu ajoutes une rareté plus tard, le tableau se complète tout seul
+while(WKG.length<TIERS.length) WKG.push(WKG[WKG.length-1]*4);
+// Renvoie toujours un nombre valide, même si le tier n'a pas de poids défini
+function wkgOf(t){return WKG[t]||WKG[WKG.length-1]}
+
 var Fight={
  R:Math.random,s:null,in:{reel:false,steer:0},
  behOf(t,j){const h=t+j;
@@ -5,7 +14,7 @@ var Fight={
  // fiche du poisson : poids, puissance, vitesse, agressivité, endurance, comportement
  traits(c){const t=c.t,s=c.size,b=this.behOf(t,c.j),B=BEH[b];
   const P=(14+8.5*t+6*s)*B.pm,ag=clampN((.2+.08*t)*B.am*1.4,.1,.95),sp=clampN((.8+.18*t)*B.rm,.5,2.6),E=1+.25*t+.4*s;
-  return{beh:b,kg:+(WKG[t]*(.5+s)).toFixed(WKG[t]<5?2:1),P,ag,sp,E,run:4*sp,d0:22+6.5*t+8*s,
+  return{beh:b,kg:+(wkgOf(t)*(.5+s)).toFixed(wkgOf(t)<5?2:1),P,ag,sp,E,run:4*sp,d0:22+6.5*t+8*s,
    risk:clampN((P-26)/55,0,1)}},
  start(c){const tr=this.traits(c),R=this.R;
   this.s={c,tr,d:tr.d0,dmax:tr.d0+35,ten:16,sta:1,dir:R()<.5?-1:1,nd:null,surge:false,sT:0,sDur:0,cd:.6+R()*.7,faked:false,flipT:0,breakT:0,slackT:0,t:0,danger:0,safe:0,res:null};
@@ -95,7 +104,7 @@ var Engine={
   const mi=Mut.roll();if(mi>=0)m*=MUT[mi][3];
   const val=Math.round((f[2]+(f[3]-f[2])*size)*m);
   const weightFactor=bs&&bs.kind==='weight'?1.15:1;
-  return{t,j,f,val,tags,mut:mi,size,kg:+(WKG[t]*(.5+size)*weightFactor).toFixed(WKG[t]<5?2:1),cm:Math.round(f[2]/2+size*60)};
+  return{t,j,f,val,tags,mut:mi,size,kg:+(wkgOf(t)*(.5+size)*weightFactor).toFixed(wkgOf(t)<5?2:1),cm:Math.round(f[2]/2+size*60)};
  },
  reel(){
   if(this.boss)return this.bossHit();
@@ -124,4 +133,3 @@ var Engine={
   if(Math.random()<PDROP){S.pt=(S.pt|0)+1;c.ptok=1}
   this.last=c;save();if(c.t>=7)playRareCatchSound(c.t);UI.caught(c);UI.head();
  }};
-
