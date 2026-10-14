@@ -17,5 +17,5 @@ var Ev={mult:2,dur:8*60000,
 var PDROP=1/8000;
 var Pr={vb(){return .10},lb(){return .10},
  can(){return (S.pt|0)>0},
- gain(){return Math.max(1,Math.floor(Math.sqrt((S.fv||0)/1e9)))}};
-
+ // Corrigé : 1 étoile par prestige, quelle que soit la valeur pêchée (évite les centaines de millions d'étoiles)
+ gain(){return 1}};
