@@ -13,8 +13,10 @@ var Fight={
   const L=t===0?['steady','darter']:t<=2?['steady','darter','diver','runner']:['steady','darter','diver','runner','trick'];return L[h%L.length]},
  // fiche du poisson : poids, puissance, vitesse, agressivité, endurance, comportement
  traits(c){const t=c.t,s=c.size,b=this.behOf(t,c.j),B=BEH[b];
-  const P=(14+8.5*t+6*s)*B.pm,ag=clampN((.2+.08*t)*B.am*1.4,.1,.95),sp=clampN((.8+.18*t)*B.rm,.5,2.6),E=1+.25*t+.4*s;
-  return{beh:b,kg:+(wkgOf(t)*(.5+s)).toFixed(wkgOf(t)<5?2:1),P,ag,sp,E,run:4*sp,d0:22+6.5*t+8*s,
+  // tier "de combat" : au-delà du tier 4, la difficulté monte beaucoup plus lentement
+  const te=Math.min(t,4)+Math.max(0,t-4)*.1;
+  const P=(14+8.5*te+6*s)*B.pm,ag=clampN((.2+.08*te)*B.am*1.4,.1,.95),sp=clampN((.8+.18*te)*B.rm,.5,2.6),E=1+.25*te+.4*s;
+  return{beh:b,kg:+(wkgOf(t)*(.5+s)).toFixed(wkgOf(t)<5?2:1),P,ag,sp,E,run:4*sp,d0:22+6.5*te+8*s,
    risk:clampN((P-26)/55,0,1)}},
  start(c){const tr=this.traits(c),R=this.R;
   this.s={c,tr,d:tr.d0,dmax:tr.d0+35,ten:16,sta:1,dir:R()<.5?-1:1,nd:null,surge:false,sT:0,sDur:0,cd:.6+R()*.7,faked:false,flipT:0,breakT:0,slackT:0,t:0,danger:0,safe:0,res:null};
